@@ -14,13 +14,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             List(socketManager.messages, id: \.self) { message in
-                if message.hasPrefix("Client") {
-                    Spacer()
-                }
                 Text(message)
-                if message.hasPrefix("Server") {
-                    Spacer()
-                }
             }
             TextField("Enter message", text: $text)
                 .onSubmit {
@@ -32,11 +26,7 @@ struct ContentView: View {
         }
         .padding()
         .task {
-            do {
-                try await socketManager.connect()
-            } catch {
-                print("Some connecting error: \(error)")
-            }
+            socketManager.connect()
         }
     }
 }
@@ -47,32 +37,46 @@ final class WebSocketManager {
     var messages: [String] = []
     private var webSocketTask: URLSessionWebSocketTask?
     
-    func connect() async throws {
+    func connect() {
         webSocketTask = URLSession.shared.webSocketTask(with: EndPoints.socketBaseUrl)
         webSocketTask?.resume()
         
-        try await receiveMessage()
+        Task {
+            await receiveMessages()
+        }
     }
     
-    func receiveMessage() async throws {
-        let result = try await webSocketTask?.receive()
-        switch result {
-        case let .string(string):
-            messages.append("Сервер \(string)")
-        case let .some(.data(data)):
-            messages.append("\(data)")
-        case .none:
-            break
-        @unknown default:
-            break
+    private func receiveMessages() async {
+        while webSocketTask?.state == .running {
+            do {
+                let result = try await webSocketTask?.receive()
+                switch result {
+                case let .string(string):
+                    await MainActor.run {
+                        messages.append("Server: \(string)")
+                    }
+                case let .data(data):
+                    await MainActor.run {
+                        messages.append("Data: \(data)")
+                    }
+                case .none:
+                    break
+                @unknown default:
+                    break
+                }
+            } catch {
+                print("Receive error: \(error)")
+                break
+            }
         }
-        try await self.receiveMessage()
     }
     
     func sendMessage(_ message: String) async throws {
         let message = URLSessionWebSocketTask.Message.string(message)
         try await webSocketTask?.send(message)
-        messages.append("Client: \(message)")
+        await MainActor.run {
+            messages.append("Client: \(message)")
+        }
     }
     
     func disconnect() {
