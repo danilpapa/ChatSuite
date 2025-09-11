@@ -12,21 +12,30 @@ struct ContentView: View {
     @State private var text: String = ""
     
     var body: some View {
-        VStack {
-            List(socketManager.messages, id: \.self) { message in
-                Text(message)
-            }
-            TextField("Enter message", text: $text)
-                .onSubmit {
-                    Task {
-                        try? await socketManager.sendMessage(text)
-                        text = ""
+        NavigationStack {
+            NavigationLink("Chat") {
+                VStack {
+                    List(socketManager.messages, id: \.self) { message in
+                        Text(message)
                     }
+                    TextField("Enter message", text: $text)
+                        .disabled(socketManager.connectedCount != 2)
+                        .onSubmit {
+                            Task {
+                                try? await socketManager.sendMessage(text)
+                                text = ""
+                            }
+                        }
                 }
-        }
-        .padding()
-        .task {
-            socketManager.connect()
+                .task {
+                    socketManager.connect()
+                    print("Connected")
+                }
+                .onDisappear {
+                    socketManager.disconnect()
+                }
+                .navigationTitle(socketManager.connectedCount.description)
+            }
         }
     }
 }
@@ -35,6 +44,7 @@ struct ContentView: View {
 final class WebSocketManager {
     
     var messages: [String] = []
+    var connectedCount: Int = 0
     private var webSocketTask: URLSessionWebSocketTask?
     
     func connect() {
@@ -52,16 +62,21 @@ final class WebSocketManager {
                 let result = try await webSocketTask?.receive()
                 switch result {
                 case let .string(string):
-                    await MainActor.run {
-                        messages.append("Server: \(string)")
+                    if let data = string.data(using: .utf8),
+                       let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    {
+                        print(json)
+                        if let message = json["message"] as? String {
+                            await MainActor.run {
+                                messages.append(message)
+                            }
+                        } else if let connectedCount = json["count"] as? Int {
+                            await MainActor.run {
+                                self.connectedCount = connectedCount
+                            }
+                        }
                     }
-                case let .data(data):
-                    await MainActor.run {
-                        messages.append("Data: \(data)")
-                    }
-                case .none:
-                    break
-                @unknown default:
+                default:
                     break
                 }
             } catch {
@@ -72,8 +87,14 @@ final class WebSocketManager {
     }
     
     func sendMessage(_ message: String) async throws {
-        let message = URLSessionWebSocketTask.Message.string(message)
-        try await webSocketTask?.send(message)
+        let message = """
+        {
+            "type": "text_message",
+            "message": \(message)
+        }
+        """
+        let taskMessage = URLSessionWebSocketTask.Message.string(message)
+        try await webSocketTask?.send(taskMessage)
         await MainActor.run {
             messages.append("Client: \(message)")
         }
