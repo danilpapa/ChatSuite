@@ -8,7 +8,7 @@
 import Vapor
 
 struct ChatController: RouteCollection {
-    nonisolated(unsafe) static var activeConnections: [UUID: WebSocket] = [:]
+    nonisolated(unsafe) static var activeConnections: [WebSocket] = []
     
     func boot(routes: any Vapor.RoutesBuilder) throws {
         
@@ -18,22 +18,27 @@ struct ChatController: RouteCollection {
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {
-        let connectionID: UUID = .init()
-        ChatController.activeConnections[connectionID] = ws
+        if !ChatController.activeConnections.contains(where: { connectedWs in
+            connectedWs === ws
+        }) {
+            ChatController.activeConnections.append(ws)
+        }
         
         broadcastConnectionCount(ChatController.activeConnections.count)
         
         ws.onText { ws, text in
-            handleIncommingMessage(text, from: connectionID)
+            handleIncommingMessage(text)
         }
         
-        ws.onClose.whenComplete { _ in 
-            ChatController.activeConnections.removeValue(forKey: connectionID)
+        ws.onClose.whenComplete { _ in
+            ChatController.activeConnections.removeAll { connectedWs in
+                connectedWs === ws
+            }
             broadcastConnectionCount(ChatController.activeConnections.count)
         }
     }
     
-    private func handleIncommingMessage(_ text: String, from connectionId: UUID) {
+    private func handleIncommingMessage(_ text: String) {
         if let data = text.data(using: .utf8),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let type = json["type"] as? String
@@ -52,7 +57,7 @@ struct ChatController: RouteCollection {
     }
     
     private func broadcastChatMessage(_ message: String) {
-        ChatController.activeConnections.forEach { (_, ws) in
+        ChatController.activeConnections.forEach { ws in
             ws.send(message)
         }
     }
@@ -65,7 +70,7 @@ struct ChatController: RouteCollection {
         }
         """
         
-        ChatController.activeConnections.forEach { _, ws in
+        ChatController.activeConnections.forEach { ws in
             ws.send(message)
         }
     }

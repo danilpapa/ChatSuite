@@ -62,11 +62,11 @@ final class WebSocketManager {
                 let result = try await webSocketTask?.receive()
                 switch result {
                 case let .string(string):
+                    print(string)
                     if let data = string.data(using: .utf8),
                        let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                     {
-                        print(json)
-                        if let message = json["message"] as? String {
+                        if let message = json["text_message"] as? String {
                             await MainActor.run {
                                 messages.append(message)
                             }
