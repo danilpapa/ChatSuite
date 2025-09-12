@@ -8,7 +8,8 @@
 import Vapor
 
 struct ChatController: RouteCollection {
-    nonisolated(unsafe) static var activeConnections: [WebSocket] = []
+    // TODO: Connection manager with lock
+    nonisolated(unsafe) static var activeConnections: [UUID: WebSocket] = [:]
     
     func boot(routes: any Vapor.RoutesBuilder) throws {
         
@@ -18,65 +19,49 @@ struct ChatController: RouteCollection {
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {
-        if !ChatController.activeConnections.contains(where: { connectedWs in
-            connectedWs === ws
-        }) {
-            ChatController.activeConnections.append(ws)
-        }
         
-        broadcastConnectionCount(ChatController.activeConnections.count)
+        let id: UUID = .init()
+        ChatController.activeConnections[id] = ws
+        
+        broadcastConnectionCount()
         
         ws.onText { ws, text in
-            handleIncommingMessage(text)
+            handleIncommingMessage(text, from: id)
         }
         
         ws.onClose.whenComplete { _ in
-            ChatController.activeConnections.removeAll { connectedWs in
-                connectedWs === ws
-            }
-            broadcastConnectionCount(ChatController.activeConnections.count)
+            ChatController.activeConnections.removeValue(forKey: id)
+            clearChat()
+            broadcastConnectionCount()
         }
     }
     
-    private func handleIncommingMessage(_ text: String) {
-        if let data = text.data(using: .utf8),
-           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let type = json["type"] as? String
-        {
-            switch ServerResponceType(rawValue: type) {
-            case .connectionQuantity:
-                if let quantity = json["count"] as? Int {
-                    broadcastConnectionCount(quantity)
-                }
-            default:
-                break
-            }
-        } else {
-            broadcastChatMessage(text)
+    private func handleIncommingMessage(_ text: String, from connectionID: UUID) {
+        let chatMessage = ChatMessage(text: text, timeStamp: .now, sender: "\(connectionID)")
+        sendToAllConnections(message: chatMessage)
+    }
+    
+    private func broadcastConnectionCount() {
+        let message = ConnectionMessage(count: ChatController.activeConnections.count)
+        sendToAllConnections(message: message)
+    }
+    
+    private func sendToAllConnections<T: Encodable>(message: T) {
+        ChatController.activeConnections.values.forEach { ws in
+            sendMessage(message, to: ws)
         }
     }
     
-    private func broadcastChatMessage(_ message: String) {
-        ChatController.activeConnections.forEach { ws in
-            ws.send(message)
-        }
+    private func clearChat() {
+        sendToAllConnections(message: ClearChat())
     }
     
-    private func broadcastConnectionCount(_ quantity: Int) {
-        let message = """
-        {
-            "type": "connection_count",
-            "count": \(quantity)
-        }
-        """
-        
-        ChatController.activeConnections.forEach { ws in
-            ws.send(message)
+    private func sendMessage<T: Encodable>(_ message: T, to ws: WebSocket) {
+        do {
+            let data = try JSONEncoder().encode(message)
+            ws.send(data)
+        } catch {
+            // handle
         }
     }
-}
-
-fileprivate enum ServerResponceType: String {
-
-    case connectionQuantity = "connection_count"
 }

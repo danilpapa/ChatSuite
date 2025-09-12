@@ -61,21 +61,31 @@ final class WebSocketManager {
             do {
                 let result = try await webSocketTask?.receive()
                 switch result {
-                case let .string(string):
-                    print(string)
-                    if let data = string.data(using: .utf8),
-                       let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                    {
-                        if let message = json["text_message"] as? String {
-                            await MainActor.run {
-                                messages.append(message)
-                            }
-                        } else if let connectedCount = json["count"] as? Int {
-                            await MainActor.run {
-                                self.connectedCount = connectedCount
-                            }
+                case let .data(data):
+                    let decoder = JSONDecoder()
+                    do {
+                        let messageType = try decoder.decode(ServerMessagesType.self, from: data)
+                        print(String(data: data, encoding: .utf8))
+                        switch MessageType(rawValue: messageType.type) {
+                        case .chatMessage:
+                            let chatMessage = try decoder.decode(ChatMessage.self, from: data)
+                            self.messages.append(chatMessage.text)
+                            break
+                        case .connectedQuantity:
+                            let quantity = try decoder.decode(ConnectionMessage.self, from: data)
+                            self.connectedCount = quantity.count
+                        case .clearChat:
+                            self.messages.removeAll()
+                        default:
+                            break
                         }
+                    } catch {
+                        // handle
                     }
+                case .string(_):
+                    // Handle string
+                    print()
+                    break
                 default:
                     break
                 }
@@ -95,17 +105,47 @@ final class WebSocketManager {
         """
         let taskMessage = URLSessionWebSocketTask.Message.string(message)
         try await webSocketTask?.send(taskMessage)
-        await MainActor.run {
-            messages.append("Client: \(message)")
-        }
     }
     
     func disconnect() {
         webSocketTask?.cancel(with: .goingAway, reason: "Some reason".data(using: .utf8))
+        DispatchQueue.main.async {
+            self.messages.removeAll()
+        }
     }
 }
 
 fileprivate enum EndPoints {
     
     static let socketBaseUrl: URL = .init(string: "ws://localhost:8080/chat")!
+}
+
+private enum MessageType: String {
+    
+    case connectedQuantity = "connection_message"
+    case chatMessage = "chat_message"
+    case clearChat = "clear_chat"
+}
+
+struct ConnectionMessage: Decodable {
+    
+    let count: Int
+}
+
+struct ChatMessage: Decodable {
+    
+    let text: String
+}
+
+struct ClearChat: Decodable { }
+
+struct ServerMessagesType: Decodable {
+    let type: String
+}
+
+public extension String {
+    
+    static let chatMessage: Self = "chat_message"
+    static let connectedQuantity: Self = "connection_message"
+    static let clearChat: Self = "clear_chat"
 }
