@@ -41,14 +41,19 @@ struct ContentView: View {
 }
 
 @Observable
-final class WebSocketManager {
+final class WebSocketManager: NSObject {
     
     var messages: [String] = []
     var connectedCount: Int = 0
     private var webSocketTask: URLSessionWebSocketTask?
     
     func connect() {
-        webSocketTask = URLSession.shared.webSocketTask(with: EndPoints.socketBaseUrl)
+        let session = URLSession(
+            configuration: .default,
+            delegate: self,
+            delegateQueue: .main
+        )
+        webSocketTask = session.webSocketTask(with: EndPoints.socketBaseUrl)
         webSocketTask?.resume()
         
         Task {
@@ -114,9 +119,21 @@ final class WebSocketManager {
     }
 }
 
+extension WebSocketManager: URLSessionDelegate {
+    
+    /// Only in DEBUG!
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+}
+
 fileprivate enum EndPoints {
     
-    static let socketBaseUrl: URL = .init(string: "ws://localhost:8080/chat")!
+    static let socketBaseUrl: URL = .init(string: "wss://localhost:8443/chat")!
 }
 
 private enum MessageType: String {
