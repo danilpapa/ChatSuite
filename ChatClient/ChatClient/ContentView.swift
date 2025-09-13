@@ -65,7 +65,6 @@ final class WebSocketManager {
                     let decoder = JSONDecoder()
                     do {
                         let messageType = try decoder.decode(ServerMessagesType.self, from: data)
-                        print(String(data: data, encoding: .utf8))
                         switch MessageType(rawValue: messageType.type) {
                         case .chatMessage:
                             let chatMessage = try decoder.decode(ChatMessage.self, from: data)

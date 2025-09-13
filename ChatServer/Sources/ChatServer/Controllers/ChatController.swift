@@ -7,9 +7,12 @@
 
 import Vapor
 
-struct ChatController: RouteCollection {
-    // TODO: Connection manager with lock
-    nonisolated(unsafe) static var activeConnections: [UUID: WebSocket] = [:]
+struct ChatController: RouteCollection, Sendable {
+    private nonisolated(unsafe) let connectionManager: any IConnectionManager
+    
+    public init(connectionManager: any IConnectionManager) {
+        self.connectionManager = connectionManager
+    }
     
     func boot(routes: any Vapor.RoutesBuilder) throws {
         
@@ -21,18 +24,27 @@ struct ChatController: RouteCollection {
     private func handleWebSocket(req: Request, ws: WebSocket) {
         
         let id: UUID = .init()
-        ChatController.activeConnections[id] = ws
-        
-        broadcastConnectionCount()
+        switch connectionManager.newConnection(with: id, ws) {
+        case .success(_):
+            broadcastConnectionCount()
+        case let .failure(error):
+            // handle error
+            print(error)
+        }
         
         ws.onText { ws, text in
             handleIncommingMessage(text, from: id)
         }
         
         ws.onClose.whenComplete { _ in
-            ChatController.activeConnections.removeValue(forKey: id)
-            clearChat()
-            broadcastConnectionCount()
+            switch connectionManager.removeConnection(with: id) {
+            case .success(_):
+                clearChat()
+                broadcastConnectionCount()
+            case let .failure(error):
+                // handle error
+                print(error)
+            }
         }
     }
     
@@ -42,18 +54,18 @@ struct ChatController: RouteCollection {
     }
     
     private func broadcastConnectionCount() {
-        let message = ConnectionMessage(count: ChatController.activeConnections.count)
+        let message = ConnectionMessage(count: connectionManager.totalConnectionCount())
         sendToAllConnections(message: message)
-    }
-    
-    private func sendToAllConnections<T: Encodable>(message: T) {
-        ChatController.activeConnections.values.forEach { ws in
-            sendMessage(message, to: ws)
-        }
     }
     
     private func clearChat() {
         sendToAllConnections(message: ClearChat())
+    }
+    
+    private func sendToAllConnections<T: Encodable>(message: T) {
+        connectionManager.toAllConnections { _, ws in
+            sendMessage(message, to: ws)
+        }
     }
     
     private func sendMessage<T: Encodable>(_ message: T, to ws: WebSocket) {

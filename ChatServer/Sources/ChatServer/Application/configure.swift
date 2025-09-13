@@ -17,5 +17,6 @@ public func configure(_ app: Application) async throws {
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql)
     
-    try app.register(collection: ChatController())
+    let connectionManager = ConnectionManager()
+    try app.register(collection: ChatController(connectionManager: connectionManager))
 }
