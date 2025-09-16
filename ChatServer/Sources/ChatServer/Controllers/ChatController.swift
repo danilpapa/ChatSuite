@@ -19,6 +19,13 @@ struct ChatController: RouteCollection, Sendable {
         routes.webSocket("chat") { req, ws in
             handleWebSocket(req: req, ws: ws)
         }
+        
+//        let publicKeyReq = routes.grouped("publicKey")
+//        publicKeyReq.post(use: handleCryptoPublicKey)
+    }
+    
+    private func handleCryptoPublicKey(req: Request) -> String {
+        return "ok"
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {

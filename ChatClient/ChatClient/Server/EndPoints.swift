@@ -9,5 +9,15 @@ import Foundation
 
 enum EndPoints {
     
-    static let socketBaseUrl: URL = .init(string: "wss://localhost:8443/chat")!
+    case chatUrl
+    //case publicKey
+    
+    var url: URL {
+        switch self {
+        case .chatUrl:
+            return .init(string: "wss://localhost:8443/chat")!
+//        case .publicKey:
+//            return .init(string: "https://localhost:8443/publicKey")!
+        }
+    }
 }
