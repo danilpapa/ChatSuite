@@ -11,28 +11,26 @@ import Alamofire
 final class NetworkManager {
     
     static let shared: NetworkManager = .init()
+    private var session: Session
     
-    private init() { }
+    private init() {
+        let manager = ServerTrustManager(evaluators: [
+            "localhost": DisabledTrustEvaluator()
+        ])
+        session = Session(serverTrustManager: manager)
+    }
     
-    func sendPublicKey(key: Data) -> Result<Void, ServerEndpointsError> {
-//        let params: Parameters = [
-//            "public_key": key
-//        ]
-//        AF.request(
-//            EndPoints.publicKey.url,
-//            method: .post,
-//            parameters: params,
-//            headers: nil
-//        )
-//        .validate(statusCode: 200 ..< 299).response { responce in
-//            print(responce.result)
-//            switch responce.result {
-//            case let .success(data):
-//                print(data)
-//            case let .failure(error):
-//                print(error.localizedDescription)
-//            }
-//        }
-        return .success(())
+    func sendPublicKey(key: Data) async {
+        let params: [String: Any] = [
+            "public_key": key.base64EncodedString()
+        ]
+        session.request(
+            EndPoints.publicKey.url,
+            method: .post,
+            parameters: params,
+            encoding: JSONEncoding.default
+        ).response { response in
+            print(response.result)
+        }
     }
 }

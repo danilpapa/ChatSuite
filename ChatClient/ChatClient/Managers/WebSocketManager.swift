@@ -69,16 +69,16 @@ final class WebSocketManager: NSObject {
                         case .connectedQuantity:
                             let quantity = try decoder.decode(ConnectionMessage.self, from: data)
                             self.connectedCount = quantity.count
-//                            if connectedCount == 1 { // TODO: Swap to == 2
-////                               let result = generateCryptoKeys()
-////                                switch result {
-////                                case .success(()):
-////                                    break
-////                                case let .failure(error):
-////                                    // handle error
-////                                    print(error)
-////                                }
-//                            }
+                            if connectedCount == 1 { // TODO: Swap to == 2
+                               let result = generateCryptoKeys()
+                                switch result {
+                                case .success(()):
+                                    break
+                                case let .failure(error):
+                                    // handle error
+                                    print(error)
+                                }
+                            }
                         case .clearChat:
                             self.messages.removeAll()
                         default:
@@ -124,7 +124,9 @@ final class WebSocketManager: NSObject {
         guard let publicData = Data(base64Encoded: keys.publicKey.rawRepresentation.base64EncodedString()) else {
             return .failure(.encodePublicKey)
         }
-        NetworkManager.shared.sendPublicKey(key: publicData)
+        Task {
+            await NetworkManager.shared.sendPublicKey(key: publicData)
+        }
         return .success(())
     }
 }

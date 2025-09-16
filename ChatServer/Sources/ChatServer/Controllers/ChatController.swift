@@ -9,22 +9,25 @@ import Vapor
 
 struct ChatController: RouteCollection, Sendable {
     private nonisolated(unsafe) let connectionManager: any IConnectionManager
+    private let logger = Logger(label: "cryptoKeysLogger")
     
     public init(connectionManager: any IConnectionManager) {
         self.connectionManager = connectionManager
     }
     
     func boot(routes: any Vapor.RoutesBuilder) throws {
+        let cryptoKeyRequest = routes.grouped("publicKey")
         
         routes.webSocket("chat") { req, ws in
             handleWebSocket(req: req, ws: ws)
         }
         
-//        let publicKeyReq = routes.grouped("publicKey")
-//        publicKeyReq.post(use: handleCryptoPublicKey)
+        cryptoKeyRequest.post(use: handleCryptoKey)
     }
     
-    private func handleCryptoPublicKey(req: Request) -> String {
+    private func handleCryptoKey(req: Request) -> String {
+        let debugParams = req.parameters.get("public_key")
+        logger.log(level: .debug, .init(stringLiteral: debugParams ?? ""))
         return "ok"
     }
     
