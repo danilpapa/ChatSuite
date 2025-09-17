@@ -95,7 +95,7 @@ struct ChatController: RouteCollection, Sendable {
     }
     
     private func handleIncommingMessage(_ text: String, from connectionID: UUID) {
-        let chatMessage = ChatMessage(text: text, timeStamp: .now, sender: "\(connectionID)")
+        let chatMessage = ChatMessage(text: text)
         sendToAllConnections(message: chatMessage)
     }
     

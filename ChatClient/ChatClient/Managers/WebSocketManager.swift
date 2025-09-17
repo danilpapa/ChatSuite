@@ -17,7 +17,7 @@ struct CryptoKey {
     private(set) var privateKey: CryptoPrivate?
     private(set) var publicKey: CryptoPublic?
     private var otherClientKey: CryptoPublic?
-    private(set) var sharedKey: SharedSecret?
+    private(set) var sharedSymmetricKey: SymmetricKey!
     
     mutating func updatePrivateKey(_ key: CryptoPrivate) -> (CryptoPrivate, CryptoPublic) {
         privateKey = key
@@ -28,7 +28,29 @@ struct CryptoKey {
     mutating func updateOtherClientKey(_ key: CryptoPublic) throws {
         otherClientKey = key
         guard let privateKey else { return }
-        sharedKey = try privateKey.sharedSecretFromKeyAgreement(with: key)
+        let sharedKey = try privateKey.sharedSecretFromKeyAgreement(with: key)
+        self.sharedSymmetricKey = sharedKey.hkdfDerivedSymmetricKey(
+            using: SHA256.self,
+            salt: Data(),
+            sharedInfo: Data(),
+            outputByteCount: 32
+        )
+    }
+    
+    func decryptMessage(_ message: Data) -> String {
+        do {
+            let sealedBoxToOpen = try AES.GCM.SealedBox(combined: message)
+            do {
+                let decryptedData = try AES.GCM.open(sealedBoxToOpen, using: sharedSymmetricKey)
+                let decryptedMessage = String(data: decryptedData, encoding: .utf8)
+                return decryptedMessage ?? ""
+            } catch {
+                print("Error via decrypted message: \(error)")
+            }
+        } catch {
+            print("Error via creating sealed box to open: \(error)")
+        }
+        return ""
     }
 }
 
@@ -68,8 +90,12 @@ final class WebSocketManager: NSObject {
                         switch MessageType(rawValue: messageType.type) {
                         case .chatMessage:
                             let chatMessage = try decoder.decode(ChatMessage.self, from: data)
-                            self.messages.append(chatMessage.text)
-                            break
+                            let messages = chatMessage.text
+                            guard let encryptedData = Data(base64Encoded: messages) else {
+                                print("Error via decondig base64")
+                                return
+                            }
+                            self.messages.append(cryptoKey.decryptMessage(encryptedData))
                         case .connectedQuantity:
                             let quantity = try decoder.decode(ConnectionMessage.self, from: data)
                             self.connectedCount = quantity.count
@@ -118,13 +144,18 @@ final class WebSocketManager: NSObject {
     }
     
     func sendMessage(_ message: String) async throws {
-        let message = """
-        {
-            "type": "text_message",
-            "message": \(message)
+        guard let messageData = message.data(using: .utf8) else {
+            // handle
+            return
         }
-        """
-        let taskMessage = URLSessionWebSocketTask.Message.string(message)
+        let sealedBox = try! AES.GCM.seal(messageData, using: cryptoKey.sharedSymmetricKey)
+        guard
+            let data = sealedBox.combined
+        else {
+            // handle
+            return
+        }
+        let taskMessage = URLSessionWebSocketTask.Message.string(data.base64EncodedString())
         try await webSocketTask?.send(taskMessage)
     }
     

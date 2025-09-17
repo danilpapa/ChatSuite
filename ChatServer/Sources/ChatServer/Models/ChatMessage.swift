@@ -11,6 +11,4 @@ struct ChatMessage: Content {
     
     let type: String = .chatMessage
     let text: String
-    let timeStamp: Date
-    let sender: String?
 }
