@@ -26,6 +26,8 @@ protocol IConnectionManager {
     func toAllConnections(_ completion: @escaping (UUID, WebSocket) -> Void)
     
     func totalConnectionCount() -> Int
+    
+    func receiverSocket(from id: UUID) throws -> WebSocket
 }
 
 final class ConnectionManager: IConnectionManager {
@@ -67,5 +69,15 @@ final class ConnectionManager: IConnectionManager {
         lock.lock()
         defer { lock.unlock() }
         return activeConnections.count
+    }
+    
+    func receiverSocket(from id: UUID) throws -> WebSocket {
+        guard
+            let receiverID = self.activeConnections.keys.first(where: { $0 != id }),
+            let receiverWS = self.activeConnections[receiverID]
+        else {
+            throw Abort(.badRequest, reason: "Chat should contais more than one user.")
+        }
+        return receiverWS
     }
 }

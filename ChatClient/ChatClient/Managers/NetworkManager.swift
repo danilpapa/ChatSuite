@@ -20,8 +20,9 @@ final class NetworkManager {
         session = Session(serverTrustManager: manager)
     }
     
-    func sendPublicKey(key: Data) async {
+    func sendPublicKey(key: Data, from id: UUID) async {
         let params: [String: Any] = [
+            "user_id": id.uuidString,
             "public_key": key.base64EncodedString()
         ]
         session.request(
@@ -30,7 +31,7 @@ final class NetworkManager {
             parameters: params,
             encoding: JSONEncoding.default
         ).response { response in
-            print(response.result)
+            // print(response.result)
         }
     }
 }

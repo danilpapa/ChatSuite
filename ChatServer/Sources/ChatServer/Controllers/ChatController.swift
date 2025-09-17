@@ -7,9 +7,10 @@
 
 import Vapor
 
+private typealias CryptoPublic = Curve25519.KeyAgreement.PrivateKey.PublicKey
+
 struct ChatController: RouteCollection, Sendable {
     private nonisolated(unsafe) let connectionManager: any IConnectionManager
-    private let logger = Logger(label: "cryptoKeysLogger")
     
     public init(connectionManager: any IConnectionManager) {
         self.connectionManager = connectionManager
@@ -22,18 +23,48 @@ struct ChatController: RouteCollection, Sendable {
             handleWebSocket(req: req, ws: ws)
         }
         
-        cryptoKeyRequest.post(use: handleCryptoKey)
+        cryptoKeyRequest.post { req -> HTTPStatus in
+            do {
+                let keyRequest = try handleCryptoKey(req: req)
+                let data = try idAndKeyFromModel(keyRequest)
+                do {
+                    let receiverWS = try connectionManager.receiverSocket(from: data.id)
+                    let publicKeyMessage = PublicKeyMesage(key: data.key.rawRepresentation)
+                    sendMessage(
+                        publicKeyMessage,
+                        to: receiverWS
+                    )
+                }
+                return .ok
+            } catch {
+                throw Abort(.badRequest)
+            }
+        }
     }
     
-    private func handleCryptoKey(req: Request) -> String {
-        let debugParams = req.parameters.get("public_key")
-        logger.log(level: .debug, .init(stringLiteral: debugParams ?? ""))
-        return "ok"
+    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (id: UUID, key:  CryptoPublic) {
+        do {
+            guard
+                let id = UUID(uuidString: model.user_id),
+                let publicKeyData = Data(base64Encoded: model.public_key)
+            else {
+                throw Abort(.badRequest)
+            }
+            let publicKey = try CryptoPublic(rawRepresentation: publicKeyData)
+            return (id, publicKey)
+        } catch {
+            // handle
+            throw Abort(.badRequest)
+        }
+    }
+    
+    private func handleCryptoKey(req: Request) throws -> PublicKeyRequest {
+        return try req.content.decode(PublicKeyRequest.self)
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {
-        
         let id: UUID = .init()
+        broadcastUserId(with: id, for: ws)
         switch connectionManager.newConnection(with: id, ws) {
         case .success(_):
             broadcastConnectionCount()
@@ -56,6 +87,11 @@ struct ChatController: RouteCollection, Sendable {
                 print(error)
             }
         }
+    }
+    
+    private func broadcastUserId(with id: UUID, for ws: WebSocket) {
+        let message = ConnectionId(id: id)
+        sendMessage(message, to: ws)
     }
     
     private func handleIncommingMessage(_ text: String, from connectionID: UUID) {

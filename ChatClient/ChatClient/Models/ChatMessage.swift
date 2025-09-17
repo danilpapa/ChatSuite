@@ -11,4 +11,3 @@ struct ChatMessage: Decodable {
     
     let text: String
 }
-

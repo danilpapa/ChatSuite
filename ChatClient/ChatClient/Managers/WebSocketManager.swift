@@ -14,9 +14,10 @@ typealias CryptoPublic = Curve25519.KeyAgreement.PrivateKey.PublicKey
 
 struct CryptoKey {
     
-    private var privateKey: CryptoPrivate?
-    private var publicKey: CryptoPublic?
+    private(set) var privateKey: CryptoPrivate?
+    private(set) var publicKey: CryptoPublic?
     private var otherClientKey: CryptoPublic?
+    private(set) var sharedKey: SharedSecret?
     
     mutating func updatePrivateKey(_ key: CryptoPrivate) -> (CryptoPrivate, CryptoPublic) {
         privateKey = key
@@ -24,14 +25,17 @@ struct CryptoKey {
         return (key, key.publicKey)
     }
     
-    mutating func updateOtherClientKey(_ key: CryptoPublic) -> CryptoPublic {
+    mutating func updateOtherClientKey(_ key: CryptoPublic) throws {
         otherClientKey = key
-        return key
+        guard let privateKey else { return }
+        sharedKey = try privateKey.sharedSecretFromKeyAgreement(with: key)
     }
 }
 
 @Observable
 final class WebSocketManager: NSObject {
+    
+    private var connectedUserId: UUID!
     
     var messages: [String] = []
     var connectedCount: Int = 0
@@ -69,7 +73,7 @@ final class WebSocketManager: NSObject {
                         case .connectedQuantity:
                             let quantity = try decoder.decode(ConnectionMessage.self, from: data)
                             self.connectedCount = quantity.count
-                            if connectedCount == 1 { // TODO: Swap to == 2
+                            if connectedCount == 2 {
                                let result = generateCryptoKeys()
                                 switch result {
                                 case .success(()):
@@ -79,13 +83,25 @@ final class WebSocketManager: NSObject {
                                     print(error)
                                 }
                             }
+                        case .connectionId:
+                            let id = try decoder.decode(ConnectionId.self, from: data).id
+                            self.connectedUserId = id
+                        case .publicKeyMessage:
+                            let publicKey = try decoder.decode(PublicKeyMesage.self, from: data)
+                            let sharedPublicKey = try CryptoPublic(rawRepresentation: publicKey.key)
+                            do {
+                                try cryptoKey.updateOtherClientKey(sharedPublicKey)
+                            } catch {
+                                print(error)
+                                // handle
+                            }
                         case .clearChat:
                             self.messages.removeAll()
-                        default:
+                        case .none:
                             break
                         }
                     } catch {
-                        // handle
+                        // handle separate
                     }
                 case .string(_):
                     // Handle string
@@ -125,7 +141,7 @@ final class WebSocketManager: NSObject {
             return .failure(.encodePublicKey)
         }
         Task {
-            await NetworkManager.shared.sendPublicKey(key: publicData)
+            await NetworkManager.shared.sendPublicKey(key: publicData, from: connectedUserId)
         }
         return .success(())
     }
