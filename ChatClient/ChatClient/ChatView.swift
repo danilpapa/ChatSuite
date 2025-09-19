@@ -7,9 +7,13 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @State private var socketManager = WebSocketManager()
+struct ChatView: View {
+    @State private var socketManager: WebSocketManager
     @State private var text: String = ""
+    
+    init(socketManager: WebSocketManager) {
+        self.socketManager = socketManager
+    }
     
     var body: some View {
         NavigationStack {
@@ -19,7 +23,7 @@ struct ContentView: View {
                         Text(message)
                     }
                     TextField("Enter message", text: $text)
-                        .disabled(socketManager.connectedCount != 2)
+                        .disabled(socketManager.connectedUsers != 2)
                         .onSubmit {
                             Task {
                                 try? await socketManager.sendMessage(text)
@@ -34,7 +38,7 @@ struct ContentView: View {
                 .onDisappear {
                     socketManager.disconnect()
                 }
-                .navigationTitle(socketManager.connectedCount.description)
+                .navigationTitle(socketManager.connectedUsers.description)
             }
         }
     }

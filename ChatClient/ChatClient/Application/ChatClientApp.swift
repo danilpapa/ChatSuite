@@ -11,7 +11,7 @@ import SwiftUI
 struct ChatClientApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager()))
         }
     }
 }
