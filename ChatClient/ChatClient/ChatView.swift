@@ -19,8 +19,18 @@ struct ChatView: View {
         NavigationStack {
             NavigationLink("Chat") {
                 VStack {
-                    List(socketManager.messages, id: \.self) { message in
-                        Text(message)
+                    List {
+                        ForEach(socketManager.messages) { message in
+                            HStack {
+                                if message.isYour { Spacer() }
+                                VStack(alignment: .leading) {
+                                    Text(message.text)
+                                    Text(message.sentAt)
+                                        .font(.callout)
+                                }
+                                if !message.isYour { Spacer() }
+                            }
+                        }
                     }
                     TextField("Enter message", text: $text)
                         .disabled(socketManager.connectedUsers != 2)

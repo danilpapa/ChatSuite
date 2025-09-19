@@ -8,15 +8,29 @@
 import Foundation
 import SwiftUI
 
+struct MessageModel: Hashable, Identifiable {
+    let id: UUID = .init()
+    
+    let text: String
+    let isYour: Bool
+    let sentAt: String
+}
+
 @Observable
 final class WebSocketManager: NSObject {
     
     var connectedUsers: Int = 0
-    var messages: [String] = []
+    var messages: [MessageModel] = []
     var userId: UUID!
     
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
+    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
     
     init(cryptoKeysManager: ICryptoManager) {
         self.cryptoKeysManager = cryptoKeysManager
@@ -58,11 +72,20 @@ final class WebSocketManager: NSObject {
                 switch MessageType(rawValue: messageType.type) {
                 case .chatMessage:
                     let chatMessage = try decoder.decode(ChatMessage.self, from: data)
-                    guard let encryptedData = Data(base64Encoded: chatMessage.text) else {
+                    guard
+                        let encryptedData = Data(base64Encoded: chatMessage.text),
+                        let id = UUID(uuidString: chatMessage.senderId)
+                    else {
                         print("Error via decondig base64")
                         return
                     }
-                    messages.append(cryptoKeysManager.decryptMessage(encryptedData))
+                    messages.append(
+                        MessageModel(
+                            text: cryptoKeysManager.decryptMessage(encryptedData),
+                            isYour: id == userId,
+                            sentAt: dateFormatter.string(from: chatMessage.sentAt)
+                        )
+                    )
                 case .connectedQuantity:
                     let quantity = try decoder.decode(ConnectionMessage.self, from: data)
                     connectedUsers = quantity.count
@@ -103,7 +126,7 @@ final class WebSocketManager: NSObject {
             case let .success(encryptedMessage):
                 let taskMessage = URLSessionWebSocketTask.Message.string(encryptedMessage.base64EncodedString())
                 try await webSocketTask?.send(taskMessage)
-            case let .failure(_):
+            case .failure(_):
                 throw CryptoKeyManagerError.encryptedMessage
             }
         } catch {

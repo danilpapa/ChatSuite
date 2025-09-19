@@ -12,6 +12,12 @@ private typealias CryptoPublic = Curve25519.KeyAgreement.PrivateKey.PublicKey
 struct ChatController: RouteCollection, Sendable {
     private nonisolated(unsafe) let connectionManager: any IConnectionManager
     
+    private let dateEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }()
+    
     public init(connectionManager: any IConnectionManager) {
         self.connectionManager = connectionManager
     }
@@ -95,7 +101,11 @@ struct ChatController: RouteCollection, Sendable {
     }
     
     private func handleIncommingMessage(_ text: String, from connectionID: UUID) {
-        let chatMessage = ChatMessage(text: text)
+        let chatMessage = ChatMessage(
+            text: text,
+            sender: connectionID.uuidString,
+            sentAt: .now
+        )
         sendToAllConnections(message: chatMessage)
     }
     

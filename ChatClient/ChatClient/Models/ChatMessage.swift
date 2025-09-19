@@ -10,4 +10,12 @@ import Foundation
 struct ChatMessage: Decodable {
     
     let text: String
+    let senderId: String
+    let sentAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case text
+        case senderId = "sender"
+        case sentAt
+    }
 }

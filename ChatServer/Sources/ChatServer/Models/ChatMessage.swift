@@ -10,5 +10,8 @@ import Vapor
 struct ChatMessage: Content {
     
     let type: String = .chatMessage
+    
     let text: String
+    let sender: String
+    let sentAt: Date
 }
