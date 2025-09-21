@@ -5,79 +5,119 @@
 //  Created by setuper on 13.09.2025.
 //
 
+import Foundation
 import Vapor
 
-enum ConnectionManagerError: Error {
+struct FireLobby: Equatable {
     
-    case socketDidNotConnected
+    static func ==(lhs: FireLobby, rhs: FireLobby) -> Bool {
+        lhs.hostId == rhs.hostId
+    }
+    
+    let hostId: UUID
+    let hostWebSocket: WebSocket
+    var peerData: (UUID, WebSocket?)
+    var isActive: Bool = false
+    
+    mutating func peerConnected(_ peerWs: WebSocket) {
+        self.peerData.1 = peerWs
+        self.isActive = true
+    }
+    
+    func activeConnections() -> [WebSocket] {
+        guard let peerSocket = peerData.1 else {
+            return [hostWebSocket]
+        }
+        return [hostWebSocket, peerSocket]
+    }
 }
 
 protocol IConnectionManager {
     
     func newConnection(
-        with id: UUID,
+        host hostId: UUID,
+        peer peerId: UUID,
         _ ws: WebSocket
-    ) -> Result<Void, ConnectionManagerError>
+    )
     
-    func removeConnection(
-        with id: UUID
-    ) -> Result<WebSocket, ConnectionManagerError>
-    
-    func toAllConnections(_ completion: @escaping (UUID, WebSocket) -> Void)
-    
-    func totalConnectionCount() -> Int
-    
-    func receiverSocket(from id: UUID) throws -> WebSocket
+    func removeConnection(from hostId: UUID)
+    func toAllConnections(memberId: UUID, _ completion: @escaping (WebSocket) -> Void)
+    func totalConnectionCount(memberId: UUID) -> Int
+    func user(id: UUID) throws -> WebSocket
 }
 
 final class ConnectionManager: IConnectionManager {
     
-    private var activeConnections: [UUID: WebSocket] = [:]
+    private var acriveLobbies: [FireLobby] = []
     private let lock: NSLock = .init()
     
     func newConnection(
-        with id: UUID,
+        host hostId: UUID,
+        peer peerId: UUID,
         _ ws: WebSocket
-    ) -> Result<Void, ConnectionManagerError> {
+    ) {
         lock.lock()
         defer { lock.unlock() }
-        activeConnections[id] = ws
-        return .success(())
+        if let peerLobbyIndex = self.acriveLobbies.firstIndex(where: { lobby in
+            lobby.hostId == hostId || lobby.hostId == peerId
+        }) {
+            self.acriveLobbies[peerLobbyIndex].peerConnected(ws)
+        } else {
+            let fireLobby = FireLobby(hostId: hostId, hostWebSocket: ws, peerData: (peerId, nil))
+            acriveLobbies.append(fireLobby)
+        }
     }
     
     func removeConnection(
-        with id: UUID
-    ) -> Result<WebSocket, ConnectionManagerError> {
+        from hostId: UUID
+    ) {
         lock.lock()
         defer { lock.unlock() }
-        guard let disconnectedWS = activeConnections[id] else {
-            return .failure(.socketDidNotConnected)
-        }
-        activeConnections.removeValue(forKey: id)
-        return .success(disconnectedWS)
-    }
-    
-    func toAllConnections(_ completion: @escaping (UUID, WebSocket) -> Void) {
-        lock.lock()
-        defer { lock.unlock() }
-        activeConnections.forEach { connectedId, connectedSocket in
-            completion(connectedId, connectedSocket)
+        self.acriveLobbies.removeAll { lobby in
+            lobby.hostId == hostId || lobby.peerData.0 == hostId
         }
     }
     
-    func totalConnectionCount() -> Int {
+    func toAllConnections(memberId: UUID, _ completion: @escaping (WebSocket) -> Void) {
         lock.lock()
         defer { lock.unlock() }
-        return activeConnections.count
+        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+            lobby.hostId == memberId || lobby.peerData.0 == memberId
+        }) else {
+            return
+        }
+        activeLobby.activeConnections().forEach { socket in
+            completion(socket)
+        }
     }
     
-    func receiverSocket(from id: UUID) throws -> WebSocket {
-        guard
-            let receiverID = self.activeConnections.keys.first(where: { $0 != id }),
-            let receiverWS = self.activeConnections[receiverID]
-        else {
-            throw Abort(.badRequest, reason: "Chat should contais more than one user.")
+    func totalConnectionCount(memberId: UUID) -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+            lobby.hostId == memberId || lobby.peerData.0 == memberId
+        }) else {
+            return -1
         }
-        return receiverWS
+        return activeLobby.isActive ? 2 : 1
     }
+    
+    func user(id: UUID) throws -> WebSocket {
+        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+            lobby.hostId == id || lobby.peerData.0 == id
+        }) else {
+            throw ConnectionManagerError.noSuchLobby
+        }
+        if activeLobby.isActive {
+            return activeLobby.hostId == id ? activeLobby.hostWebSocket : activeLobby.peerData.1!
+        }
+        throw ConnectionManagerError.lobbyIsNotActive
+    }
+}
+
+enum ConnectionManagerError: Error {
+    
+    case socketDidNotConnected
+    case noSuchLobby
+    case lobbyIsNotActive
 }

@@ -19,10 +19,12 @@ struct MessageModel: Hashable, Identifiable {
 @Observable
 final class WebSocketManager: NSObject {
     
+    var userId: UUID
+    var peerUserId: UUID
+    
     var connectedUsers: Int = 0
     var messages: [MessageModel] = []
-    var userId: UUID!
-    
+
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
     
@@ -32,8 +34,10 @@ final class WebSocketManager: NSObject {
         return formatter
     }()
     
-    init(cryptoKeysManager: ICryptoManager) {
+    init(cryptoKeysManager: ICryptoManager, userId: UUID, peerId: UUID) {
         self.cryptoKeysManager = cryptoKeysManager
+        self.userId = userId
+        self.peerUserId = peerId
         super.init()
     }
     
@@ -43,7 +47,13 @@ final class WebSocketManager: NSObject {
             delegate: self,
             delegateQueue: .main
         )
-        webSocketTask = session.webSocketTask(with: EndPoints.chatUrl.url)
+        let url = EndPoints.chatUrl.url
+        var request = URLRequest(url: url)
+        
+        request.setValue(userId.uuidString, forHTTPHeaderField: "host-id")
+        request.setValue(peerUserId.uuidString, forHTTPHeaderField: "peer-id")
+        
+        webSocketTask = session.webSocketTask(with: request)
         webSocketTask?.resume()
         
         Task {
@@ -153,7 +163,8 @@ final class WebSocketManager: NSObject {
         Task {
             await NetworkManager.shared.sendPublicKey(
                 key: publicData,
-                from: userId
+                from: userId,
+                to: peerUserId
             )
         }
         return .success(()) /// Additional handling here

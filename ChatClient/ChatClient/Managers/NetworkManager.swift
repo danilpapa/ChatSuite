@@ -20,9 +20,10 @@ final class NetworkManager {
         session = Session(serverTrustManager: manager)
     }
     
-    func sendPublicKey(key: Data, from id: UUID) async {
+    func sendPublicKey(key: Data, from id: UUID, to peerId: UUID) async {
         let params: [String: Any] = [
             "user_id": id.uuidString,
+            "peer_id": peerId.uuidString,
             "public_key": key.base64EncodedString()
         ]
         session.request(

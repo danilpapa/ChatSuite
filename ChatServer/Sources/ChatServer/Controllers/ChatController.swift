@@ -34,7 +34,7 @@ struct ChatController: RouteCollection, Sendable {
                 let keyRequest = try handleCryptoKey(req: req)
                 let data = try idAndKeyFromModel(keyRequest)
                 do {
-                    let receiverWS = try connectionManager.receiverSocket(from: data.id)
+                    let receiverWS = try connectionManager.user(id: data.peerId)
                     let publicKeyMessage = PublicKeyMesage(key: data.key.rawRepresentation)
                     sendMessage(
                         publicKeyMessage,
@@ -48,10 +48,10 @@ struct ChatController: RouteCollection, Sendable {
         }
     }
     
-    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (id: UUID, key:  CryptoPublic) {
+    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (peerId: UUID, key:  CryptoPublic) {
         do {
             guard
-                let id = UUID(uuidString: model.user_id),
+                let id = UUID(uuidString: model.peer_id),
                 let publicKeyData = Data(base64Encoded: model.public_key)
             else {
                 throw Abort(.badRequest)
@@ -69,35 +69,22 @@ struct ChatController: RouteCollection, Sendable {
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {
-        let id: UUID = .init()
-        broadcastUserId(with: id, for: ws)
-        switch connectionManager.newConnection(with: id, ws) {
-        case .success(_):
-            broadcastConnectionCount()
-        case let .failure(error):
-            // handle error
-            print(error)
-        }
+        guard let hostIdString = req.valueForHeader("host-id"),
+              let peerIdString = req.valueForHeader("peer-id"),
+              let hostId = UUID(uuidString: hostIdString),
+              let peerId = UUID(uuidString: peerIdString)
+        else { return }
+        
+        connectionManager.newConnection(host: hostId, peer: peerId, ws)
+        broadcastConnectionCount(with: hostId)
         
         ws.onText { ws, text in
-            handleIncommingMessage(text, from: id)
+            handleIncommingMessage(text, from: hostId)
         }
         
         ws.onClose.whenComplete { _ in
-            switch connectionManager.removeConnection(with: id) {
-            case .success(_):
-                clearChat()
-                broadcastConnectionCount()
-            case let .failure(error):
-                // handle error
-                print(error)
-            }
+            connectionManager.removeConnection(from: hostId)
         }
-    }
-    
-    private func broadcastUserId(with id: UUID, for ws: WebSocket) {
-        let message = ConnectionId(id: id)
-        sendMessage(message, to: ws)
     }
     
     private func handleIncommingMessage(_ text: String, from connectionID: UUID) {
@@ -106,20 +93,20 @@ struct ChatController: RouteCollection, Sendable {
             sender: connectionID.uuidString,
             sentAt: .now
         )
-        sendToAllConnections(message: chatMessage)
+        sendToAllConnections(message: chatMessage, with: connectionID)
     }
     
-    private func broadcastConnectionCount() {
-        let message = ConnectionMessage(count: connectionManager.totalConnectionCount())
-        sendToAllConnections(message: message)
+    private func broadcastConnectionCount(with memberId: UUID) {
+        let message = ConnectionMessage(count: connectionManager.totalConnectionCount(memberId: memberId))
+        sendToAllConnections(message: message, with: memberId)
     }
     
-    private func clearChat() {
-        sendToAllConnections(message: ClearChat())
+    private func clearChat(with memberId: UUID) {
+        sendToAllConnections(message: ClearChat(), with: memberId)
     }
     
-    private func sendToAllConnections<T: Encodable>(message: T) {
-        connectionManager.toAllConnections { _, ws in
+    private func sendToAllConnections<T: Encodable>(message: T, with memberId: UUID) {
+        connectionManager.toAllConnections(memberId: memberId) { ws in
             sendMessage(message, to: ws)
         }
     }

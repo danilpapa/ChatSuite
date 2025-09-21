@@ -10,5 +10,6 @@ import Vapor
 struct PublicKeyRequest: Content {
     
     let user_id: String
+    let peer_id: String
     let public_key: String
 }

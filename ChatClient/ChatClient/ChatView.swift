@@ -16,41 +16,37 @@ struct ChatView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            NavigationLink("Chat") {
-                VStack {
-                    List {
-                        ForEach(socketManager.messages) { message in
-                            HStack {
-                                if message.isYour { Spacer() }
-                                VStack(alignment: .leading) {
-                                    Text(message.text)
-                                    Text(message.sentAt)
-                                        .font(.callout)
-                                }
-                                if !message.isYour { Spacer() }
-                            }
+        VStack {
+            List {
+                ForEach(socketManager.messages) { message in
+                    HStack {
+                        if message.isYour { Spacer() }
+                        VStack(alignment: .leading) {
+                            Text(message.text)
+                            Text(message.sentAt)
+                                .font(.callout)
                         }
+                        if !message.isYour { Spacer() }
                     }
-                    TextField("Enter message", text: $text)
-                        .disabled(socketManager.connectedUsers != 2)
-                        .onSubmit {
-                            Task {
-                                try? await socketManager.sendMessage(text)
-                                text = ""
-                            }
-                        }
                 }
-                .task {
-                    socketManager.connect()
-                    print("Connected")
-                }
-                .onDisappear {
-                    socketManager.disconnect()
-                }
-                .navigationTitle(socketManager.connectedUsers.description)
             }
+            TextField("Enter message", text: $text)
+                .disabled(socketManager.connectedUsers != 2)
+                .onSubmit {
+                    Task {
+                        try? await socketManager.sendMessage(text)
+                        text = ""
+                    }
+                }
         }
+        .task {
+            socketManager.connect()
+            print("Connected")
+        }
+        .onDisappear {
+            socketManager.disconnect()
+        }
+        .navigationTitle(socketManager.connectedUsers.description)
     }
 }
 
