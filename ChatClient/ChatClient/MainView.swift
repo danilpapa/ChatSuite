@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    let userId: UUID = .generate(1) // при реге остается постоянным
+    let userId: UUID = .generate(1)
     let peerId: UUID = .generate(2)
     
     var body: some View {
