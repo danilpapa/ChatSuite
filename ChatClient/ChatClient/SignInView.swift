@@ -11,7 +11,7 @@ import FirebaseCore
 import GoogleSignIn
 import GoogleSignInSwift
 
-struct User: Identifiable {
+struct User: Identifiable, Hashable {
     
     let publicName: String
     let userId: String
@@ -21,28 +21,51 @@ struct User: Identifiable {
     }
 }
 
+enum Routes: Hashable {
+    
+    case mainFeature(User)
+}
+
 struct SignInView: View {
+    @State private var showLoginErrorAlert = false
+    @State private var navigationPaht: NavigationPath = .init()
+    @State private var loggedUser: User?
+    
     var body: some View {
-        ZStack {
-            Color.blue.ignoresSafeArea()
-            Button {
-                Task {
-                    do {
-                        guard let loggedUser = try await SignInHelper.shared.googleSignIn() else { return }
-                        print(loggedUser)
-                    } catch {
-                        print("Google login error: \(error.localizedDescription)")
+        NavigationStack(path: $navigationPaht) {
+            ZStack {
+                Color.blue.ignoresSafeArea()
+                Button {
+                    Task {
+                        do {
+                            guard let loggedUser = try await SignInHelper.shared.googleSignIn() else {
+                                showLoginErrorAlert = true
+                                return
+                            }
+                            navigationPaht.append(Routes.mainFeature(loggedUser))
+                        } catch {
+                            print("Google login error: \(error.localizedDescription)")
+                        }
                     }
+                } label: {
+                    Image(.google)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 44)
+                        .padding()
+                        .glassEffect()
                 }
-            } label: {
-                Image(.google)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 44)
-                    .padding()
-                    .glassEffect()
+                .padding()
             }
-            .padding()
+            .navigationDestination(for: Routes.self) { route in
+                switch route {
+                case let .mainFeature(loggedUser):
+                    MainView(user: loggedUser)
+                }
+            }
+            .alert("Google auth error", isPresented: $showLoginErrorAlert) {
+                Button("Ok", role: .cancel) { }
+            }
         }
     }
 }
@@ -81,8 +104,4 @@ struct SignInHelper {
             throw error
         }
     }
-}
-
-#Preview {
-    SignInView()
 }

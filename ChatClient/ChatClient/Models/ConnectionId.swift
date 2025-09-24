@@ -9,5 +9,5 @@ import Foundation
 
 struct ConnectionId: Decodable {
     
-    let id: UUID
+    let id: String
 }

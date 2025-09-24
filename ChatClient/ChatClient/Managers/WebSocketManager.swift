@@ -19,8 +19,8 @@ struct MessageModel: Hashable, Identifiable {
 @Observable
 final class WebSocketManager: NSObject {
     
-    var userId: UUID
-    var peerUserId: UUID
+    var userId: String
+    var peerUserId: String
     
     var connectedUsers: Int = 0
     var messages: [MessageModel] = []
@@ -34,7 +34,7 @@ final class WebSocketManager: NSObject {
         return formatter
     }()
     
-    init(cryptoKeysManager: ICryptoManager, userId: UUID, peerId: UUID) {
+    init(cryptoKeysManager: ICryptoManager, userId: String, peerId: String) {
         self.cryptoKeysManager = cryptoKeysManager
         self.userId = userId
         self.peerUserId = peerId
@@ -50,8 +50,8 @@ final class WebSocketManager: NSObject {
         let url = EndPoints.chatUrl.url
         var request = URLRequest(url: url)
         
-        request.setValue(userId.uuidString, forHTTPHeaderField: "host-id")
-        request.setValue(peerUserId.uuidString, forHTTPHeaderField: "peer-id")
+        request.setValue(userId, forHTTPHeaderField: "host-id")
+        request.setValue(peerUserId, forHTTPHeaderField: "peer-id")
         
         webSocketTask = session.webSocketTask(with: request)
         webSocketTask?.resume()
@@ -82,13 +82,12 @@ final class WebSocketManager: NSObject {
                 switch MessageType(rawValue: messageType.type) {
                 case .chatMessage:
                     let chatMessage = try decoder.decode(ChatMessage.self, from: data)
-                    guard
-                        let encryptedData = Data(base64Encoded: chatMessage.text),
-                        let id = UUID(uuidString: chatMessage.senderId)
+                    guard let encryptedData = Data(base64Encoded: chatMessage.text)
                     else {
                         print("Error via decondig base64")
                         return
                     }
+                    let id = chatMessage.senderId
                     messages.append(
                         MessageModel(
                             text: cryptoKeysManager.decryptMessage(encryptedData),
