@@ -9,10 +9,9 @@ import SwiftUI
 
 struct MainView: View {
     var user: User
-    // md 0TTAKXoKRLdlDMUdgxMQsE0sp462
-    // dm YSXfM6v2OpRacZLjCD7g64BhUvT2
-    let userId: String = "0TTAKXoKRLdlDMUdgxMQsE0sp462"
-    let peerId: String = "YSXfM6v2OpRacZLjCD7g64BhUvT2"
+    
+    let userId: String = "YSXfM6v2OpRacZLjCD7g64BhUvT2"
+    let peerId: String = "0TTAKXoKRLdlDMUdgxMQsE0sp462"
     
     var body: some View {
         NavigationLink {

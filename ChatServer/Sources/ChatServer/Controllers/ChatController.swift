@@ -48,14 +48,14 @@ struct ChatController: RouteCollection, Sendable {
         }
     }
     
-    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (peerId: UUID, key:  CryptoPublic) {
+    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (peerId: String, key:  CryptoPublic) {
         do {
             guard
-                let id = UUID(uuidString: model.peer_id),
                 let publicKeyData = Data(base64Encoded: model.public_key)
             else {
                 throw Abort(.badRequest)
             }
+            let id = model.peer_id
             let publicKey = try CryptoPublic(rawRepresentation: publicKeyData)
             return (id, publicKey)
         } catch {
@@ -69,10 +69,8 @@ struct ChatController: RouteCollection, Sendable {
     }
     
     private func handleWebSocket(req: Request, ws: WebSocket) {
-        guard let hostIdString = req.valueForHeader("host-id"),
-              let peerIdString = req.valueForHeader("peer-id"),
-              let hostId = UUID(uuidString: hostIdString),
-              let peerId = UUID(uuidString: peerIdString)
+        guard let hostId = req.valueForHeader("host-id"),
+              let peerId = req.valueForHeader("peer-id")
         else { return }
         
         connectionManager.newConnection(host: hostId, peer: peerId, ws)
@@ -87,25 +85,25 @@ struct ChatController: RouteCollection, Sendable {
         }
     }
     
-    private func handleIncommingMessage(_ text: String, from connectionID: UUID) {
+    private func handleIncommingMessage(_ text: String, from connectionID: String) {
         let chatMessage = ChatMessage(
             text: text,
-            sender: connectionID.uuidString,
+            sender: connectionID,
             sentAt: .now
         )
         sendToAllConnections(message: chatMessage, with: connectionID)
     }
     
-    private func broadcastConnectionCount(with memberId: UUID) {
+    private func broadcastConnectionCount(with memberId: String) {
         let message = ConnectionMessage(count: connectionManager.totalConnectionCount(memberId: memberId))
         sendToAllConnections(message: message, with: memberId)
     }
     
-    private func clearChat(with memberId: UUID) {
+    private func clearChat(with memberId: String) {
         sendToAllConnections(message: ClearChat(), with: memberId)
     }
     
-    private func sendToAllConnections<T: Encodable>(message: T, with memberId: UUID) {
+    private func sendToAllConnections<T: Encodable>(message: T, with memberId: String) {
         connectionManager.toAllConnections(memberId: memberId) { ws in
             sendMessage(message, to: ws)
         }
