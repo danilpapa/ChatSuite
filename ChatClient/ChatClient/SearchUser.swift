@@ -5,4 +5,12 @@
 //  Created by setuper on 25.09.2025.
 //
 
-import Foundation
+import SwiftUI
+
+struct SearchUser: View {
+    var body: some View {
+        VStack {
+            
+        }
+    }
+}

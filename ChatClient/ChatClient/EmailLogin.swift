@@ -7,9 +7,31 @@
 
 import SwiftUI
 
+final class EmailViewModel: ObservableObject {
+    
+    @Published var text: String = ""
+    
+    func receiveEmail() async {
+        let result = await NetworkManager.shared.sendLoggedEmail(text)
+        switch result {
+        case let .success(id):
+            // TODO: handle id
+        case .failure(let failure):
+            print("error: \(failure.localizedDescription)")
+        }
+    }
+}
+
 struct EmailLogin: View {
+    @StateObject private var vm = EmailViewModel()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TextField("Email", text: $vm.text)
+            .onSubmit {
+                Task {
+                    await vm.receiveEmail()
+                }
+            }
     }
 }
 

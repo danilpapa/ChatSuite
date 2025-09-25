@@ -35,4 +35,27 @@ final class NetworkManager {
             // print(response.result)
         }
     }
+    
+    func sendLoggedEmail(_ email: String) async -> Result<UUID, NetworkError> {
+        let params: [String: Any] = [
+            "user_email": email
+        ]
+        do {
+            let responce = try await session.request(
+                EndPoints.email.url,
+                method: .post,
+                parameters: params,
+                encoding: JSONEncoding.default
+            ).serializingDecodable(UserIdResponse.self).value
+            return .success(UUID(uuidString: responce.id)!)
+        } catch {
+            print("Logging error: \(error.localizedDescription)")
+            return .failure(.incorrectEmail)
+        }
+    }
+}
+
+enum NetworkError: Error {
+    
+    case incorrectEmail
 }

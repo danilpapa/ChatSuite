@@ -7,20 +7,48 @@
 
 import SwiftUI
 
+enum TabIdentifier: Hashable {
+    case home, settings, search
+}
+
 struct MainView: View {
+    @State private var selected: TabIdentifier = .home
+    
     var user: User
     
     let userId: String = "YSXfM6v2OpRacZLjCD7g64BhUvT2"
     let peerId: String = "0TTAKXoKRLdlDMUdgxMQsE0sp462"
     
     var body: some View {
-        NavigationLink {
-            ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager(), userId: userId, peerId: peerId))
-        } label: {
-            Text("Chat \(userId)")
+        TabView(selection: $selected) {
+            Tab("", systemImage: "person.fill.badge.plus", value: .search, role: .search) {
+                NavigationStack {
+                    VStack {
+                        
+                    }
+                    .onAppear {
+                        
+                    }
+                }
+                .searchable(text: .constant(""), prompt: "Search users")
+            }
+            Tab("", systemImage: "house.fill", value: .home) {
+                NavigationLink {
+                    ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager(), userId: userId, peerId: peerId))
+                } label: {
+                    Text("Chat \(userId)")
+                }
+            }
+            
+            Tab("", systemImage: "gearshape.2", value: .settings) {
+                Text("Settings")
+            }
         }
-        .onAppear {
-            print(user.id)
-        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        MainView(user: .init(publicName: "", userId: ""))
     }
 }

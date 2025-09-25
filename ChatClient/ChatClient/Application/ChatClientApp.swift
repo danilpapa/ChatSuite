@@ -26,7 +26,9 @@ struct ChatClientApp: App {
     
     var body: some Scene {
         WindowGroup {
-            SignInView()
+//            SignInView()
+//            MainView(user: .init(publicName: "Hello", userId: "World"))
+            EmailLogin()
         }
     }
 }

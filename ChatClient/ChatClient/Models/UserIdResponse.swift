@@ -5,14 +5,9 @@
 //  Created by setuper on 25.09.2025.
 //
 
-import SwiftUI
+import Foundation
 
-struct UserIdResponse: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
-
-#Preview {
-    UserIdResponse()
+struct UserIdResponse: Decodable {
+    
+    let id: String
 }
