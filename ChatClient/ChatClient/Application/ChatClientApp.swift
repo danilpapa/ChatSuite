@@ -10,25 +10,26 @@ import FirebaseCore
 import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
-  ) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+    ) -> Bool {
+        FirebaseApp.configure()
+        return true
+    }
 }
 
 
 @main
 struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @State private var navigationPath: NavigationPath = .init()
     
     var body: some Scene {
         WindowGroup {
 //            SignInView()
 //            MainView(user: .init(publicName: "Hello", userId: "World"))
-            EmailLogin()
+            EmailLogin(path: $navigationPath)
         }
     }
 }

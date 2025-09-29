@@ -8,13 +8,26 @@
 import SwiftUI
 
 final class EmailViewModel: ObservableObject {
+    @Binding var path: NavigationPath
+    
+    init(path: Binding<NavigationPath>) {
+        self._path = path
+    }
     
     @Published var text: String = ""
+    private var user: User? {
+        didSet {
+            if let user {
+                path.append(Routes.mainFeature(user))
+            }
+        }
+    }
     
     func receiveEmail() async {
         let result = await NetworkManager.shared.sendLoggedEmail(text)
         switch result {
         case let .success(id):
+            let user = User(publicName: text, userId: id.uuidString)
             // TODO: handle id
         case .failure(let failure):
             print("error: \(failure.localizedDescription)")
@@ -23,7 +36,11 @@ final class EmailViewModel: ObservableObject {
 }
 
 struct EmailLogin: View {
-    @StateObject private var vm = EmailViewModel()
+    @StateObject private var vm: EmailViewModel
+    
+    init(path: Binding<NavigationPath>) {
+        self._vm = StateObject(wrappedValue: EmailViewModel(path: path))
+    }
     
     var body: some View {
         TextField("Email", text: $vm.text)
@@ -33,8 +50,4 @@ struct EmailLogin: View {
                 }
             }
     }
-}
-
-#Preview {
-    EmailLogin()
 }
