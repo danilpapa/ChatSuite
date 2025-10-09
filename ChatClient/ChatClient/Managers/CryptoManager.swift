@@ -7,15 +7,10 @@
 
 import Foundation
 import CryptoKit
+import FirebaseCrashlytics
 
 typealias PrivateKey = Curve25519.KeyAgreement.PrivateKey
 typealias PublicKey = Curve25519.KeyAgreement.PrivateKey.PublicKey
-
-enum CryptoKeyManagerError: Error {
-    
-    case sealWithSymmetricKey
-    case encryptedMessage
-}
 
 protocol ICryptoManager {
     
@@ -26,11 +21,11 @@ protocol ICryptoManager {
     mutating func updateOtherClientKey(_ key: PublicKey) throws
     
     func encryptMessage(_ message: Data) -> Result<Data, CryptoKeyManagerError>
-    func decryptMessage(_ message: Data) -> String
+    func decryptMessage(_ message: Data) -> Result<String, CryptoKeyManagerError>
 }
 
 struct CryptoManager: ICryptoManager {
-
+    
     private(set) var privateKey: PrivateKey
     private(set) var publicKey: PublicKey
     private(set) var sharedSymmetricKey: SymmetricKey!
@@ -57,28 +52,34 @@ struct CryptoManager: ICryptoManager {
         do {
             let sealedBox = try AES.GCM.seal(message, using: self.sharedSymmetricKey)
             guard let combinedData = sealedBox.combined else {
-                return .failure(.encryptedMessage)
+                return .failure(.invalidSealedBox)
             }
             return .success(combinedData)
         } catch {
-            return .failure(.sealWithSymmetricKey)
+            Crashlytics.crashlytics().log("EncryptMessage failed")
+            Crashlytics.crashlytics().record(error: error)
+            return .failure(.sealFailed(error))
         }
     }
     
-    func decryptMessage(_ message: Data) -> String {
+    func decryptMessage(_ message: Data) -> Result<String, CryptoKeyManagerError> {
         do {
             let sealedBoxToOpen = try AES.GCM.SealedBox(combined: message)
             do {
                 let decryptedData = try AES.GCM.open(sealedBoxToOpen, using: sharedSymmetricKey)
-                let decryptedMessage = String(data: decryptedData, encoding: .utf8)
-                return decryptedMessage ?? ""
+                guard let decryptedMessage = String(data: decryptedData, encoding: .utf8) else {
+                    return .failure(.invalidDecryptedData)
+                }
+                return .success(decryptedMessage)
             } catch {
-                print("Error via decrypted message: \(error)")
+                Crashlytics.crashlytics().log("Decryption failed while opening sealed box")
+                Crashlytics.crashlytics().record(error: error)
+                return .failure(.openFailed(error))
             }
         } catch {
-            print("Error via creating sealed box to open: \(error)")
+            Crashlytics.crashlytics().log("Failed to create SealedBox from data")
+            Crashlytics.crashlytics().record(error: error)
+            return .failure(.sealFailed(error))
         }
-        return ""
     }
 }
-

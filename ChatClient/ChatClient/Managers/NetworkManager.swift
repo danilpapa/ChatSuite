@@ -46,16 +46,12 @@ final class NetworkManager {
                 method: .post,
                 parameters: params,
                 encoding: JSONEncoding.default
-            ).serializingDecodable(UserIdResponse.self).value
+            ).serializingDecodable(UserIdResponse_.self).value
+            
             return .success(UUID(uuidString: responce.id)!)
         } catch {
             print("Logging error: \(error.localizedDescription)")
             return .failure(.incorrectEmail)
         }
     }
-}
-
-enum NetworkError: Error {
-    
-    case incorrectEmail
 }

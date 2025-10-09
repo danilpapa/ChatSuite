@@ -7,14 +7,7 @@
 
 import Foundation
 import SwiftUI
-
-struct MessageModel: Hashable, Identifiable {
-    let id: UUID = .init()
-    
-    let text: String
-    let isYour: Bool
-    let sentAt: String
-}
+import FirebaseCrashlytics
 
 @Observable
 final class WebSocketManager: NSObject {
@@ -67,7 +60,8 @@ final class WebSocketManager: NSObject {
                 let result = try await webSocketTask?.receive()
                 handleWebSocketResult(result)
             } catch {
-                print("Receive error: \(error)")
+                Crashlytics.crashlytics().log("WebSocket receive failed")
+                Crashlytics.crashlytics().record(error: error)
                 break
             }
         }
@@ -78,39 +72,48 @@ final class WebSocketManager: NSObject {
         case let .data(data):
             let decoder = JSONDecoder()
             do {
-                let messageType = try decoder.decode(ServerMessagesType.self, from: data)
+                let messageType = try decoder.decode(MessageType_.self, from: data)
                 switch MessageType(rawValue: messageType.type) {
                 case .chatMessage:
-                    let chatMessage = try decoder.decode(ChatMessage.self, from: data)
+                    let chatMessage = try decoder.decode(Message_.self, from: data)
                     guard let encryptedData = Data(base64Encoded: chatMessage.text)
                     else {
-                        print("Error via decondig base64")
+                        Crashlytics.crashlytics().log("Error decoding base64 from chatMessage.text")
+                        Crashlytics.crashlytics().record(error: CryptoKeyManagerError.invalidDecryptedData)
                         return
                     }
-                    let id = chatMessage.senderId
-                    messages.append(
-                        MessageModel(
-                            text: cryptoKeysManager.decryptMessage(encryptedData),
-                            isYour: id == userId,
-                            sentAt: dateFormatter.string(from: chatMessage.sentAt)
+                    let id = chatMessage.senderId,
+                        decryptedResult = cryptoKeysManager.decryptMessage(encryptedData)
+                    switch decryptedResult {
+                    case let .success(decryptedMessage):
+                        messages.append(
+                            MessageModel(
+                                text: decryptedMessage,
+                                isYour: id == userId,
+                                sentAt: dateFormatter.string(from: chatMessage.sentAt)
+                            )
                         )
-                    )
+                    case let .failure(error):
+                        Crashlytics.crashlytics().log("Decryption failed for message id: \(id)")
+                        Crashlytics.crashlytics().record(error: error)
+                    }
                 case .connectedQuantity:
-                    let quantity = try decoder.decode(ConnectionMessage.self, from: data)
+                    let quantity = try decoder.decode(ConnectionInfo_.self, from: data)
                     connectedUsers = quantity.count
                     if connectedUsers == 2 {
                         generateCryptoKeys()
                     }
                 case .connectionId:
-                    let id = try decoder.decode(ConnectionId.self, from: data).id
+                    let id = try decoder.decode(ConnectedUser_.self, from: data).id
                     userId = id
                 case .publicKeyMessage:
-                    let publicKey = try decoder.decode(PublicKeyMesage.self, from: data)
+                    let publicKey = try decoder.decode(PublicKey_.self, from: data)
                     let sharedPublicKey = try PublicKey(rawRepresentation: publicKey.key)
                     do {
                         try cryptoKeysManager.updateOtherClientKey(sharedPublicKey)
                     } catch {
-                        print(error)
+                        Crashlytics.crashlytics().log("Failed to update other client key")
+                        Crashlytics.crashlytics().record(error: error)
                     }
                 case .clearChat:
                     messages.removeAll()
@@ -118,14 +121,15 @@ final class WebSocketManager: NSObject {
                     break
                 }
             } catch {
-                print(error)
+                Crashlytics.crashlytics().log("Error decoding server responce")
+                Crashlytics.crashlytics().record(error: error)
             }
         case .none, .some(_):
             break
         }
     }
     
-    func sendMessage(_ message: String) async throws {
+    func sendMessage(_ message: String) async {
         guard let messageData = message.data(using: .utf8) else {
             return
         }
@@ -135,8 +139,9 @@ final class WebSocketManager: NSObject {
             case let .success(encryptedMessage):
                 let taskMessage = URLSessionWebSocketTask.Message.string(encryptedMessage.base64EncodedString())
                 try await webSocketTask?.send(taskMessage)
-            case .failure(_):
-                throw CryptoKeyManagerError.encryptedMessage
+            case .failure(let error):
+                Crashlytics.crashlytics().log("Encryption failed in AES.GCM.seal")
+                Crashlytics.crashlytics().record(error: error)
             }
         } catch {
             print(error)
@@ -155,8 +160,12 @@ final class WebSocketManager: NSObject {
     }
     
     @discardableResult
-    private func generateCryptoKeys() -> Result<Void, ServerEndpointsError> {
-        guard let publicData = Data(base64Encoded: cryptoKeysManager.publicKey.rawRepresentation.base64EncodedString()) else {
+    private func generateCryptoKeys() -> Result<Void, CryptoKeyManagerError> {
+        guard let publicData = Data(base64Encoded: cryptoKeysManager
+            .publicKey
+            .rawRepresentation
+            .base64EncodedString()
+        ) else {
             return .failure(.encodePublicKey)
         }
         Task {
@@ -166,7 +175,7 @@ final class WebSocketManager: NSObject {
                 to: peerUserId
             )
         }
-        return .success(()) /// Additional handling here
+        return .success(())
     }
 }
 

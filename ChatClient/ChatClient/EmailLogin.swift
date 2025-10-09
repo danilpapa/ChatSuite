@@ -6,6 +6,13 @@
 //
 
 import SwiftUI
+import FirebaseCrashlytics
+import FirebaseCrashlyticsSwift
+
+enum Routes: Hashable {
+    
+    case mainFeature(User)
+}
 
 final class EmailViewModel: ObservableObject {
     @Binding var path: NavigationPath
@@ -49,5 +56,15 @@ struct EmailLogin: View {
                     await vm.receiveEmail()
                 }
             }
+        
+        Button("Crash") {
+            Crashlytics.crashlytics().log("User...")
+            crash()
+        }
+    }
+    
+    private func crash() {
+        let numbers = [0]
+        let _ = numbers[1]
     }
 }

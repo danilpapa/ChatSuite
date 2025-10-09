@@ -1,5 +1,5 @@
 //
-//  MessageType.swift
+//  MessageType_.swift
 //  ChatClient
 //
 //  Created by setuper on 13.09.2025.
@@ -16,7 +16,7 @@ enum MessageType: String {
     case publicKeyMessage = "public_key"
 }
 
-struct ServerMessagesType: Decodable {
+struct MessageType_: Decodable {
     
     let type: String
 }

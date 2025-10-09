@@ -16,8 +16,8 @@ struct MainView: View {
     
     var user: User
     
-    let userId: String = "YSXfM6v2OpRacZLjCD7g64BhUvT2"
-    let peerId: String = "0TTAKXoKRLdlDMUdgxMQsE0sp462"
+    let userId: String = "0TTAKXoKRLdlDMUdgxMQsE0sp462"
+    let peerId: String = "YSXfM6v2OpRacZLjCD7g64BhUvT2"
     
     var body: some View {
         TabView(selection: $selected) {
@@ -50,5 +50,15 @@ struct MainView: View {
 #Preview {
     NavigationStack {
         MainView(user: .init(publicName: "", userId: ""))
+    }
+}
+
+struct User: Hashable, Equatable, Identifiable {
+    
+    let publicName: String
+    let userId: String
+    
+    var id: String {
+        userId
     }
 }

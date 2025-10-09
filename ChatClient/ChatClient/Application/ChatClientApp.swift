@@ -19,7 +19,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-
 @main
 struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -27,9 +26,10 @@ struct ChatClientApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            SignInView()
-//            MainView(user: .init(publicName: "Hello", userId: "World"))
-            EmailLogin(path: $navigationPath)
+            NavigationStack {
+                //            EmailLogin(path: $navigationPath)
+                MainView(user: .init(publicName: "", userId: ""))
+            }
         }
     }
 }

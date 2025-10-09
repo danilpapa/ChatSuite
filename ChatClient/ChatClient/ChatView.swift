@@ -34,7 +34,7 @@ struct ChatView: View {
                 .disabled(socketManager.connectedUsers != 2)
                 .onSubmit {
                     Task {
-                        try? await socketManager.sendMessage(text)
+                        await socketManager.sendMessage(text)
                         text = ""
                     }
                 }
