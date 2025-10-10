@@ -12,6 +12,7 @@ enum EndPoints {
     case chatUrl
     case publicKey
     case email
+    case users(String)
     
     var url: URL {
         switch self {
@@ -21,6 +22,8 @@ enum EndPoints {
             return .init(string: "\(EndPoints.baseUrl)/publicKey")!
         case .email:
             return .init(string: "\(EndPoints.baseUrl)/email_auth")!
+        case let .users(email):
+            return .init(string: "\(EndPoints.baseUrl)/users/\(email)")!
         }
     }
     

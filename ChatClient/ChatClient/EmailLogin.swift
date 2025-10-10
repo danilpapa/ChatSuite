@@ -34,7 +34,7 @@ final class EmailViewModel: ObservableObject {
         let result = await NetworkManager.shared.sendLoggedEmail(text)
         switch result {
         case let .success(id):
-            let user = User(publicName: text, userId: id.uuidString)
+            let user = User(email: text, userId: id.uuidString)
             // TODO: handle id
         case .failure(let failure):
             print("error: \(failure.localizedDescription)")

@@ -28,7 +28,7 @@ struct ChatClientApp: App {
         WindowGroup {
             NavigationStack {
                 //            EmailLogin(path: $navigationPath)
-                MainView(user: .init(publicName: "", userId: ""))
+                MainView(user: .init(email: "", userId: ""))
             }
         }
     }

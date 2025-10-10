@@ -21,17 +21,17 @@ struct MainView: View {
     
     var body: some View {
         TabView(selection: $selected) {
-            Tab("", systemImage: "person.fill.badge.plus", value: .search, role: .search) {
+            Tab(
+                "",
+                systemImage: "person.fill.badge.plus",
+                value: .search,
+                role: .search
+            ) {
                 NavigationStack {
-                    VStack {
-                        
-                    }
-                    .onAppear {
-                        
-                    }
+                    SearchMateView()
                 }
-                .searchable(text: .constant(""), prompt: "Search users")
             }
+            
             Tab("", systemImage: "house.fill", value: .home) {
                 NavigationLink {
                     ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager(), userId: userId, peerId: peerId))
@@ -39,23 +39,19 @@ struct MainView: View {
                     Text("Chat \(userId)")
                 }
             }
-            
-            Tab("", systemImage: "gearshape.2", value: .settings) {
-                Text("Settings")
-            }
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        MainView(user: .init(publicName: "", userId: ""))
+        MainView(user: .init(email: "", userId: ""))
     }
 }
 
-struct User: Hashable, Equatable, Identifiable {
+struct User: Hashable, Equatable, Identifiable, Decodable {
     
-    let publicName: String
+    let email: String
     let userId: String
     
     var id: String {
