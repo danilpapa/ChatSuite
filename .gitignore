@@ -11,4 +11,5 @@ db.sqlite
 !.env.example
 default.profraw
 *.pem
-/target
+*/target
+Cargo.lock
