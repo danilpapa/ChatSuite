@@ -11,5 +11,11 @@ struct GoogleCredentials: Content {
     
     let email: String
     let firebaseToken: String
+    
+    enum CodingKeys: String, CodingKey {
+
+        case email = "user_email"
+        case firebaseToken = "firebase_token"
+    }
 }
 
