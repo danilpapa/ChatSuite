@@ -21,19 +21,16 @@ struct EmailRequest: Content {
     }
 }
 
-struct AuthController: RouteCollection {
+struct LoginController: RouteCollection {
     
     func boot(routes: any RoutesBuilder) throws {
-        routes.grouped("email_auth").post(use: handleEmailAuth)
+        routes.grouped("login").post(use: handleEmailAuth)
     }
     
-    private func handleEmailAuth(_ req: Request) async throws -> UserIdResponse {
+    private func handleEmailAuth(_ req: Request) async throws -> String {
         do {
-            let email = try req.content.decode(EmailRequest.self).email
-            let user = User(email: email)
-            try await user.save(on: req.db)
-            guard let userId = user.id else { throw Abort(.badRequest) }
-            return .init(id: userId.uuidString)
+            let email = try req.content.decode(GoogleCredentials.self).email
+            return "success"
         } catch {
             throw Abort(.badRequest, reason: error.localizedDescription)
         }

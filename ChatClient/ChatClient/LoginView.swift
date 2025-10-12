@@ -42,7 +42,7 @@ final class EmailViewModel: ObservableObject {
     }
 }
 
-struct EmailLogin: View {
+struct LoginView: View {
     @StateObject private var vm: EmailViewModel
     
     init(path: Binding<NavigationPath>) {

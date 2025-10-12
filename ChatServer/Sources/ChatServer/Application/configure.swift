@@ -8,7 +8,7 @@ public func configure(_ app: Application) async throws {
     do {
         try configureTLS(app)
         let connectionManager = ConnectionManager()
-        try app.register(collection: AuthController())
+        try app.register(collection: LoginController())
         try app.register(collection: ChatController(connectionManager: connectionManager))
         
         try configureDataBase(app)
@@ -28,7 +28,8 @@ private func configureDataBase(_ app: Application) throws {
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql)
     
-    app.migrations.add(UserMigration())
+    app.migrations.add(UserTableMigration())
+    app.migrations.add(UserFriendsMigration())
 }
 
 private func configureTLS(_ app: Application) throws {
@@ -46,3 +47,9 @@ fileprivate extension String {
     static let certificateChainPath: Self = "Resources/TLS/cert.pem"
     static let privateKeyPath: Self = "Resources/TLS/key.pem"
 }
+
+let dbHost = Environment.get("DB_HOST") ?? "localhost"
+let dbPort = Environment.get("DB_PORT").flatMap(Int.init) ?? 5432
+let dbUser = Environment.get("DB_USER") ?? "vapor_user"
+let dbPassword = Environment.get("DB_PASS") ?? "password"
+let dbName = Environment.get("DB_NAME") ?? "chat_database"
