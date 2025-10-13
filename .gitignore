@@ -13,3 +13,4 @@ default.profraw
 *.pem
 */target
 Cargo.lock
+.env
