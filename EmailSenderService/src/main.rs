@@ -1,12 +1,18 @@
 mod email_req;
 use email_req::EmailRequest;
 
+mod email_processor;
+use email_processor::EmailProcessor;
+
 use actix_web::{http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder};
+
+use crate::email_processor::IProcessor;
 
 
 #[post("/send-email")]
 async fn send_email(email: web::Json<EmailRequest>) -> impl Responder {
-    // web::Json<T> автоматически распарсит тело post
+    let email_processor = EmailProcessor::ConfirmEmail;
+    email_processor.process_email(&email.to, &email.subject).await;
     println!("Sending email to: {}", email.to);
     return HttpResponse::Ok().body("Email request received");
 }
