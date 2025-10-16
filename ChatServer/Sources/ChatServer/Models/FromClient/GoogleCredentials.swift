@@ -18,4 +18,3 @@ struct GoogleCredentials: Content {
         case firebaseToken = "firebase_token"
     }
 }
-

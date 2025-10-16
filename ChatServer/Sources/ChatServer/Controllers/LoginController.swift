@@ -29,8 +29,33 @@ struct LoginController: RouteCollection {
     
     private func handleEmailAuth(_ req: Request) async throws -> String {
         do {
-            let email = try req.content.decode(GoogleCredentials.self).email
-            return "success"
+            let googleCredentials = try req.content.decode(GoogleCredentials.self)
+            
+            if let existingUser = try await User.query(on: req.db)
+                .filter(\.$email, .equal, googleCredentials.email)
+                .first() {
+                
+                if existingUser.firebaseToken != googleCredentials.firebaseToken {
+                    existingUser.firebaseToken = googleCredentials.firebaseToken
+                    try await existingUser.save(on: req.db)
+                }
+                
+                guard let userId = existingUser.id else {
+                    throw Abort(.internalServerError, reason: "User ID is missing")
+                }
+                return userId.uuidString
+            } else {
+                let newUser = User(
+                    email: googleCredentials.email,
+                    firebaseToken: googleCredentials.firebaseToken
+                )
+                try await newUser.save(on: req.db)
+                
+                guard let userId = newUser.id else {
+                    throw Abort(.internalServerError, reason: "Error during user creation")
+                }
+                return userId.uuidString
+            }
         } catch {
             throw Abort(.badRequest, reason: error.localizedDescription)
         }
