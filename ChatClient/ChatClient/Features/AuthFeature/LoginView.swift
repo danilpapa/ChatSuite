@@ -29,6 +29,7 @@ final class LoginViewModel: ObservableObject {
                 presentingViewController: presentingViewController
             )
             let loggedUserId = try await NetworkManager.shared.logIn(with: userCredentials)
+            path.append(Routes.mainFeature(User(id: loggedUserId, email: userCredentials.email)))
         } catch {
             // log
         }

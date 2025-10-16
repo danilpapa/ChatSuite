@@ -8,11 +8,13 @@
 import SwiftUI
 
 enum TabIdentifier: Hashable {
-    case home, settings, search
+    case settings,
+         search,
+         recents
 }
 
 struct MainView: View {
-    @State private var selected: TabIdentifier = .home
+    @State private var selected: TabIdentifier = .recents
     
     var user: User
     
@@ -32,29 +34,17 @@ struct MainView: View {
                 }
             }
             
-            Tab("", systemImage: "house.fill", value: .home) {
-                NavigationLink {
-                    ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager(), userId: userId, peerId: peerId))
-                } label: {
-                    Text("Chat \(userId)")
-                }
+            Tab("", systemImage: "message.badge", value: .recents) {
+//                RecentChatsView(for: )
             }
+            
+//            Tab("", systemImage: "house.fill", value: .home) {
+//                NavigationLink {
+//                    ChatView(socketManager: WebSocketManager(cryptoKeysManager: CryptoManager(), userId: userId, peerId: peerId))
+//                } label: {
+//                    Text("Chat \(userId)")
+//                }
+//            }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        MainView(user: .init(email: "", userId: ""))
-    }
-}
-
-struct User: Hashable, Equatable, Identifiable, Decodable {
-    
-    let email: String
-    let userId: String
-    
-    var id: String {
-        userId
     }
 }

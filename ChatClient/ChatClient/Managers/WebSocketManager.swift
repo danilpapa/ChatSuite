@@ -16,7 +16,7 @@ final class WebSocketManager: NSObject {
     var peerUserId: String
     
     var connectedUsers: Int = 0
-    var messages: [MessageModel] = []
+    var messages: [Message] = []
 
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
@@ -87,7 +87,7 @@ final class WebSocketManager: NSObject {
                     switch decryptedResult {
                     case let .success(decryptedMessage):
                         messages.append(
-                            MessageModel(
+                            Message(
                                 text: decryptedMessage,
                                 isYour: id == userId,
                                 sentAt: dateFormatter.string(from: chatMessage.sentAt)

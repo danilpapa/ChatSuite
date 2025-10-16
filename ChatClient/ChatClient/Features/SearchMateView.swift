@@ -55,7 +55,3 @@ struct SearchMateView: View {
         }
     }
 }
-
-#Preview {
-    MainView(user: .init(email: "", userId: ""))
-}
