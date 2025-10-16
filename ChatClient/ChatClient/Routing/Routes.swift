@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum Routes: Hashable {
+    
+    case mainFeature(User)
+}

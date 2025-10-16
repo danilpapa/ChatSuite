@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GoogleCredentials_ {
+struct GoogleCredentials_: @unchecked Sendable {
     
     let email: String
     let firebaseToken: String

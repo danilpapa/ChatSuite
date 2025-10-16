@@ -11,4 +11,6 @@ enum NetworkError: Error {
     
     case incorrectEmail
     case obtainingUsersError(String)
+    case loginRequest(String)
+    case loginError(String)
 }

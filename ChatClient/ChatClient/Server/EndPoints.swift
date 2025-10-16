@@ -11,7 +11,7 @@ enum EndPoints {
     
     case chatUrl
     case publicKey
-    case email
+    case login
     case users(String)
     
     var url: URL {
@@ -20,8 +20,8 @@ enum EndPoints {
             return .init(string: "wss://localhost:8443/chat")!
         case .publicKey:
             return .init(string: "\(EndPoints.baseUrl)/publicKey")!
-        case .email:
-            return .init(string: "\(EndPoints.baseUrl)/email_auth")!
+        case .login:
+            return .init(string: "\(EndPoints.baseUrl)/login")!
         case let .users(email):
             return .init(string: "\(EndPoints.baseUrl)/users/\(email)")!
         }

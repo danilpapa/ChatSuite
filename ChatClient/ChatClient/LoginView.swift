@@ -9,62 +9,50 @@ import SwiftUI
 import FirebaseCrashlytics
 import FirebaseCrashlyticsSwift
 
-enum Routes: Hashable {
-    
-    case mainFeature(User)
-}
-
-final class EmailViewModel: ObservableObject {
+// TODO: Handle
+final class LoginViewModel: ObservableObject {
     @Binding var path: NavigationPath
+    
+    @Published var isFetchingRequest: Bool = false
     
     init(path: Binding<NavigationPath>) {
         self._path = path
     }
     
-    @Published var text: String = ""
-    private var user: User? {
-        didSet {
-            if let user {
-                path.append(Routes.mainFeature(user))
-            }
+    @MainActor
+    func signInViaGoogle() async {
+        guard let presentingViewController = topViewController() else {
+            return
         }
-    }
-    
-    func receiveEmail() async {
-        let result = await NetworkManager.shared.sendLoggedEmail(text)
-        switch result {
-        case let .success(id):
-            let user = User(email: text, userId: id.uuidString)
-            // TODO: handle id
-        case .failure(let failure):
-            print("error: \(failure.localizedDescription)")
+        do {
+            let userCredentials = try await GoogleSignInManager.signInWithGoogle(
+                presentingViewController: presentingViewController
+            )
+            let loggedUserId = try await NetworkManager.shared.logIn(with: userCredentials)
+        } catch {
+            // log
         }
     }
 }
 
 struct LoginView: View {
-    @StateObject private var vm: EmailViewModel
+    @StateObject private var vm: LoginViewModel
     
     init(path: Binding<NavigationPath>) {
-        self._vm = StateObject(wrappedValue: EmailViewModel(path: path))
+        self._vm = StateObject(wrappedValue: LoginViewModel(path: path))
     }
     
     var body: some View {
-        TextField("Email", text: $vm.text)
-            .onSubmit {
+        ZStack {
+            Button("Sign in with google") {
                 Task {
-                    await vm.receiveEmail()
+                    await vm.signInViaGoogle()
                 }
             }
-        
-        Button("Crash") {
-            Crashlytics.crashlytics().log("User...")
-            crash()
+            .disabled(vm.isFetchingRequest)
+            
+            ProgressView()
+                .opacity(vm.isFetchingRequest ? 1 : 0)
         }
-    }
-    
-    private func crash() {
-        let numbers = [0]
-        let _ = numbers[1]
     }
 }

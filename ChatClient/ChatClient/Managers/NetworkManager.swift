@@ -31,27 +31,29 @@ final class NetworkManager {
             method: .post,
             parameters: params,
             encoding: JSONEncoding.default
-        ).response { response in
-            // print(response.result)
-        }
+        ).response { _ in }
     }
     
-    func sendLoggedEmail(_ email: String) async -> Result<UUID, NetworkError> {
+    func logIn(with credentials: GoogleCredentials_) async throws(NetworkError) -> UUID {
         let params: [String: Any] = [
-            "user_email": email
+            "user_email": credentials.email,
+            "firebase_token": credentials.firebaseToken
         ]
         do {
-            let responce = try await session.request(
-                EndPoints.email.url,
+            let response = try await session.request(
+                EndPoints.login.url,
                 method: .post,
                 parameters: params,
                 encoding: JSONEncoding.default
-            ).serializingDecodable(UserIdResponse_.self).value
+            ).serializingString().value
             
-            return .success(UUID(uuidString: responce.id)!)
+            if let loggedUserId = UUID(uuidString: response) {
+                return loggedUserId
+            } else {
+                throw NetworkError.loginError("Invalid user ID received: \(response)")
+            }
         } catch {
-            print("Logging error: \(error.localizedDescription)")
-            return .failure(.incorrectEmail)
+            throw NetworkError.loginRequest("Error via sending request: \(error.localizedDescription)")
         }
     }
     
@@ -66,5 +68,5 @@ final class NetworkManager {
         } catch {
             throw NetworkError.obtainingUsersError(error.localizedDescription)
         }
-}
+    }
 }

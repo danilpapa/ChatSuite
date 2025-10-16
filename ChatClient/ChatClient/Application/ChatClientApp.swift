@@ -27,8 +27,7 @@ struct ChatClientApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                //            EmailLogin(path: $navigationPath)
-                MainView(user: .init(email: "", userId: ""))
+                LoginView(path: $navigationPath)
             }
         }
     }
