@@ -28,7 +28,6 @@ final class UserFriend: Model, @unchecked Sendable {
     }
 }
 
-
 extension String {
     
     enum UserFriends {
