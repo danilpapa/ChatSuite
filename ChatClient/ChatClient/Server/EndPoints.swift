@@ -26,7 +26,7 @@ enum EndPoints {
         case let .users(email):
             return "/users/\(email)"
         case .recentChats:
-            return "/recentLobby"
+            return "/recentChats"
         }
     }
 }

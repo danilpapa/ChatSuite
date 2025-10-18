@@ -7,8 +7,9 @@
 
 import Foundation
 import Fluent
+import Vapor
 
-final class RecentChats: Model, @unchecked Sendable {
+final class RecentChats: Model, @unchecked Sendable, Content {
     static let schema = String.RecentChat.schema
     
     @ID(key: .id)

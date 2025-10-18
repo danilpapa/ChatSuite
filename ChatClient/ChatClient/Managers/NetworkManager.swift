@@ -59,12 +59,28 @@ final class NetworkManager {
     
     func obtainUsers(email: String) async throws -> [User] {
         do {
-            let responce = try await session.request(
+            let response = try await session.request(
                 EndPoints.users(email).path,
                 method: .get,
                 encoding: JSONEncoding.default
             ).serializingDecodable([User].self).value
-            return responce
+            return response
+        } catch {
+            throw NetworkError.obtainingUsersError(error.localizedDescription)
+        }
+    }
+    
+    func obtainRecentChats(for userId: UUID) async throws -> [RecentChat] {
+        do {
+            let params: [String: Any] = [
+                "user_id": userId.uuidString
+            ]
+            return try await session.request(
+                EndPoints.recentChats.path,
+                method: .get,
+                parameters: params,
+                encoding: URLEncoding.default
+            ).serializingDecodable([RecentChat].self).value
         } catch {
             throw NetworkError.obtainingUsersError(error.localizedDescription)
         }

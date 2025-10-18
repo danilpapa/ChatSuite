@@ -25,20 +25,13 @@ private final class RecentChatsViewModel: ObservableObject {
     
     init(user: User) {
         self.user = user
-        
-        loadRecentChats()
     }
     
-    private func loadRecentChats() {
-        isFetchingRequest = true
-        Main(delay: 2) {
-            let mockData: [Chat] = [
-                .init(peerDisplayedName: "t.fairushin@ya.ru"),
-                .init(peerDisplayedName: "itpavel@t-bank.ru"),
-                .init(peerDisplayedName: "maybach_danil")
-            ]
-            self.recentChats = mockData
-            self.isFetchingRequest = false
+    func loadRecentChats() async throws {
+        let recentChats = try await NetworkManager.shared.obtainRecentChats(for: user.id)
+        self.recentChats = recentChats.map {
+            let peer = user.email == $0.userHost1.email ? $0.userHost2 : $0.userHost1
+            return Chat(peerDisplayedName: peer.email)
         }
     }
 }
@@ -62,6 +55,13 @@ struct RecentChatsView: View {
             Color.white.opacity(vm.isFetchingRequest ? 0.85 : 0)
             ProgressView()
                 .opacity(vm.isFetchingRequest ? 1 : 0)
+        }
+        .task {
+            do {
+                try await vm.loadRecentChats()
+            } catch {
+                print("Erorr fetching recent chats: \(error.localizedDescription)")
+            }
         }
     }
 }
