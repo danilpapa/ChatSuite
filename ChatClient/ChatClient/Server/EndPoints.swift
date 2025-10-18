@@ -13,19 +13,20 @@ enum EndPoints {
     case publicKey
     case login
     case users(String)
+    case recentChats
     
-    var url: URL {
+    var path: String {
         switch self {
         case .chatUrl:
-            return .init(string: "wss://localhost:8443/chat")!
+            return "wss://localhost:8443/chat"
         case .publicKey:
-            return .init(string: "\(EndPoints.baseUrl)/publicKey")!
+            return "/publicKey"
         case .login:
-            return .init(string: "\(EndPoints.baseUrl)/login")!
+            return "/login"
         case let .users(email):
-            return .init(string: "\(EndPoints.baseUrl)/users/\(email)")!
+            return "/users/\(email)"
+        case .recentChats:
+            return "/recentLobby"
         }
     }
-    
-    static let baseUrl: String = "https://localhost:8443"
 }

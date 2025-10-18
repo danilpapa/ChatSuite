@@ -40,7 +40,7 @@ final class WebSocketManager: NSObject {
             delegate: self,
             delegateQueue: .main
         )
-        let url = EndPoints.chatUrl.url
+        let url = WebSocketURLBuilder.makeURL(for: "chat")
         var request = URLRequest(url: url)
         
         request.setValue(userId, forHTTPHeaderField: "host-id")

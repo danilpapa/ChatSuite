@@ -17,7 +17,7 @@ final class NetworkManager {
         let manager = ServerTrustManager(evaluators: [
             "localhost": DisabledTrustEvaluator()
         ])
-        session = Session(serverTrustManager: manager)
+        session = Session(interceptor: BaseURLInterceptor(), serverTrustManager: manager)
     }
     
     func sendPublicKey(key: Data, from id: String, to peerId: String) async {
@@ -27,21 +27,21 @@ final class NetworkManager {
             "public_key": key.base64EncodedString()
         ]
         session.request(
-            EndPoints.publicKey.url,
+            EndPoints.publicKey.path,
             method: .post,
             parameters: params,
             encoding: JSONEncoding.default
         ).response { _ in }
     }
     
-    func logIn(with credentials: GoogleCredentials_) async throws(NetworkError) -> UUID {
+    func login(with credentials: GoogleCredentials_) async throws(NetworkError) -> UUID {
         let params: [String: Any] = [
             "user_email": credentials.email,
             "firebase_token": credentials.firebaseToken
         ]
         do {
             let response = try await session.request(
-                EndPoints.login.url,
+                EndPoints.login.path,
                 method: .post,
                 parameters: params,
                 encoding: JSONEncoding.default
@@ -60,7 +60,7 @@ final class NetworkManager {
     func obtainUsers(email: String) async throws -> [User] {
         do {
             let responce = try await session.request(
-                EndPoints.users(email).url,
+                EndPoints.users(email).path,
                 method: .get,
                 encoding: JSONEncoding.default
             ).serializingDecodable([User].self).value

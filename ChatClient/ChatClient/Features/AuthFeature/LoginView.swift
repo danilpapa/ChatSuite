@@ -28,7 +28,7 @@ final class LoginViewModel: ObservableObject {
             let userCredentials = try await GoogleSignInManager.signInWithGoogle(
                 presentingViewController: presentingViewController
             )
-            let loggedUserId = try await NetworkManager.shared.logIn(with: userCredentials)
+            let loggedUserId = try await NetworkManager.shared.login(with: userCredentials)
             path.append(Routes.mainFeature(User(id: loggedUserId, email: userCredentials.email)))
         } catch {
             // log
