@@ -26,7 +26,9 @@ struct ChatController: RouteCollection, Sendable {
         let cryptoKeyRequest = routes.grouped("publicKey")
         
         routes.webSocket("chat") { req, ws in
-            handleWebSocket(req: req, ws: ws)
+            Task {
+                await handleWebSocket(req: req, ws: ws)
+            }
         }
         
         cryptoKeyRequest.post { req -> HTTPStatus in
@@ -68,12 +70,21 @@ struct ChatController: RouteCollection, Sendable {
         return try req.content.decode(PublicKeyRequest.self)
     }
     
-    private func handleWebSocket(req: Request, ws: WebSocket) {
+    private func handleWebSocket(req: Request, ws: WebSocket) async {
         guard let hostId = req.valueForHeader("host-id"),
               let peerId = req.valueForHeader("peer-id")
         else { return }
+          
+        do {
+            try await connectionManager.newConnection(
+                db: req.db,
+                host: hostId,
+                peer: peerId, ws
+            )
+        } catch {
+            fatalError(error.localizedDescription)
+        }
         
-        connectionManager.newConnection(host: hostId, peer: peerId, ws)
         broadcastConnectionCount(with: hostId)
         
         ws.onText { ws, text in

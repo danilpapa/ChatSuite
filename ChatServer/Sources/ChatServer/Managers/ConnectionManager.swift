@@ -7,6 +7,7 @@
 
 import Foundation
 import Vapor
+import Fluent
 
 struct FireLobby: Equatable {
     
@@ -34,11 +35,12 @@ struct FireLobby: Equatable {
 
 protocol IConnectionManager {
     
-    func newConnection(
+    func newConnection (
+        db: any Database,
         host hostId: String,
         peer peerId: String,
         _ ws: WebSocket
-    )
+    ) async throws
     
     func removeConnection(from hostId: String)
     func toAllConnections(memberId: String, _ completion: @escaping (WebSocket) -> Void)
@@ -52,16 +54,35 @@ final class ConnectionManager: IConnectionManager {
     private let lock: NSLock = .init()
     
     func newConnection(
+        db: any Database,
         host hostId: String,
         peer peerId: String,
         _ ws: WebSocket
-    ) {
-        lock.lock()
-        defer { lock.unlock() }
+    ) async throws {
         if let peerLobbyIndex = self.acriveLobbies.firstIndex(where: { lobby in
             lobby.hostId == hostId || lobby.hostId == peerId
         }) {
             self.acriveLobbies[peerLobbyIndex].peerConnected(ws)
+            let hostId = UUID(uuidString: hostId)!,
+                peerId = UUID(uuidString: peerId)!
+            do {
+                if let existingChat = try await RecentChats
+                    .query(on: db)
+                    .group(.or, { group in
+                        group.filter(\.$userHost1.$id == hostId)
+                        group.filter(\.$userHost2.$id == peerId)
+                    })
+                    .first()
+                {
+                    existingChat.updatedAt = .now
+                    try await existingChat.save(on: db)
+                } else {
+                    let newRecentChat = RecentChats(userHost1ID: hostId, userHost2ID: peerId, updatedAt: .now)
+                    try await newRecentChat.save(on: db)
+                }
+            } catch {
+                throw Abort(.badGateway, reason: "Error during finding recent chat with host: \(hostId), and peer: \(peerId)")
+            }
         } else {
             let fireLobby = FireLobby(hostId: hostId, hostWebSocket: ws, peerData: (peerId, nil))
             acriveLobbies.append(fireLobby)
