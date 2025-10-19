@@ -5,4 +5,4 @@ db:
 bg =?
 
 server: 
-	@swift run ChatServer 
+	@swift run ChatServer
