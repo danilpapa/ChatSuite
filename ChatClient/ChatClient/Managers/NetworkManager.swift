@@ -75,13 +75,16 @@ final class NetworkManager {
             let params: [String: Any] = [
                 "user_id": userId.uuidString
             ]
-            return try await session.request(
+            let responce = try await session.request(
                 EndPoints.recentChats.path,
-                method: .get,
+                method: .post,
                 parameters: params,
-                encoding: URLEncoding.default
-            ).serializingDecodable([RecentChat].self).value
+                encoding: JSONEncoding.default,
+            ).serializingString().value
+            print(responce)
+            return []
         } catch {
+            print(error.localizedDescription)
             throw NetworkError.obtainingUsersError(error.localizedDescription)
         }
     }

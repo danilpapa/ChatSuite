@@ -11,9 +11,9 @@ struct User: Hashable, Equatable, Identifiable, Decodable {
     
     var id: UUID = .init()
     let email: String
-    var displayedName: String = ""
+    var displayName: String = ""
     
     static func anonymous() -> Self {
-        .init(email: "", displayedName: "anonymous")
+        .init(email: "", displayName: "anonymous")
     }
 }

@@ -27,6 +27,7 @@ private final class RecentChatsViewModel: ObservableObject {
         self.user = user
     }
     
+    @MainActor
     func loadRecentChats() async throws {
         let recentChats = try await NetworkManager.shared.obtainRecentChats(for: user.id)
         self.recentChats = recentChats.map {

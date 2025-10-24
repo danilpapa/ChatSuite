@@ -9,6 +9,7 @@ public func configure(_ app: Application) async throws {
         try configureTLS(app)
         let connectionManager = ConnectionManager()
         try app.register(collection: LoginController())
+        try app.register(collection: UserController())
         try app.register(collection: ChatController(connectionManager: connectionManager))
         
         try configureDataBase(app)

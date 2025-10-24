@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import PostgresNIO
 
 struct UserController: RouteCollection {
     
@@ -17,18 +18,17 @@ struct UserController: RouteCollection {
             try await User.query(on: req.db).all()
         }
         
-        recentLobbies.get(use: handleRecentLobbyRequest)
+        recentLobbies.post(use: handleRecentLobbyRequest)
     }
     
-    // TODO: ебучий отладчик не попадает
     private func handleRecentLobbyRequest(_ req: Request) async throws -> [RecentChats] {
+        var userId: UUID
         do {
-            guard
-                let userIdString = req.query[String.self, at: "user_id"],
-                let userId = UUID(uuidString: userIdString) else
-            {
-                throw Abort(.badRequest, reason: "Missing or invalid user_id query parameter")
-            }
+            userId = try req.content.decode(UserId.self).userId
+        } catch {
+            throw Abort(.badRequest, reason: "Error with user_id header: \(error.localizedDescription)")
+        }
+        do {
             return try await RecentChats
                 .query(on: req.db)
                 .group(.or, { group in
@@ -37,7 +37,11 @@ struct UserController: RouteCollection {
                 })
                 .all()
         } catch {
-            throw Abort(.badRequest, reason: "Error with user_id header: \(error.localizedDescription)")
+            if let _ = error as? PostgresNIO.PSQLError {
+                return []
+            } else {
+                throw Abort(.badGateway, reason: error.localizedDescription)
+            }
         }
     }
 }
