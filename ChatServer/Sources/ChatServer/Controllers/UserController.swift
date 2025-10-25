@@ -11,37 +11,49 @@ import PostgresNIO
 struct UserController: RouteCollection {
     
     func boot(routes: any RoutesBuilder) throws {
-        let usersRoute = routes.grouped("user")
+        let usersRoute = routes.grouped("users")
         let recentLobbies = routes.grouped("recentChats")
         
-        usersRoute.get { req async throws -> [User] in
-            try await User.query(on: req.db).all()
+        usersRoute.get { request async throws -> [User] in
+            return []
         }
-        
         recentLobbies.post(use: handleRecentLobbyRequest)
     }
     
-    private func handleRecentLobbyRequest(_ req: Request) async throws -> [RecentChats] {
-        var userId: UUID
+    // TODO: сука не попадает в отладчик
+    private func handleUserRequest(_ req: Request) async throws -> [User] {
         do {
-            userId = try req.content.decode(UserId.self).userId
+            guard let userNamePreffix = req.query[String.self, at: "user_name_prefix"] else {
+                // handle empty
+                throw Abort(.badRequest, reason: "Error via accesing user name preffix.")
+            }
+            let result = try await User
+                .query(on: req.db)
+                .filter(\.$email, .contains(inverse: false, .prefix), userNamePreffix)
+                .all()
+            return result
         } catch {
-            throw Abort(.badRequest, reason: "Error with user_id header: \(error.localizedDescription)")
+            throw Abort(.badRequest, reason: error.localizedDescription)
         }
+    }
+    
+    private func handleRecentLobbyRequest(_ req: Request) async throws -> [RecentChats] {
         do {
+            let userId = try req.content.decode(UserId.self).userId
+            
             return try await RecentChats
                 .query(on: req.db)
-                .group(.or, { group in
+                .group(.or) { group in
                     group.filter(\.$userHost1.$id, .equal, userId)
                     group.filter(\.$userHost2.$id, .equal, userId)
-                })
+                }
                 .all()
+        } catch let error as DecodingError {
+            throw Abort(.badRequest, reason: "Invalid request body: \(error.localizedDescription)")
+        } catch let error as PostgresNIO.PSQLError {
+            return []
         } catch {
-            if let _ = error as? PostgresNIO.PSQLError {
-                return []
-            } else {
-                throw Abort(.badGateway, reason: error.localizedDescription)
-            }
+            throw Abort(.badGateway, reason: "Unexpected error: \(error.localizedDescription)")
         }
     }
 }
