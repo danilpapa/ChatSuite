@@ -20,7 +20,7 @@ private typealias VM = RecentChatsViewModel
 
 private final class RecentChatsViewModel: ObservableObject {
     private var user: User
-    @Published var recentChats: [Chat] = [] // = ...load from back
+    @Published var recentChats: [Chat] = []
     @Published var isFetchingRequest: Bool = false
     
     init(user: User) {
@@ -45,17 +45,29 @@ struct RecentChatsView: View {
     }
     
     var body: some View {
-        List {
-            ForEach(vm.recentChats) { chat in
-                Text(chat.peerDisplayedName)
-                    .font(.title)
-                    .fontWeight(.semibold)
+        Group {
+            if vm.recentChats.isEmpty {
+                Button {
+                    // TODO: navigate to search mate view§
+                } label: {
+                    Text("No recent chats, start chatting now")
+                }
+                .opacity(vm.recentChats.isEmpty ? 1 : 0)
+                .disabled(!vm.recentChats.isEmpty)
+            } else {
+                List {
+                    ForEach(vm.recentChats) { chat in
+                        Text(chat.peerDisplayedName)
+                            .font(.title)
+                            .fontWeight(.semibold)
+                    }
+                }
+                .overlay {
+                    Color.white.opacity(vm.isFetchingRequest ? 0.85 : 0)
+                    ProgressView()
+                        .opacity(vm.isFetchingRequest ? 1 : 0)
+                }
             }
-        }
-        .overlay {
-            Color.white.opacity(vm.isFetchingRequest ? 0.85 : 0)
-            ProgressView()
-                .opacity(vm.isFetchingRequest ? 1 : 0)
         }
         .task {
             do {

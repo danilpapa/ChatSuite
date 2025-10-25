@@ -12,7 +12,7 @@ enum EndPoints {
     case chatUrl
     case publicKey
     case login
-    case users(String)
+    case users
     case recentChats
     
     var path: String {
@@ -23,8 +23,8 @@ enum EndPoints {
             return "/publicKey"
         case .login:
             return "/login"
-        case let .users(email):
-            return "/users/\(email)"
+        case .users:
+            return "/users"
         case .recentChats:
             return "/recentChats"
         }

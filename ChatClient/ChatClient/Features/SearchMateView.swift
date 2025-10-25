@@ -16,6 +16,7 @@ final class SearchMateViewModel: ObservableObject {
     
     init() { }
     
+    @MainActor
     func search() async {
         do {
             self.isFetchingUsers = true
@@ -39,11 +40,11 @@ struct SearchMateView: View {
             if viewModel.isFetchingUsers {
                 ProgressView()
             } else {
-                List {
-                    ForEach(0..<10) { num in
-                        Text(num.description)
-                            .padding(.horizontal)
-                    }
+                ZStack {
+                    Color.gray
+                        .opacity(0.35)
+                        .ignoresSafeArea()
+                    Text("No recent mates")
                 }
             }
         }

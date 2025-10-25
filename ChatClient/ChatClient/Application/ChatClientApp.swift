@@ -28,7 +28,8 @@ struct ChatClientApp: App {
         WindowGroup {
             NavigationStack {
 //                LoginView(path: $navigationPath)
-                RecentChatsView(for: .anonymous())
+//                RecentChatsView(for: .anonymous())
+                SearchMateView()
             }
         }
     }

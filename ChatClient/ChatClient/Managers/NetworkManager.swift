@@ -59,12 +59,17 @@ final class NetworkManager {
     
     func obtainUsers(email: String) async throws -> [User] {
         do {
-            let response = try await session.request(
-                EndPoints.users(email).path,
+            let params: [String: Any] = [
+                "user_name_prefix": email
+            ]
+            return try await session.request(
+                EndPoints.users.path,
                 method: .get,
-                encoding: JSONEncoding.default
-            ).serializingDecodable([User].self).value
-            return response
+                parameters: params,
+                encoding: URLEncoding.default
+            )
+            .serializingDecodable([User].self)
+            .value
         } catch {
             throw NetworkError.obtainingUsersError(error.localizedDescription)
         }
