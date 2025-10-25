@@ -57,14 +57,14 @@ final class NetworkManager {
         }
     }
     
-    func obtainUsers(email: String) async throws -> [User] {
+    func obtainUsersByNamePrefix(email: String) async throws -> [User] {
         do {
             let params: [String: Any] = [
                 "user_name_prefix": email
             ]
             return try await session.request(
-                EndPoints.users.path,
-                method: .get,
+                EndPoints.users.appending("user_name_prefix"),
+                method: .post,
                 parameters: params,
                 encoding: URLEncoding.default
             )

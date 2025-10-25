@@ -29,4 +29,8 @@ enum EndPoints {
             return "/recentChats"
         }
     }
+    
+    func appending(_ path: String) -> String {
+        self.path + "/\(path)"
+    }
 }

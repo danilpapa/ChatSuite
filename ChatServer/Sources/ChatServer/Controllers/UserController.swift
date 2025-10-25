@@ -14,26 +14,22 @@ struct UserController: RouteCollection {
         let usersRoute = routes.grouped("users")
         let recentLobbies = routes.grouped("recentChats")
         
-        usersRoute.get { request async throws -> [User] in
-            return []
+        usersRoute.group(":user_name_prefix") { usersRoute in
+            usersRoute.post(use: handleUsersNamePreffixRequest)
         }
         recentLobbies.post(use: handleRecentLobbyRequest)
     }
     
-    // TODO: сука не попадает в отладчик
-    private func handleUserRequest(_ req: Request) async throws -> [User] {
+    private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
         do {
-            guard let userNamePreffix = req.query[String.self, at: "user_name_prefix"] else {
-                // handle empty
-                throw Abort(.badRequest, reason: "Error via accesing user name preffix.")
-            }
+            let userNamePreffix = try req.content.decode(UserNamePrefixModel.self).namePrefix
             let result = try await User
                 .query(on: req.db)
                 .filter(\.$email, .contains(inverse: false, .prefix), userNamePreffix)
                 .all()
             return result
         } catch {
-            throw Abort(.badRequest, reason: error.localizedDescription)
+            throw Abort(.badRequest, reason: "Error via accesing user name preffix: " + error.localizedDescription)
         }
     }
     
