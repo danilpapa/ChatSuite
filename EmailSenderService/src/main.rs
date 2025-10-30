@@ -1,13 +1,10 @@
 mod email_req;
-use email_req::EmailRequest;
-
 mod email_processor;
+
+use email_req::EmailRequest;
 use email_processor::EmailProcessor;
-
-use actix_web::{http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder};
-
+use actix_web::{post, web, App, HttpResponse, HttpServer, Responder};
 use crate::email_processor::IProcessor;
-
 
 #[post("/send-email")]
 async fn send_email(email: web::Json<EmailRequest>) -> impl Responder {

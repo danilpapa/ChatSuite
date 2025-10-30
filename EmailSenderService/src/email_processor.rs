@@ -15,17 +15,19 @@ pub trait IProcessor {
 impl  IProcessor for EmailProcessor {
 
     async fn process_email(&self, to: &str, subject: &str) {
+        let host_email = env::var("HOST_EMAIL").expect("Host email not set");
+
         match self {
             EmailProcessor::ConfirmEmail => {
                 let email = Message::builder()
-                    .from("some_email@gmail.com".parse().unwrap())
+                    .from(host_email.parse().unwrap())
                     .to(to.parse().unwrap())
                     .subject(subject)
                     .body(String::from("This is a test email!"))
                     .unwrap();
 
                 let creads = Credentials::new(
-                    String::from("some_email@gmail.com"), 
+                    host_email.clone(), 
                     String::from("App password")
                 );
                 
