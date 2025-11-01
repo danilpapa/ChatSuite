@@ -27,7 +27,7 @@ struct ChatClientApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                SearchMateView()
+                LoginView(path: $navigationPath)
             }
         }
     }
