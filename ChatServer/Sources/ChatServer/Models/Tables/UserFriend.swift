@@ -13,15 +13,19 @@ final class UserFriend: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
-    @Parent(key: .init(stringLiteral: .UserFriends.Fields.userId))
+    @Parent(key: String.UserFriends.Fields.userId.literal)
     var user: User
     
-    @Parent(key: .init(stringLiteral: .UserFriends.Fields.friendId))
+    @Parent(key: String.UserFriends.Fields.friendId.literal)
     var friend: User
     
     init() {}
     
-    init(id: UUID? = nil, userID: UUID, friendID: UUID) {
+    init(
+        id: UUID? = nil,
+        userID: UUID,
+        friendID: UUID
+    ) {
         self.id = id
         self.$user.id = userID
         self.$friend.id = friendID

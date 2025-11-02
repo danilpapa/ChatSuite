@@ -23,6 +23,9 @@ struct UserController: RouteCollection {
     private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
         do {
             let userNamePreffix = try req.content.decode(UserNamePrefixModel.self).namePrefix
+            if userNamePreffix.isEmpty {
+                return []
+            }
             let result = try await User
                 .query(on: req.db)
                 .filter(\.$email, .contains(inverse: false, .prefix), userNamePreffix)

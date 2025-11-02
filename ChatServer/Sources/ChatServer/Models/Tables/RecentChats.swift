@@ -15,18 +15,23 @@ final class RecentChats: Model, @unchecked Sendable, Content {
     @ID(key: .id)
     var id: UUID?
     
-    @Parent(key: .init(stringLiteral: .RecentChat.Fields.userHost1))
+    @Parent(key: String.RecentChat.Fields.userHost1.literal)
     var userHost1: User
     
-    @Parent(key: .init(stringLiteral: .RecentChat.Fields.userHost2))
+    @Parent(key: String.RecentChat.Fields.userHost2.literal)
     var userHost2: User
     
-    @Field(key: .init(stringLiteral: String.RecentChat.Fields.updatedAt))
+    @Field(key: String.RecentChat.Fields.updatedAt.literal)
     var updatedAt: Date
     
     init() {}
     
-    init(id: UUID? = nil, userHost1ID: UUID, userHost2ID: UUID, updatedAt: Date) {
+    init(
+        id: UUID? = nil,
+        userHost1ID: UUID,
+        userHost2ID: UUID,
+        updatedAt: Date
+    ) {
         self.id = id
         self.$userHost1.id = userHost1ID
         self.$userHost2.id = userHost2ID

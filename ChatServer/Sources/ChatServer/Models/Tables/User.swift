@@ -14,13 +14,13 @@ final class User: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: .init(stringLiteral: .User.Fields.email))
+    @Field(key: String.User.Fields.email.literal)
     var email: String
     
-    @Field(key: .init(stringLiteral: .User.Fields.displayName))
+    @Field(key: String.User.Fields.displayName.literal)
     var displayName: String?
     
-    @Field(key: .init(stringLiteral: .User.Fields.firebaseToken))
+    @Field(key: String.User.Fields.firebaseToken.literal)
     var  firebaseToken: String
     
     @Siblings(through: UserFriend.self, from: \.$user, to: \.$friend)

@@ -31,6 +31,7 @@ private func configureDataBase(_ app: Application) throws {
     
     app.migrations.add(UserTableMigration())
     app.migrations.add(UserFriendsMigration())
+    app.migrations.add(MateRequestsMigration())
 }
 
 private func configureTLS(_ app: Application) throws {

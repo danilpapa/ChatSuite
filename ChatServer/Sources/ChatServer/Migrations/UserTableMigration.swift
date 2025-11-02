@@ -12,9 +12,9 @@ struct UserTableMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         try await database.schema(String.User.schema)
             .id()
-            .field(.init(stringLiteral: .User.Fields.email), .string, .required)
-            .field(.init(stringLiteral: .User.Fields.displayName), .string)
-            .field(.init(stringLiteral: .User.Fields.firebaseToken), .string, .required)
+            .field(String.User.Fields.email.literal, .string, .required)
+            .field(String.User.Fields.displayName.literal, .string)
+            .field(String.User.Fields.firebaseToken.literal, .string, .required)
             .create()
     }
     
