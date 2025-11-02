@@ -66,7 +66,7 @@ final class NetworkManager {
                 EndPoints.users.appending("user_name_prefix"),
                 method: .post,
                 parameters: params,
-                encoding: URLEncoding.default
+                encoding: JSONEncoding.default
             )
             .serializingDecodable([User].self)
             .value

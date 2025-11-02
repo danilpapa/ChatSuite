@@ -3,9 +3,18 @@ import ProjectDescription
 let project = Project(
     name: "ChatClient",
     packages: [
-        .remote(url: "https://github.com/firebase/firebase-ios-sdk", requirement: .upToNextMajor(from: "12.3.0")),
-        .remote(url: "https://github.com/Alamofire/Alamofire", requirement: .upToNextMajor(from: "5.0.0")),
-        .remote(url: "https://github.com/google/GoogleSignIn-iOS", requirement: .upToNextMajor(from: "9.0.0"))
+        .remote(
+            url: "https://github.com/firebase/firebase-ios-sdk",
+            requirement: .upToNextMajor(from: "12.3.0")
+        ),
+        .remote(
+            url: "https://github.com/Alamofire/Alamofire",
+            requirement: .upToNextMajor(from: "5.0.0")
+        ),
+        .remote(
+            url: "https://github.com/google/GoogleSignIn-iOS",
+            requirement: .upToNextMajor(from: "9.0.0")
+        )
     ],
     targets: [
         .target(
@@ -15,10 +24,6 @@ let project = Project(
             bundleId: "-77.ru.ChatClient",
             infoPlist: .extendingDefault(
                 with: [
-                    "UILaunchScreen": [
-                        "UIColorName": "",
-                        "UIImageName": "",
-                    ],
                     "CFBundleURLTypes": [
                         [
                             "CFBundleURLSchemes": [
@@ -50,7 +55,8 @@ let project = Project(
                 .package(product: "GoogleSignIn"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseCore"),
-                .package(product: "FirebaseCrashlytics")
+                .package(product: "FirebaseCrashlytics"),
+                .project(target: "CryptoManager", path: "../../Modules/CryptoManager")
             ]
         ),
         .target(

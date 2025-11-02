@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import FirebaseCrashlytics
+import CryptoManager
 
 @Observable
 final class WebSocketManager: NSObject {
@@ -82,10 +83,10 @@ final class WebSocketManager: NSObject {
                         Crashlytics.crashlytics().record(error: CryptoKeyManagerError.invalidDecryptedData)
                         return
                     }
-                    let id = chatMessage.senderId,
-                        decryptedResult = cryptoKeysManager.decryptMessage(encryptedData)
-                    switch decryptedResult {
-                    case let .success(decryptedMessage):
+                    let id = chatMessage.senderId
+                    let decryptedMessage: String
+                    do {
+                        decryptedMessage = try cryptoKeysManager.decryptMessage(encryptedData)
                         messages.append(
                             Message(
                                 text: decryptedMessage,
@@ -93,7 +94,7 @@ final class WebSocketManager: NSObject {
                                 sentAt: dateFormatter.string(from: chatMessage.sentAt)
                             )
                         )
-                    case let .failure(error):
+                    } catch {
                         Crashlytics.crashlytics().log("Decryption failed for message id: \(id)")
                         Crashlytics.crashlytics().record(error: error)
                     }
@@ -134,17 +135,12 @@ final class WebSocketManager: NSObject {
             return
         }
         do {
-            let encryptedMessageResult = cryptoKeysManager.encryptMessage(messageData)
-            switch encryptedMessageResult {
-            case let .success(encryptedMessage):
-                let taskMessage = URLSessionWebSocketTask.Message.string(encryptedMessage.base64EncodedString())
-                try await webSocketTask?.send(taskMessage)
-            case .failure(let error):
-                Crashlytics.crashlytics().log("Encryption failed in AES.GCM.seal")
-                Crashlytics.crashlytics().record(error: error)
-            }
+            let encryptedMessage = try cryptoKeysManager.encryptMessage(messageData)
+            let taskMessage = URLSessionWebSocketTask.Message.string(encryptedMessage.base64EncodedString())
+            try await webSocketTask?.send(taskMessage)
         } catch {
-            print(error)
+            Crashlytics.crashlytics().log("Encryption failed in AES.GCM.seal")
+            Crashlytics.crashlytics().record(error: error)
         }
     }
     

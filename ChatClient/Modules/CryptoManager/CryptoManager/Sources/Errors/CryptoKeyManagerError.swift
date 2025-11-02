@@ -1,13 +1,13 @@
 //
 //  CryptoKeyManagerError.swift
-//  ChatClient
+//  CryptoManager
 //
 //  Created by setuper on 09.10.2025.
 //
 
 import Foundation
 
-enum CryptoKeyManagerError: Error {
+public enum CryptoKeyManagerError: Error {
     
     case keyAgreementFailed(Error)
     case invalidSharedKey
