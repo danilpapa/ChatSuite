@@ -12,13 +12,20 @@ let project = Project(
             name: "ChatClient",
             destinations: .iOS,
             product: .app,
-            bundleId: "77.ru.ChatClient",
+            bundleId: "-77.ru.ChatClient",
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLSchemes": [
+                                "com.googleusercontent.apps.603244641297-uksllo6q5di888ev9b9qcbke81361g9q"
+                            ]
+                        ]
+                    ]   
                 ]
             ),
             sources: ["ChatClient/Sources/**"],
@@ -50,7 +57,7 @@ let project = Project(
             name: "ChatClientTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "77.ru.ChatClientTests",
+            bundleId: "-77.ru.ChatClientTests",
             infoPlist: .default,
             sources: ["ChatClient/Tests/**"],
             resources: [],
