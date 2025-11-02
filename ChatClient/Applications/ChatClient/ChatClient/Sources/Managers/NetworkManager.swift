@@ -77,20 +77,34 @@ final class NetworkManager {
     
     func obtainRecentChats(for userId: UUID) async throws -> [RecentChat] {
         do {
-            let params: [String: Any] = [
-                "user_id": userId.uuidString
-            ]
+            let params: [String: Any] = ["user_id": userId.uuidString]
             let responce = try await session.request(
                 EndPoints.recentChats.path,
                 method: .post,
                 parameters: params,
-                encoding: JSONEncoding.default,
+                encoding: JSONEncoding.default
             ).serializingString().value
             print(responce)
             return []
         } catch {
             print(error.localizedDescription)
             throw NetworkError.obtainingUsersError(error.localizedDescription)
+        }
+    }
+    
+    func getMateStatus(for id: UUID) async throws -> String {
+        do {
+            let params: [String: Any] = ["mate_id": id]
+            return try await session.request(
+                EndPoints.users.appending("mate_status"),
+                method: .post,
+                parameters: params,
+                encoding: JSONEncoding.default
+            )
+            .serializingString()
+            .value
+        } catch {
+            throw NetworkError.mateStatusError(error.localizedDescription)
         }
     }
 }

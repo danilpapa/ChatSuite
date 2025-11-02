@@ -7,10 +7,13 @@
 
 import SwiftUI
 
+// TODO: Cache
 final class SearchMateViewModel: ObservableObject {
     
     @Published var mateName: String = ""
+    @Published var mateStatus: String = ""
     @Published var isFetchingUsers = false
+    @Published var isFetchingMateStatus = false
     @Published var loadedUsers: [User] = []
     @Published var isInviteSheetPresented: Bool = false {
         didSet {
@@ -23,18 +26,34 @@ final class SearchMateViewModel: ObservableObject {
     
     init() { }
     
-    @MainActor
     func search() async {
         do {
             self.isFetchingUsers = true
             let obtainedUsers = try await NetworkManager.shared.obtainUsersByNamePrefix(email: mateName)
             self.isFetchingUsers = false
             if loadedUsers != obtainedUsers {
-                self.loadedUsers = obtainedUsers
+                Main {
+                    self.loadedUsers = obtainedUsers
+                }
             }
         } catch {
             print(error.localizedDescription)
             self.isFetchingUsers = false
+        }
+    }
+    
+    func getMateStatus() async {
+        guard let user = mateToInvite else { fatalError("WTF") }
+        do {
+            self.isFetchingMateStatus = true
+            let status = try await NetworkManager.shared.getMateStatus(for: user.id)
+            Main {
+                self.mateStatus = status
+            }
+            self.isFetchingMateStatus = false
+        } catch {
+            print(error.localizedDescription)
+            self.isFetchingMateStatus = false
         }
     }
 }
@@ -74,12 +93,18 @@ struct SearchMateView: View {
                     Button {
                         // Action
                     } label: {
-                        Text("Add mate")
-                            .padding(5)
+                        Text(viewModel.mateStatus)
+                            .foregroundStyle(.background)
+                            .padding(10)
                             .background(
                                 Color.green,
                                 in: .capsule
                             )
+                            .overlay {
+                                ProgressView()
+                                    .opacity(viewModel.isFetchingMateStatus ? 1 : 0)
+                            }
+                        }
                     }
                 }
                 .presentationDetents([.fraction(50)])
