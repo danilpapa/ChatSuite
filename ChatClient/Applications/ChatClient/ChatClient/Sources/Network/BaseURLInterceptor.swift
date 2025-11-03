@@ -32,8 +32,14 @@ final class BaseURLInterceptor: RequestInterceptor {
         }
         
         var newRequest = urlRequest
-        let newURL = baseURL.appendingPathComponent(url.relativeString)
+        let updatedString = url.relativeString.replacingOccurrences(of: "%3F", with: "?")
+        print(updatedString)
+        let newURL = baseURL.appendingPathComponent(updatedString)
         newRequest.url = newURL
+        
+        if let url = newRequest.url {
+            print("Запрос: \(url.absoluteString)")
+        }
         
         completion(.success(newRequest))
     }

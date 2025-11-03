@@ -28,9 +28,13 @@ final class SearchMateViewModel: ObservableObject {
     
     func search() async {
         do {
-            self.isFetchingUsers = true
+            Main {
+                self.isFetchingUsers = true
+            }
             let obtainedUsers = try await NetworkManager.shared.obtainUsersByNamePrefix(email: mateName)
-            self.isFetchingUsers = false
+            Main {
+                self.isFetchingUsers = false
+            }
             if loadedUsers != obtainedUsers {
                 Main {
                     self.loadedUsers = obtainedUsers
@@ -45,12 +49,14 @@ final class SearchMateViewModel: ObservableObject {
     func getMateStatus() async {
         guard let user = mateToInvite else { fatalError("WTF") }
         do {
-            self.isFetchingMateStatus = true
+            Main {
+                self.isFetchingMateStatus = true
+            }
             let status = try await NetworkManager.shared.getMateStatus(for: user.id)
             Main {
                 self.mateStatus = status
+                self.isFetchingMateStatus = false
             }
-            self.isFetchingMateStatus = false
         } catch {
             print(error.localizedDescription)
             self.isFetchingMateStatus = false
@@ -104,21 +110,25 @@ struct SearchMateView: View {
                                 ProgressView()
                                     .opacity(viewModel.isFetchingMateStatus ? 1 : 0)
                             }
-                        }
                     }
                 }
-                .presentationDetents([.fraction(50)])
+                .onAppear {
+                    Task {
+                        await viewModel.getMateStatus()
+                    }
+                }
             }
-            .overlay {
-                ZStack {
-                    Text("No recent mates")
-                        .opacity(viewModel.loadedUsers.isEmpty ? 1 : 0)
-                    Group {
-                        Color.white.opacity(0.35)
-                        ProgressView()
-                    }
-                    .opacity(viewModel.isFetchingUsers ? 1 : 0)
+            .presentationDetents([.fraction(50)])
+        }
+        .overlay {
+            ZStack {
+                Text("No recent mates")
+                    .opacity(viewModel.loadedUsers.isEmpty ? 1 : 0)
+                Group {
+                    Color.white.opacity(0.35)
+                    ProgressView()
                 }
+                .opacity(viewModel.isFetchingUsers ? 1 : 0)
             }
         }
         .searchable(text: $viewModel.mateName)
@@ -129,3 +139,4 @@ struct SearchMateView: View {
         }
     }
 }
+

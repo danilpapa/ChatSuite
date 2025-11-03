@@ -17,9 +17,10 @@ struct UserController: RouteCollection {
         usersRoute.group(":user_name_prefix") { usersRoute in
             usersRoute.post(use: handleUsersNamePreffixRequest)
         }
-        usersRoute.group(":mate_status") { usersRoute in
-            usersRoute.post(use: handleMateStatusRequest)
+        usersRoute.group("mate") { mateStatusRoute in
+            mateStatusRoute.get(use: handleMateStatusGetRequest)
         }
+        
         recentLobbies.post(use: handleRecentLobbyRequest)
     }
     
@@ -59,20 +60,11 @@ struct UserController: RouteCollection {
         }
     }
     
-    private func handleMateStatusRequest(_ req: Request) async throws -> String {
-        // TODO: передавать from и проверять запись 
-        do {
-            let forId = try req.content.decode(MateStatusFor.self).id
-            let toThatUserRequests = try await MateRequests.query(on: req.db)
-                .filter(\.$to.$id, .equal, forId)
-                .all()
-            if toThatUserRequests.isEmpty {
-                return "Add mate"
-            }
-            return toThatUserRequests.first!.status.rawValue
-        } catch {
-            throw Abort(.badRequest, reason: "Error during accesing Mate Request: \(error.localizedDescription)")
+    private func handleMateStatusGetRequest(_ req: Request) async throws -> String {
+        guard let forId = req.query[String.self, at: "mate_id"] else {
+            throw Abort(.badRequest, reason: "Missing or invalid 'for' parameter")
         }
+        return forId
     }
 }
 
