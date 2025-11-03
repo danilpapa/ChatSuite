@@ -26,19 +26,14 @@ final class SearchMateViewModel: ObservableObject {
     
     init() { }
     
+    @MainActor
     func search() async {
         do {
-            Main {
-                self.isFetchingUsers = true
-            }
+            self.isFetchingUsers = true
             let obtainedUsers = try await NetworkManager.shared.obtainUsersByNamePrefix(email: mateName)
-            Main {
-                self.isFetchingUsers = false
-            }
+            self.isFetchingUsers = false
             if loadedUsers != obtainedUsers {
-                Main {
-                    self.loadedUsers = obtainedUsers
-                }
+                self.loadedUsers = obtainedUsers
             }
         } catch {
             print(error.localizedDescription)

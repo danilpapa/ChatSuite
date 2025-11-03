@@ -16,18 +16,19 @@ enum EndPoints {
     case recentChats
     
     var path: String {
-        switch self {
+        let appending = switch self {
         case .chatUrl:
-            return "wss://localhost:8443/chat"
+            "wss://localhost:8443/chat"
         case .publicKey:
-            return "/publicKey"
+            "/publicKey"
         case .login:
-            return "/login"
+            "/login"
         case .users:
-            return "/users"
+            "/users"
         case .recentChats:
-            return "/recentChats"
+            "/recentChats"
         }
+        return "https://localhost:8443" + appending
     }
     
     func appending(_ path: String) -> String {

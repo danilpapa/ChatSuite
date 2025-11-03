@@ -17,7 +17,7 @@ final class NetworkManager {
         let manager = ServerTrustManager(evaluators: [
             "localhost": DisabledTrustEvaluator()
         ])
-        session = Session(interceptor: BaseURLInterceptor(), serverTrustManager: manager)
+        session = Session(serverTrustManager: manager)
     }
     
     func sendPublicKey(key: Data, from id: String, to peerId: String) async {
@@ -93,8 +93,20 @@ final class NetworkManager {
     }
     
     func getMateStatus(for id: UUID) async throws -> String {
-        // TODO: Custom network
+        do {
+            let params: [String: Any] = ["mate_id": id]
+            let res = try await session.request(
+                EndPoints.users.appending("mate"),
+                method: .get,
+                parameters: params,
+                encoding: URLEncoding.queryString
+            )
+            .serializingString()
+            .value
+            print(res)
+            return ""
+        } catch {
+            throw NetworkError.mateStatusError(error.localizedDescription)
+        }
     }
 }
-
-// https://localhost:8443/users/mate?mate_id=1

@@ -61,10 +61,13 @@ struct UserController: RouteCollection {
     }
     
     private func handleMateStatusGetRequest(_ req: Request) async throws -> String {
-        guard let forId = req.query[String.self, at: "mate_id"] else {
-            throw Abort(.badRequest, reason: "Missing or invalid 'for' parameter")
+        guard let mateStatusForUserWithUUIDString = req.query[String.self, at: "mate_id"],
+              let mateStatusForUserWithUUID = UUID(uuidString: mateStatusForUserWithUUIDString) else {
+            throw Abort(.badRequest, reason: "Missing or invalid 'mate_id' parameter")
         }
-        return forId
+        do {
+            // TODO: ajajaj
+        }
     }
 }
 
