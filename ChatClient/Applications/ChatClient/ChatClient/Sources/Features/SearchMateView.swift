@@ -57,6 +57,12 @@ final class SearchMateViewModel: ObservableObject {
             self.isFetchingMateStatus = false
         }
     }
+    
+    @MainActor
+    func mateButtonAction() async {
+        guard let user = mateToInvite else { fatalError("WTF") }
+        await NetworkManager.shared.mateRequest(to: user.id, status: mateStatus)
+    }
 }
 
 struct SearchMateView: View {
@@ -92,7 +98,9 @@ struct SearchMateView: View {
                         Text(user.displayName ?? "set Display name")
                     }
                     Button {
-                        // Action
+                        Task {
+                            await viewModel.mateButtonAction()
+                        }
                     } label: {
                         Text(viewModel.mateStatus)
                             .foregroundStyle(.background)

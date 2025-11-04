@@ -14,6 +14,28 @@ enum RequestStatus: String, Codable, Sendable {
     case pending
     case accepted
     case rejected
+    
+    var requestFromStatus: String {
+        switch self {
+        case .pending:
+            return "Pending"
+        case .accepted:
+            return "Delete mate"
+        case .rejected:
+            return "Add mate"
+        }
+    }
+    
+    var requestToStatus: String {
+        switch self {
+        case .pending:
+            return "Accept mate"
+        case .accepted:
+            return "Delete mate"
+        case .rejected:
+            return "Add mate"
+        }
+    }
 }
 
 final class MateRequests: Model, @unchecked Sendable {

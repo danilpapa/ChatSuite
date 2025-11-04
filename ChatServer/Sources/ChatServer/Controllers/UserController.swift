@@ -19,6 +19,7 @@ struct UserController: RouteCollection {
         }
         usersRoute.group("mate") { mateStatusRoute in
             mateStatusRoute.get(use: handleMateStatusGetRequest)
+            mateStatusRoute.post(use: handleMateStatusPostRequest)
         }
         
         recentLobbies.post(use: handleRecentLobbyRequest)
@@ -61,16 +62,89 @@ struct UserController: RouteCollection {
     }
     
     private func handleMateStatusGetRequest(_ req: Request) async throws -> String {
-        guard let mateStatusForUserWithUUIDString = req.query[String.self, at: "mate_id"],
-              let mateStatusForUserWithUUID = UUID(uuidString: mateStatusForUserWithUUIDString) else {
-            throw Abort(.badRequest, reason: "Missing or invalid 'mate_id' parameter")
+        guard let mateIdString = req.query[String.self, at: "mate_id"],
+              let userIdString = req.query[String.self, at: "user_id"],
+              let mateId = UUID(uuidString: mateIdString),
+              let userId = UUID(uuidString: userIdString)
+        else {
+            throw Abort(
+                .badRequest,
+                reason: "Missing or invalid 'mate_id', 'user_id' parameter"
+            )
         }
+        let mateRequest = try await MateRequests.query(on: req.db)
+            .group(.or) { group in
+                group.group(.and) { group in
+                    group.filter(\.$from.$id, .equal, userId)
+                    group.filter(\.$to.$id, .equal, mateId)
+                }
+                group.group(.and) { group in
+                    group.filter(\.$to.$id, .equal, userId)
+                    group.filter(\.$from.$id, .equal, mateId)
+                }
+            }
+            .all()
+        if mateRequest.isEmpty { return "Add mate" }
+        guard let request = mateRequest.first else {
+            throw Abort(.badRequest, reason: "Error via accesing Mate Request relation")
+        }
+        if request.status == .rejected {
+            try await request.delete(on: req.db)
+            return "Add mate"
+        }
+        if request.$from.id == userId {
+            return request.status.requestFromStatus
+        }
+        if request.$to.id == userId {
+            return request.status.requestToStatus
+        }
+        return ""
+    }
+    
+    private func handleMateStatusPostRequest(_ req: Request) async throws -> String {
+        let data: MateRequest
         do {
-            // TODO: ajajaj
+            data = try req.content.decode(MateRequest.self)
+        } catch {
+            throw Abort(.badRequest, reason: "Error via enconding body: \(error.localizedDescription)")
         }
+        let currentMateState = data.state
+        if currentMateState == "Add mate" {
+            let newMateRequest = MateRequests(from: data.userId, to: data.peerId)
+            try await newMateRequest.save(on: req.db)
+        } else if currentMateState == "Pending" {
+            
+        } else if currentMateState == "Delete mate" {
+            // TODO: Delete friend
+            try await MateRequests.query(on: req.db)
+                .group(.and) { group in
+                    group.filter(\.$from.$id, .equal, data.userId)
+                    group.filter(\.$to.$id, .equal, data.peerId)
+                }
+                .delete()
+        } else if currentMateState == "Accept mate" {
+            let request = try await MateRequests.query(on: req.db)
+                .group(.and) { group in
+                    group.filter(\.$from.$id, .equal, data.userId)
+                    group.filter(\.$to.$id, .equal, data.peerId)
+                }
+                .first()
+            request?.status = .accepted
+            // TODO: Add fried
+        }
+        return "hello"
     }
 }
 
-private extension UserController {
+fileprivate struct MateRequest: Content {
     
+    let state: String
+    let userId: UUID
+    let peerId: UUID
+    
+    enum CodingKeys: String, CodingKey {
+        case state = "request_status"
+        case userId = "user_id"
+        case peerId = "peer_id"
+    }
 }
