@@ -84,7 +84,9 @@ struct UserController: RouteCollection {
                 }
             }
             .all()
-        if mateRequest.isEmpty { return "Add mate" }
+        if mateRequest.isEmpty {
+            return "Add mate"
+        }
         guard let request = mateRequest.first else {
             throw Abort(.badRequest, reason: "Error via accesing Mate Request relation")
         }

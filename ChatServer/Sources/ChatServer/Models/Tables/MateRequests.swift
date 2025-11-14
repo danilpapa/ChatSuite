@@ -29,7 +29,7 @@ enum RequestStatus: String, Codable, Sendable {
     var requestToStatus: String {
         switch self {
         case .pending:
-            return "Accept mate"
+            return "Accept/Delete mate"
         case .accepted:
             return "Delete mate"
         case .rejected:
