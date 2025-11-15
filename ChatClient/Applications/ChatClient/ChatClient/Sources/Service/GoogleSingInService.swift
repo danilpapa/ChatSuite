@@ -7,32 +7,6 @@
 
 import Foundation
 
-//final class LoginViewModel: ObservableObject {
-//    var router: Router?
-//    var loginState: LoginState?
-//    @Published var isFetchingRequest: Bool = false
-//
-//    @MainActor
-//    func signInViaGoogle() async {
-//        guard let presentingViewController = topViewController() else {
-//            return
-//        }
-//        do {
-//            let userCredentials = try await GoogleSignInManager.signInWithGoogle(
-//                presentingViewController: presentingViewController
-//            )
-//            let loggedUserId = try await NetworkManager.shared.login(with: userCredentials)
-//            loginState?.isLoggedIn = true
-//            loginState?.loggedUser = User(
-//                id: loggedUserId,
-//                email: userCredentials.email
-//            )
-//        } catch {
-//            // log
-//        }
-//    }
-//}
-
 protocol IGoogleSignInService {
     
     @MainActor

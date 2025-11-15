@@ -10,15 +10,20 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var loginState: LoginState
     private var googleSignInService: IGoogleSignInService
+    private var userService: IUserService
     
-    init(googleSignInService: IGoogleSignInService) {
+    init(
+        googleSignInService: IGoogleSignInService,
+        userService: IUserService
+    ) {
         self.googleSignInService = googleSignInService
+        self.userService = userService
     }
     
     var body: some View {
         Group {
             if loginState.isLoggedIn {
-                SearchMateView()
+                SearchMateView(userService: userService)
             } else {
                 LoginView(googleSignInService: googleSignInService)
             }
