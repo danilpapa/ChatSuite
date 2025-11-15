@@ -14,6 +14,5 @@ enum AuthenticationFlow: Hashable {
 
 enum MainFlow: Hashable {
     
-    case mainPage(User)
     case mateStatusPage(User)
 }

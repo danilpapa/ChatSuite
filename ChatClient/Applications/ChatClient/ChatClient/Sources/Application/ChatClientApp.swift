@@ -57,8 +57,6 @@ struct ChatClient: View {
                 }
             case .main(let mainFlow):
                 switch mainFlow {
-                case .mainPage:
-                    fatalError("Idk resolve via tab")
                 case let .mateStatusPage(mate):
                     MateStatusPageView(mate: mate, mateStatusService: mateStatusService)
                 }
