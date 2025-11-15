@@ -23,38 +23,52 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var router = Router()
+    var body: some Scene {
+        WindowGroup {
+            NavigationStack(path: $router.path) {
+                ChatClient(router: router)
+            }
+        }
+    }
+}
+
+struct ChatClient: View {
+    private var router: Router
     @StateObject private var loginState = LoginState()
     private var googleSignInService: IGoogleSignInService = GoogleSignInService()
     private var userService: IUserService = UserService()
     private var mateStatusService: IMateStatusService = MateStatusService()
     
-    var body: some Scene {
-        WindowGroup {
-            NavigationStack(path: $router.path) {
-                RootView(
-                    googleSignInService: googleSignInService,
-                    userService: userService
-                )
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .auth(let authenticationFlow):
-                        switch authenticationFlow {
-                        case .login:
-                            LoginView(googleSignInService: googleSignInService)
-                        }
-                    case .main(let mainFlow):
-                        switch mainFlow {
-                        case .mainPage:
-                            SearchMateView(userService: userService)
-                        case let .mateStatusPage(mate):
-                            MateStatusPageView(mate: mate, mateStatusService: mateStatusService)
-                        }
-                    }
+    init(router: Router) {
+        self.router = router
+    }
+    
+    var body: some View {
+        RootView(
+            googleSignInService: googleSignInService,
+            userService: userService
+        )
+        .navigationDestination(for: AppRoute.self) { route in
+            switch route {
+            case .auth(let authenticationFlow):
+                switch authenticationFlow {
+                case .login:
+                    LoginView(googleSignInService: googleSignInService)
+                }
+            case .main(let mainFlow):
+                switch mainFlow {
+                case .mainPage:
+                    fatalError("Idk resolve via tab")
+                case let .mateStatusPage(mate):
+                    MateStatusPageView(mate: mate, mateStatusService: mateStatusService)
                 }
             }
-            //.id(loginState.isLoggedIn)
-            .environmentObject(router)
-            .environmentObject(loginState)
         }
+        .environmentObject(router)
+        .environmentObject(loginState)
     }
+}
+
+#Preview {
+    ChatClient(router: Router())
 }
