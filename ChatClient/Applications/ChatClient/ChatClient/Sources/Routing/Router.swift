@@ -12,10 +12,8 @@ final class Router: ObservableObject {
     
     func push(_ route: AppRoute) {
         print(path)
-        print(path.count)
         path.append(route)
         print(path)
-        print(path.count)
     }
     
     func pop() {

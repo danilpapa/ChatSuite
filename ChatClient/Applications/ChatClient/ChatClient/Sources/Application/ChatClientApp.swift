@@ -37,7 +37,6 @@ struct ChatClient: View {
     @StateObject private var loginState = LoginState()
     private var googleSignInService: IGoogleSignInService = GoogleSignInService()
     private var userService: IUserService = UserService()
-    private var mateStatusService: IMateStatusService = MateStatusService()
     
     init(router: Router) {
         self.router = router

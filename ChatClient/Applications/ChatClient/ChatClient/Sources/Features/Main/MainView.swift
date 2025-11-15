@@ -28,8 +28,19 @@ struct MainView: View {
                 systemImage: "house",
                 value: .home
             ) {
-                NavigationStack {
+                NavigationStack(path: $router.path) {
                     Text("Main page")
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .main(let mainFlow):
+                                switch mainFlow {
+                                case let .friendRequests(user):
+                                    Text("Add")
+                                default: fatalError()
+                                }
+                            default: fatalError()
+                            }
+                        }
                         .toolbar {
                             ToolbarItem(placement: .primaryAction) {
                                 Button {
@@ -50,34 +61,22 @@ struct MainView: View {
                 value: .search,
                 role: .search
             ) {
-                NavigationStack {
+                NavigationStack(path: $router.path) {
                     SearchMateView(displayedUsers: displayedMates)
                         .searchable(text: $mateRequest)
+                        .navigationDestination(for: MainFlow.self) { route in
+                            switch route {
+                            case let .mateStatusPage(mate):
+                                MateStatusPageView(mate: mate, mateStatusService: MateStatusService())
+                            default: fatalError()
+                            }
+                        }
                 }
             }
         }
         .onChange(of: mateRequest) { _, userPreffix in
             Task {
                 displayedMates = await userService.searchViaPreffix(senderId: user.id, userPreffix)
-            }
-        }
-        .navigationDestination(for: AppRoute.self) { route in
-            switch route {
-            case .auth(let authenticationFlow):
-                switch authenticationFlow {
-                case .login:
-                    LoginView(googleSignInService: GoogleSignInService())
-                }
-            case .main(let mainFlow):
-                switch mainFlow {
-                case let .mateStatusPage(mate):
-                    MateStatusPageView(
-                        mate: mate,
-                        mateStatusService: MateStatusService()
-                    )
-                case let .friendRequests(user):
-                    Color.red
-                }
             }
         }
     }
