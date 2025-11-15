@@ -9,16 +9,18 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var loginState: LoginState
+    private var googleSignInService: IGoogleSignInService
+    
+    init(googleSignInService: IGoogleSignInService) {
+        self.googleSignInService = googleSignInService
+    }
     
     var body: some View {
         Group {
             if loginState.isLoggedIn {
                 SearchMateView()
-                    .onAppear {
-                        print(loginState.loggedUser)
-                    }
             } else {
-                LoginView()
+                LoginView(googleSignInService: googleSignInService)
             }
         }
     }

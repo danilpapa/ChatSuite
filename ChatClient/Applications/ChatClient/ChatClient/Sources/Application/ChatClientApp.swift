@@ -24,13 +24,25 @@ struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var router = Router()
     @StateObject private var loginState = LoginState()
+    private var googleSignInService: IGoogleSignInService = GoogleSignInService()
     
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $router.path) {
-                RootView()
+                RootView(googleSignInService: googleSignInService)
                     .navigationDestination(for: AppRoute.self) { route in
-                        RouterResolver.resolve(route)
+                        switch route {
+                        case .auth(let authenticationFlow):
+                            switch authenticationFlow {
+                            case .login:
+                                LoginView(googleSignInService: googleSignInService)
+                            }
+                        case .main(let mainFlow):
+                            switch mainFlow {
+                            case .mainPage:
+                                SearchMateView()
+                            }
+                        }
                     }
             }
             .id(loginState.isLoggedIn)
