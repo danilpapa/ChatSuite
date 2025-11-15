@@ -41,13 +41,14 @@ final class SearchMateViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func getMateStatus() async {
         guard let user = mateToInvite else { fatalError("WTF") }
         do {
             Main {
                 self.isFetchingMateStatus = true
             }
-            let status = try await NetworkManager.shared.getMateStatus(for: user.id)
+            let status = try await NetworkManager.shared.getMateStatus(for: UUID(uuidString: "4f5c7843-4d77-4fea-9426-793963182f9e")!)
             Main {
                 self.mateStatus = status
                 self.isFetchingMateStatus = false
@@ -78,7 +79,6 @@ struct SearchMateView: View {
                             .fontWeight(.semibold)
                         HStack {
                             Text(user.email)
-                            Text(user.displayName ?? "set Display name")
                         }
                         .onTapGesture {
                             viewModel.isInviteSheetPresented = true
@@ -95,7 +95,6 @@ struct SearchMateView: View {
                         .fontWeight(.semibold)
                     HStack {
                         Text(user.email)
-                        Text(user.displayName ?? "set Display name")
                     }
                     Button {
                         Task {

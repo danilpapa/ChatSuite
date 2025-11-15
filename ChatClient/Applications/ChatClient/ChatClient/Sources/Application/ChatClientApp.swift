@@ -22,14 +22,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var navigationPath: NavigationPath = .init()
+    @StateObject private var router = Router()
+    @StateObject private var loginState = LoginState()
     
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                SearchMateView()
-//                LoginView(path: $navigationPath)
+            NavigationStack(path: $router.path) {
+                RootView()
+                    .navigationDestination(for: AppRoute.self) { route in
+                        RouterResolver.resolve(route)
+                    }
             }
+            .id(loginState.isLoggedIn)
+            .environmentObject(router)
+            .environmentObject(loginState)
         }
     }
 }

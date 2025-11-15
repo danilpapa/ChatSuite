@@ -19,6 +19,7 @@ enum GoogleSignInErrors: Error {
 
 enum GoogleSignInManager {
     
+    @MainActor
     static func signInWithGoogle(presentingViewController: UIViewController) async throws -> GoogleCredentials_ {
         guard let clientId = FirebaseApp.app()?.options.clientID else {
             throw GoogleSignInErrors.missingClientId

@@ -9,15 +9,10 @@ import SwiftUI
 import FirebaseCrashlytics
 import FirebaseCrashlyticsSwift
 
-// TODO: Handle
 final class LoginViewModel: ObservableObject {
-    @Binding var path: NavigationPath
-    
+    var router: Router?
+    var loginState: LoginState?
     @Published var isFetchingRequest: Bool = false
-    
-    init(path: Binding<NavigationPath>) {
-        self._path = path
-    }
     
     @MainActor
     func signInViaGoogle() async {
@@ -29,7 +24,11 @@ final class LoginViewModel: ObservableObject {
                 presentingViewController: presentingViewController
             )
             let loggedUserId = try await NetworkManager.shared.login(with: userCredentials)
-            path.append(Routes.mainFeature(User(id: loggedUserId, email: userCredentials.email)))
+            loginState?.isLoggedIn = true
+            loginState?.loggedUser = User(
+                id: loggedUserId,
+                email: userCredentials.email
+            )
         } catch {
             // log
         }
@@ -37,11 +36,9 @@ final class LoginViewModel: ObservableObject {
 }
 
 struct LoginView: View {
-    @StateObject private var vm: LoginViewModel
-    
-    init(path: Binding<NavigationPath>) {
-        self._vm = StateObject(wrappedValue: LoginViewModel(path: path))
-    }
+    @EnvironmentObject var router: Router
+    @EnvironmentObject var loginState: LoginState
+    @StateObject private var vm = LoginViewModel()
     
     var body: some View {
         ZStack {
@@ -54,6 +51,10 @@ struct LoginView: View {
             
             ProgressView()
                 .opacity(vm.isFetchingRequest ? 1 : 0)
+        }
+        .onAppear {
+            vm.router = router
+            vm.loginState = loginState
         }
     }
 }

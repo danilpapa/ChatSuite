@@ -7,7 +7,12 @@
 
 import Foundation
 
-enum Routes: Hashable {
+enum AuthenticationFlow: Hashable {
     
-    case mainFeature(User)
+    case login
+}
+
+enum MainFlow: Hashable {
+    
+    case mainPage(User)
 }

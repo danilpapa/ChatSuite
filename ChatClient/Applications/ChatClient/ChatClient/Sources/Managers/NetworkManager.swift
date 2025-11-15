@@ -10,7 +10,7 @@ import Alamofire
 
 final class NetworkManager {
     
-    private let DANILMAYBACH = "a3d68ac2-a9c7-4394-aff9-e883a2ec0378" // "4f5c7843-4d77-4fea-9426-793963182f9e"
+    private let MAYBACHDanil = "a3d68ac2-a9c7-4394-aff9-e883a2ec0378"
     
     static let shared: NetworkManager = .init()
     private var session: Session
@@ -96,7 +96,7 @@ final class NetworkManager {
     
     func getMateStatus(for id: UUID) async throws -> String {
         do {
-            let params: [String: Any] = ["mate_id": id, "user_id": DANILMAYBACH]
+            let params: [String: Any] = ["mate_id": MAYBACHDanil, "user_id": id]
             return try await session.request(
                 EndPoints.users.appending("mate"),
                 method: .get,
@@ -113,7 +113,7 @@ final class NetworkManager {
     func mateRequest(to id: UUID, status: String) async {
         let bodyParams: [String: Any] = [
             "request_status": status,
-            "user_id": DANILMAYBACH,
+            "user_id": MAYBACHDanil,
             "peer_id": id
         ]
         do {
