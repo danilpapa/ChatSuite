@@ -59,9 +59,10 @@ final class NetworkManager {
         }
     }
     
-    func obtainUsersByNamePrefix(email: String) async throws -> [User] {
+    func obtainUsersByNamePrefix(from id: UUID, email: String) async throws -> [User] {
         do {
             let params: [String: Any] = [
+                "sender_id": id.uuidString,
                 "user_name_prefix": email
             ]
             return try await session.request(
@@ -127,11 +128,5 @@ final class NetworkManager {
         } catch {
             print(error.localizedDescription)
         }
-//        do {
-//            return try await getMateStatus(for: id)
-//        } catch {
-//            print(error.localizedDescription)
-//            return ""
-//        }
     }
 }

@@ -16,6 +16,7 @@ struct MainView: View {
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
     
+    var user: User
     var userService: IUserService
     
     var body: some View {
@@ -34,7 +35,7 @@ struct MainView: View {
         }
         .onChange(of: mateRequest) { _, userPreffix in
             Task {
-                displayedMates = await userService.searchViaPreffix(userPreffix)
+                displayedMates = await userService.searchViaPreffix(senderId: user.id, userPreffix)
             }
         }
     }

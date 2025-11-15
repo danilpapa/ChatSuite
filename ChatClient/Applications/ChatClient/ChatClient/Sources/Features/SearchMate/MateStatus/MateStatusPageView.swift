@@ -30,7 +30,7 @@ struct MateStatusPageView: View {
                 Text(mate.email)
             }
             Button {
-                // TODO: action
+                
             } label: {
                 Text(mateStatus)
                     .foregroundStyle(.background)
@@ -54,4 +54,3 @@ struct MateStatusPageView: View {
         }
     }
 }
-

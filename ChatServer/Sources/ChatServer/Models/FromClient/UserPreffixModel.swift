@@ -7,11 +7,13 @@
 
 import Vapor
 
-struct UserNamePrefixModel: Content {
+struct UserPreffixModel: Content {
     
+    var senderId: UUID
     var namePrefix: String
     
     enum CodingKeys: String, CodingKey {
+        case senderId = "sender_id"
         case namePrefix = "user_name_prefix"
     }
 }

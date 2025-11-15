@@ -27,13 +27,12 @@ struct UserController: RouteCollection {
     
     private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
         do {
-            let userNamePreffix = try req.content.decode(UserNamePrefixModel.self).namePrefix
-            if userNamePreffix.isEmpty {
-                return []
-            }
+            let preffixModel = try req.content.decode(UserPreffixModel.self)
+            if preffixModel.namePrefix.isEmpty { return [] }
             let result = try await User
                 .query(on: req.db)
-                .filter(\.$email, .contains(inverse: false, .prefix), userNamePreffix)
+                .filter(\.$email, .contains(inverse: false, .prefix), preffixModel.namePrefix)
+                .filter(\.$id, .notEqual, preffixModel.senderId)
                 .all()
             return result
         } catch {

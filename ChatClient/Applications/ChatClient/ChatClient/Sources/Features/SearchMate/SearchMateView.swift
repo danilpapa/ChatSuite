@@ -16,14 +16,19 @@ struct SearchMateView: View {
         VStack {
             List {
                 ForEach(displayedUsers) { user in
-                    VStack {
+                    NavigationLink(value: AppRoute.main(.mateStatusPage(user))) {
                         Text(user.email)
-                        .onTapGesture {
-                            router.push(.main(.mateStatusPage(user)))
-                        }
                     }
                 }
             }
+            .overlay {
+                Text("No recent mates")
+                    .opacity(displayedUsers.isEmpty ? 1 : 0)
+            }
         }
     }
+}
+
+#Preview {
+    ChatClient(router: Router())
 }

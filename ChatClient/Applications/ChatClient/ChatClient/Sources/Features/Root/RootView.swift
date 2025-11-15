@@ -23,7 +23,7 @@ struct RootView: View {
     var body: some View {
         Group {
             if loginState.isLoggedIn {
-                MainView(userService: userService)
+                MainView(user: loginState.getUser(), userService: userService)
             } else {
                 LoginView(googleSignInService: googleSignInService)
             }

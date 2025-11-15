@@ -58,7 +58,10 @@ struct ChatClient: View {
             case .main(let mainFlow):
                 switch mainFlow {
                 case let .mateStatusPage(mate):
-                    MateStatusPageView(mate: mate, mateStatusService: mateStatusService)
+                    MateStatusPageView(
+                        mate: mate,
+                        mateStatusService: mateStatusService
+                    )
                 }
             }
         }
