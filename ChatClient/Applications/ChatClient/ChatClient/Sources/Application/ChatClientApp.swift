@@ -48,23 +48,6 @@ struct ChatClient: View {
             googleSignInService: googleSignInService,
             userService: userService
         )
-        .navigationDestination(for: AppRoute.self) { route in
-            switch route {
-            case .auth(let authenticationFlow):
-                switch authenticationFlow {
-                case .login:
-                    LoginView(googleSignInService: googleSignInService)
-                }
-            case .main(let mainFlow):
-                switch mainFlow {
-                case let .mateStatusPage(mate):
-                    MateStatusPageView(
-                        mate: mate,
-                        mateStatusService: mateStatusService
-                    )
-                }
-            }
-        }
         .environmentObject(router)
         .environmentObject(loginState)
     }

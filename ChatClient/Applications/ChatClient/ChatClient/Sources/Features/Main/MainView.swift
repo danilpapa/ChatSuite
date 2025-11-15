@@ -8,11 +8,13 @@
 import SwiftUI
 
 enum TabIdentifier: Hashable {
-    case search
+    case search,
+         home
 }
 
 struct MainView: View {
-    @State private var selected: TabIdentifier = .search
+    @EnvironmentObject var router: Router
+    @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
     
@@ -21,6 +23,27 @@ struct MainView: View {
     
     var body: some View {
         TabView(selection: $selected) {
+            Tab(
+                "Main",
+                systemImage: "house",
+                value: .home
+            ) {
+                NavigationStack {
+                    Text("Main page")
+                        .toolbar {
+                            ToolbarItem(placement: .primaryAction) {
+                                Button {
+                                    router.push(.main(.friendRequests(user)))
+                                } label: {
+                                    Image(systemName: "person.checkmark.and.xmark")
+                                        .foregroundStyle(.background)
+                                }
+                                .buttonStyle(.glassProminent)
+                            }
+                        }
+                }
+            }
+            
             Tab(
                 "",
                 systemImage: "magnifyingglass",
@@ -38,5 +61,30 @@ struct MainView: View {
                 displayedMates = await userService.searchViaPreffix(senderId: user.id, userPreffix)
             }
         }
+        .navigationDestination(for: AppRoute.self) { route in
+            switch route {
+            case .auth(let authenticationFlow):
+                switch authenticationFlow {
+                case .login:
+                    LoginView(googleSignInService: GoogleSignInService())
+                }
+            case .main(let mainFlow):
+                switch mainFlow {
+                case let .mateStatusPage(mate):
+                    MateStatusPageView(
+                        mate: mate,
+                        mateStatusService: MateStatusService()
+                    )
+                case let .friendRequests(user):
+                    Color.red
+                }
+            }
+        }
     }
+}
+
+#Preview {
+    MainView(user: .danilMaybach(), userService: UserService())
+        .environmentObject(Router())
+        .environmentObject(LoginState())
 }

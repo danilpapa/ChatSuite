@@ -11,7 +11,11 @@ final class Router: ObservableObject {
     @Published var path = NavigationPath()
     
     func push(_ route: AppRoute) {
+        print(path)
+        print(path.count)
         path.append(route)
+        print(path)
+        print(path.count)
     }
     
     func pop() {

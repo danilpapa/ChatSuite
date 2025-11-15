@@ -16,3 +16,13 @@ struct User: Hashable, Equatable, Identifiable, Decodable {
         .init(email: "anonymous")
     }
 }
+
+extension User {
+    
+    static func danilMaybach() -> User {
+        User(
+            id: UUID(uuidString: "4f5c7843-4d77-4fea-9426-793963182f9e")!,
+            email: "danilmaybach777@gmail.com"
+        )
+    }
+}
