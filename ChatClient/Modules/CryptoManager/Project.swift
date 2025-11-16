@@ -10,6 +10,9 @@ let project = Project(
             bundleId: "-77.ru.CryptoManager",
             sources: ["CryptoManager/Sources/**"],
             resources: ["CryptoManager/Resources/**"],
+            dependencies: [
+                .project(target: "CryptoAPI", path: "../../API/CryptoAPI")
+            ]
         )
     ]
 )

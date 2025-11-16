@@ -1,6 +1,6 @@
 //
 //  CryptoKeyManagerError.swift
-//  CryptoManager
+//  CryptoAPI
 //
 //  Created by setuper on 09.10.2025.
 //

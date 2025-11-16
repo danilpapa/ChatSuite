@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import FirebaseCrashlytics
-import CryptoManager
+import CryptoAPI
 
 @Observable
 final class WebSocketManager: NSObject {
