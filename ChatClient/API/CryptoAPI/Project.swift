@@ -9,7 +9,7 @@ let project = Project(
             product: .staticLibrary,
             bundleId: "-77.ru.CryptoAPI",
             sources: ["CryptoAPI/Sources/**"],
-            resources: ["CryptoAPI/Resources/**"],
+            resources: ["CryptoAPI/Resources/**"]
         )
     ]
 )
