@@ -2,6 +2,12 @@ import ProjectDescription
 
 let project = Project(
     name: "CryptoManager",
+    packages: [
+        .remote(
+            url: "https://github.com/uber/needle.git",
+            requirement: .upToNextMajor(from: "0.25.1")
+        )
+    ],
     targets: [
         .target(
             name: "CryptoManager",
@@ -11,7 +17,7 @@ let project = Project(
             sources: ["CryptoManager/Sources/**"],
             resources: ["CryptoManager/Resources/**"],
             dependencies: [
-                .project(target: "CryptoAPI", path: "../../API/CryptoAPI")
+                .package(product: "Needle")
             ]
         )
     ]

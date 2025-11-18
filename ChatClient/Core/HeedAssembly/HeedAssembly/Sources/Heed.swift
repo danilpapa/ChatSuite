@@ -1,6 +1,8 @@
 import CryptoAPI
 import CryptoManager
+import NeedleFoundation
 
-public func resolveCryptoManager() -> ICryptoManager {
-    CryptoManager()
+public actor Heed {
+    
+    
 }
