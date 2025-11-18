@@ -57,7 +57,7 @@ let project = Project(
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseCrashlytics"),
                 .project(target: "CryptoAPI", path: "../../API/CryptoAPI"),
-                .project(target: "CryptoManager", path: "../../Modules/CryptoManager")
+                .project(target: "HeedAssembly", path: "../../Core/HeedAssembly")
             ]
         ),
         .target(
