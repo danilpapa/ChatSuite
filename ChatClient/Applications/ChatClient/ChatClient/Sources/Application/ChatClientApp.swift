@@ -25,9 +25,7 @@ struct ChatClientApp: App {
     @StateObject private var router = Router()
     var body: some Scene {
         WindowGroup {
-            NavigationStack(path: $router.path) {
-                ChatClient(router: router)
-            }
+            ChatClient(router: router)
         }
     }
 }

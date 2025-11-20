@@ -30,17 +30,6 @@ struct MainView: View {
             ) {
                 NavigationStack(path: $router.path) {
                     Text("Main page")
-                        .navigationDestination(for: AppRoute.self) { route in
-                            switch route {
-                            case .main(let mainFlow):
-                                switch mainFlow {
-                                case let .friendRequests(user):
-                                    Text("Add")
-                                default: fatalError()
-                                }
-                            default: fatalError()
-                            }
-                        }
                         .toolbar {
                             ToolbarItem(placement: .primaryAction) {
                                 Button {
@@ -64,13 +53,6 @@ struct MainView: View {
                 NavigationStack(path: $router.path) {
                     SearchMateView(displayedUsers: displayedMates)
                         .searchable(text: $mateRequest)
-                        .navigationDestination(for: MainFlow.self) { route in
-                            switch route {
-                            case let .mateStatusPage(mate):
-                                MateStatusPageView(mate: mate, mateStatusService: MateStatusService())
-                            default: fatalError()
-                            }
-                        }
                 }
             }
         }
@@ -80,10 +62,4 @@ struct MainView: View {
             }
         }
     }
-}
-
-#Preview {
-    MainView(user: .danilMaybach(), userService: UserService())
-        .environmentObject(Router())
-        .environmentObject(LoginState())
 }
