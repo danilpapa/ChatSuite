@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "ChatClient",
@@ -22,6 +23,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "-77.ru.ChatClient",
+            deploymentTargets: Defaults.deploymentsTarget,
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleURLTypes": [
@@ -65,6 +67,7 @@ let project = Project(
             destinations: .iOS,
             product: .unitTests,
             bundleId: "-77.ru.ChatClientTests",
+            deploymentTargets: Defaults.deploymentsTarget,
             infoPlist: .default,
             sources: ["ChatClient/Tests/**"],
             resources: [],

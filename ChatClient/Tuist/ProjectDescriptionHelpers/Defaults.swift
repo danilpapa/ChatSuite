@@ -13,4 +13,5 @@ public enum Defaults {
         path: .relativeToRoot("Scripts/needle_validation_script.sh"),
         name: "Needle"
     )
+    public static let deploymentsTarget = DeploymentTargets.iOS("26.0")
 }

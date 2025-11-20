@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "CryptoAPI",
@@ -8,6 +9,7 @@ let project = Project(
             destinations: .iOS,
             product: .staticLibrary,
             bundleId: "-77.ru.CryptoAPI",
+            deploymentTargets: Defaults.deploymentsTarget,
             sources: ["CryptoAPI/Sources/**"],
             resources: ["CryptoAPI/Resources/**"]
         )

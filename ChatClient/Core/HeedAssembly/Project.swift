@@ -9,6 +9,7 @@ let project = Project(
             destinations: .iOS,
             product: .staticLibrary,
             bundleId: "-77.ru.HeedAssembly",
+            deploymentTargets: Defaults.deploymentsTarget,
             sources: ["HeedAssembly/Sources/**"],
             resources: ["HeedAssembly/Resources/**"],
             scripts: [
