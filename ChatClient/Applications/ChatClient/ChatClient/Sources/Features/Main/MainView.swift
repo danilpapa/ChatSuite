@@ -32,13 +32,18 @@ struct MainView: View {
                     Text("Main page")
                         .toolbar {
                             ToolbarItem(placement: .primaryAction) {
-                                Button {
-                                    router.push(.main(.friendRequests(user)))
-                                } label: {
+                                NavigationLink(value: MainFlow.friendRequests(user)) {
                                     Image(systemName: "person.checkmark.and.xmark")
-                                        .foregroundStyle(.background)
+                                        .foregroundStyle(.blue)
+                                        .badge(2)
                                 }
-                                .buttonStyle(.glassProminent)
+                            }
+                        }
+                        .navigationDestination(for: MainFlow.self) { route in
+                            switch route {
+                            case .friendRequests(let user):
+                                Text("ADd")
+                            default: fatalError()
                             }
                         }
                 }
@@ -62,4 +67,8 @@ struct MainView: View {
             }
         }
     }
+}
+
+#Preview {
+    ChatClient(router: Router())
 }

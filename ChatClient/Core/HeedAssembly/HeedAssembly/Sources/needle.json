@@ -1,0 +1,6 @@
+{
+  "inputs": ["Sources"],
+  "outputs": ["Sources/NeedleGenerated.swift"],
+  "root": "RootComponent",
+  "header": "header_doc.txt"    
+}
