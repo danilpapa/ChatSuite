@@ -6,6 +6,6 @@ let workspace = Workspace(
         .relativeToRoot("Applications/ChatClient"),
         .relativeToRoot("Modules/CryptoManager"),
         .relativeToRoot("API/CryptoAPI"),
-        .relativeToRoot("Core/HeedAssembly")
+        .relativeToRoot("Core")
     ]
 )

@@ -1,6 +1,6 @@
 {
   "inputs": ["Sources"],
-  "outputs": ["Sources/NeedleGenerated.swift"],
+  "outputs": ["HeedAssembly/Sources/NeedleGenerated.swift"],
   "root": "RootComponent",
   "header": "header_doc.txt"    
 }

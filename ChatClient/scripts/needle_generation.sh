@@ -2,7 +2,7 @@
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCES_DIR="$PROJECT_ROOT/Core/HeedAssembly/HeedAssembly/Sources"
+SOURCES_DIR="$PROJECT_ROOT/Core/HeedAssembly/Sources"
 GENERATED_DIR="$SOURCES_DIR/Generated"
 OUTPUT_FILE="$GENERATED_DIR/NeedleGenerated.swift"
 

@@ -8,15 +8,17 @@
 import SwiftUI
 import FirebaseCrashlytics
 import FirebaseCrashlyticsSwift
+import GoogleSignIn
+import Firebase
 
 struct LoginView: View {
     @EnvironmentObject var loginState: LoginState
+    @Environment(\.heed) var heed
     @State private var isFetchingRequest = false
     @State private var showLoginErrorAlert = false
-    
     private var googleSignInService: IGoogleSignInService
     
-    init(googleSignInService: IGoogleSignInService) {
+    init(googleSignInService: IGoogleSignInService = GoogleSignInService()) {
         self.googleSignInService = googleSignInService
     }
     
@@ -25,8 +27,9 @@ struct LoginView: View {
             Button("Sign in with google") {
                 Task {
                     isFetchingRequest = true
-                    let user = await googleSignInService.signIn()
-                    if let user {
+                    let googleCredentials = await googleSignInService.signIn()
+                    if let googleCredentials {
+                        let user = User(id: googleCredentials.id, email: googleCredentials.email)
                         loginState.loggedUser = user
                         loginState.isLoggedIn = true
                     } else {

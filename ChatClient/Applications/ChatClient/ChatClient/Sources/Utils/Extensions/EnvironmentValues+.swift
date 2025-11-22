@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import HeedAssembly
 
 extension EnvironmentValues {
     
-//    @Entry var loggedUser: User = .
+    @Entry var heed: Heed = Heed()
 }

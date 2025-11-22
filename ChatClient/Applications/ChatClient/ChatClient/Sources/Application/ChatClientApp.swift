@@ -8,6 +8,8 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+import HeedAssembly
+import NeedleFoundation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -15,6 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        registerProviderFactories()
         return true
     }
 }
@@ -31,9 +34,9 @@ struct ChatClientApp: App {
 }
 
 struct ChatClient: View {
+    private var heed = Heed()
     private var router: Router
     @StateObject private var loginState = LoginState()
-    private var googleSignInService: IGoogleSignInService = GoogleSignInService()
     private var userService: IUserService = UserService()
     
     init(router: Router) {
@@ -42,11 +45,11 @@ struct ChatClient: View {
     
     var body: some View {
         RootView(
-            googleSignInService: googleSignInService,
             userService: userService
         )
         .environmentObject(router)
         .environmentObject(loginState)
+        .environment(\EnvironmentValues.heed, heed)
     }
 }
 

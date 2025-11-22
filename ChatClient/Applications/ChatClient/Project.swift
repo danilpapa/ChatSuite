@@ -11,12 +11,8 @@ let project = Project(
         .remote(
             url: "https://github.com/Alamofire/Alamofire",
             requirement: .upToNextMajor(from: "5.0.0")
-        ),
-        .remote(
-            url: "https://github.com/google/GoogleSignIn-iOS",
-            requirement: .upToNextMajor(from: "9.0.0")
         )
-    ],
+    ],  
     targets: [
         .target(
             name: "ChatClient",
@@ -24,33 +20,11 @@ let project = Project(
             product: .app,
             bundleId: "-77.ru.ChatClient",
             deploymentTargets: Defaults.deploymentsTarget,
-            infoPlist: .extendingDefault(
-                with: [
-                    "CFBundleURLTypes": [
-                        [
-                            "CFBundleURLSchemes": [
-                                "com.googleusercontent.apps.603244641297-uksllo6q5di888ev9b9qcbke81361g9q"
-                            ]
-                        ]
-                    ]   
-                ]
-            ),
+            infoPlist: Defaults.googleInfoPlist,
             sources: ["ChatClient/Sources/**"],
             resources: ["ChatClient/Resources/**"],
             scripts: [
-                .post(
-                    script: """
-                    ${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run
-                    """,
-                    name: "Upload Symbols to Crashlytics",
-                    inputPaths: [
-                        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-                        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-                        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-                        "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
-                        "$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)"
-                    ]
-                )
+                Defaults.firebaseCrashlitycsScript
             ],
             dependencies: [
                 .package(product: "Alamofire"),
@@ -59,7 +33,7 @@ let project = Project(
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseCrashlytics"),
                 .project(target: "CryptoAPI", path: "../../API/CryptoAPI"),
-                .project(target: "HeedAssembly", path: "../../Core/HeedAssembly")
+                .project(target: "HeedAssembly", path: "../../Core")
             ]
         ),
         .target(

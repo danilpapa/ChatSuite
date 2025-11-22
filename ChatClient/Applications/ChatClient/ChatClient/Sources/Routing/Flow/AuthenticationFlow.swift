@@ -18,7 +18,7 @@ extension AuthenticationFlow {
     var body: some View {
         switch self {
         case .login:
-            LoginView(googleSignInService: GoogleSignInService())
+            LoginView()
         }
     }
 }

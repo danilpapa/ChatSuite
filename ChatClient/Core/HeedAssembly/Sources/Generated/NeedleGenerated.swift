@@ -19,7 +19,7 @@ private func parent1(_ component: NeedleFoundation.Scope) -> NeedleFoundation.Sc
 
 
 #else
-extension RootComponent: NeedleFoundation.Registration {
+extension Heed: NeedleFoundation.Registration {
     public func registerItems() {
 
     }
@@ -40,7 +40,7 @@ private func registerProviderFactory(_ componentPath: String, _ factory: @escapi
 #if !NEEDLE_DYNAMIC
 
 @inline(never) private func register1() {
-    registerProviderFactory("^->RootComponent", factoryEmptyDependencyProvider)
+    registerProviderFactory("^->Heed", factoryEmptyDependencyProvider)
 }
 #endif
 

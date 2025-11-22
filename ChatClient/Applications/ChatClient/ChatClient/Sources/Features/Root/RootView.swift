@@ -6,17 +6,16 @@
 //
 
 import SwiftUI
+import HeedAssembly
 
 struct RootView: View {
     @EnvironmentObject var loginState: LoginState
-    private var googleSignInService: IGoogleSignInService
+    @Environment(\.heed) var heed
     private var userService: IUserService
     
     init(
-        googleSignInService: IGoogleSignInService,
         userService: IUserService
     ) {
-        self.googleSignInService = googleSignInService
         self.userService = userService
     }
     
@@ -24,8 +23,10 @@ struct RootView: View {
         Group {
             if loginState.isLoggedIn {
                 MainView(user: loginState.getUser(), userService: userService)
+                    .environment(\EnvironmentValues.heed, heed)
             } else {
-                LoginView(googleSignInService: googleSignInService)
+                LoginView()
+                    .environment(\EnvironmentValues.heed, heed)
             }
         }
     }
