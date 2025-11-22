@@ -10,17 +10,15 @@ import SwiftUI
 final class Router: ObservableObject {
     @Published var path = NavigationPath()
     
-    func push(_ route: AppRoute) {
-        print(path)
-        path.append(route)
-        print(path)
+    func push<T: Hashable>(_ screen: T) {
+        path.append(screen)
     }
     
     func pop() {
         path.removeLast()
     }
     
-    func clear() {
+    func reset() {
         path = NavigationPath()
     }
 }

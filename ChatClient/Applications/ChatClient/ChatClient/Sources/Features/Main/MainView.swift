@@ -32,20 +32,17 @@ struct MainView: View {
                     Text("Main page")
                         .toolbar {
                             ToolbarItem(placement: .primaryAction) {
-                                NavigationLink(value: MainFlow.friendRequests(user)) {
+                                Button {
+                                    router.push(MainFlow.friendRequests(user))
+                                } label: {
                                     Image(systemName: "person.checkmark.and.xmark")
                                         .foregroundStyle(.blue)
                                         .badge(2)
                                 }
+                                .buttonStyle(.glass)
                             }
                         }
-                        .navigationDestination(for: MainFlow.self) { route in
-                            switch route {
-                            case .friendRequests(let user):
-                                Text("ADd")
-                            default: fatalError()
-                            }
-                        }
+                        .navigationDestination(for: MainFlow.self) { $0.body }
                 }
             }
             
