@@ -32,7 +32,7 @@ let project = Project(
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseCrashlytics"),
-                .project(target: "CryptoAPI", path: "../../API/CryptoAPI"),
+                .project(target: "API", path: "../../API/API"),
                 .project(target: "HeedAssembly", path: "../../Core"),
                 .project(target: "Network", path: "../../Core"),
             ]

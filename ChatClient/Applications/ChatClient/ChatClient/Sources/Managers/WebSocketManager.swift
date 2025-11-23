@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import FirebaseCrashlytics
-import CryptoAPI
+import API
 import Services
 
 @Observable

@@ -22,7 +22,7 @@ struct RootView: View {
     var body: some View {
         Group {
             if loginState.isLoggedIn {
-                MainView(user: loginState.getUser(), userService: userService)
+                MainView(user: loginState.getUser(), userService: userService, mateClient: heed.mateClient)
                     .environment(\EnvironmentValues.heed, heed)
             } else {
                 LoginView()

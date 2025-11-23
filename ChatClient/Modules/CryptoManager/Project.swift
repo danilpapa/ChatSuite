@@ -13,7 +13,7 @@ let project = Project(
             sources: ["CryptoManager/Sources/**"],
             resources: ["CryptoManager/Resources/**"],
             dependencies: [
-                .project(target: "CryptoAPI", path: "../../API/CryptoAPI"),
+                .project(target: "API", path: "../../API/API"),
             ]
         )
     ]

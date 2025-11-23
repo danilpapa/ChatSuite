@@ -9,7 +9,6 @@ import SwiftUI
 
 enum MainFlow: Hashable {
     
-    case mateStatusPage(User)
     case friendRequests(User)
 }
 
@@ -19,8 +18,6 @@ extension MainFlow {
         switch self {
         case .friendRequests(let user):
             Text("Add")
-        case .mateStatusPage(let mate):
-            MateStatusPageView(mate: mate)
         }
     }
 }

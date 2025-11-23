@@ -6,17 +6,20 @@
 //
 
 import SwiftUI
+import API
 
 struct MateStatusPageView: View {
     @State private var isFetchingMateStatus = false
     var mate: User
     @State private var mateStatus: String = ""
-    var mateStatusService: IMateStatusService = MateStatusService()
+    var mateClient: IMateClient
     
     init(
-        mate: User
+        mate: User,
+        mateClient: IMateClient
     ) {
         self.mate = mate
+        self.mateClient = mateClient
     }
     
     var body: some View {
@@ -47,7 +50,12 @@ struct MateStatusPageView: View {
             Task {
                 defer { isFetchingMateStatus = false }
                 isFetchingMateStatus = true
-                mateStatus = await mateStatusService.status(mate: mate)
+                do {
+                    mateStatus = try await mateClient.getStatus(for: mate.id)
+                } catch {
+                    print(#file)
+                    print(error.localizedDescription)
+                }
             }
         }
     }

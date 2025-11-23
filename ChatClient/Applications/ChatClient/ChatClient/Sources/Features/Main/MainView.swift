@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import API
 
 enum TabIdentifier: Hashable {
     case search,
@@ -20,6 +21,7 @@ struct MainView: View {
     
     var user: User
     var userService: IUserService
+    var mateClient: IMateClient
     
     var body: some View {
         TabView(selection: $selected) {
@@ -53,7 +55,7 @@ struct MainView: View {
                 role: .search
             ) {
                 NavigationStack(path: $router.path) {
-                    SearchMateView(displayedUsers: displayedMates)
+                    SearchMateView(mateClient: mateClient, displayedUsers: displayedMates)
                         .searchable(text: $mateRequest)
                 }
             }

@@ -34,7 +34,7 @@ let project = Project(
                 Defaults.needleGenerationScript
             ],
             dependencies: [
-                .project(target: "CryptoAPI", path: "../API/CryptoAPI"),
+                .project(target: "API", path: "../API/API"),
                 .project(target: "CryptoManager", path: "../Modules/CryptoManager"),
                 .package(product: "NeedleFoundation"),
                 .project(target: "Services", path: "../Core"),
@@ -50,6 +50,7 @@ let project = Project(
             resources: ["Services/Resources/**"],
             dependencies: [
                 .project(target: "Network", path: "../Core"),
+                .project(target: "API", path: "../API/API"),
             ]
         ),
         .target(
@@ -62,6 +63,7 @@ let project = Project(
             resources: ["Network/Resources/**"],
             dependencies: [
                 .package(product: "Alamofire"),
+                .project(target: "API", path: "../API/API"),
             ]
         )
     ]

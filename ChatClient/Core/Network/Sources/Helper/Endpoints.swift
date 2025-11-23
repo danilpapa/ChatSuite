@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum EndPoints_ {
+public enum EndPoints {
     
     case chatUrl
     case publicKey

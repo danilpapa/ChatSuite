@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import API
 
 struct SearchMateView: View {
     @EnvironmentObject var router: Router
     @State private var isMateDetailShown = false
     
+    var mateClient: IMateClient
     var displayedUsers: [User]
     
     var body: some View {
@@ -22,7 +24,7 @@ struct SearchMateView: View {
                             isMateDetailShown = true
                         }
                         .sheet(isPresented: $isMateDetailShown) {
-                            MateStatusPageView(mate: user)
+                            MateStatusPageView(mate: user, mateClient: mateClient)
                         }
                 }
             }

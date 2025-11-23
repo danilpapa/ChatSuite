@@ -28,7 +28,7 @@ public enum LoginClient {
     public static func login(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
         let apiRequest = ApiRequest<_LoginUser>(
             method: .post,
-            url: EndPoints_.login.path,
+            url: EndPoints.login.path,
             body: _LoginUser(email: email, firebaseToken: fbToken)
         )
         return try await ApiClient.shared.perform(request: apiRequest)

@@ -7,7 +7,7 @@
 
 import Foundation
 import CryptoKit
-import CryptoAPI
+import API
 
 public struct CryptoManager: ICryptoManager {
     

@@ -26,7 +26,7 @@ public enum CryptoClient {
     public static func sendPublicKey(key: Data, from id: String, to peerId: String) async {
         let request = ApiRequest(
             method: .post,
-            url: EndPoints_.publicKey.path,
+            url: EndPoints.publicKey.path,
             body: _PublicKeyData(
                 id: id,
                 peerId: peerId,
