@@ -53,22 +53,6 @@ final class NetworkManager {
         }
     }
     
-    func getMateStatus(for id: UUID) async throws -> String {
-        do {
-            let params: [String: Any] = ["mate_id": MAYBACHDanil, "user_id": id]
-            return try await session.request(
-                EndPoints.users.appending("mate"),
-                method: .get,
-                parameters: params,
-                encoding: URLEncoding.queryString
-            )
-            .serializingString()
-            .value
-        } catch {
-            throw NetworkError.mateStatusError(error.localizedDescription)
-        }
-    }
-    
     func mateRequest(to id: UUID, status: String) async {
         let bodyParams: [String: Any] = [
             "request_status": status,

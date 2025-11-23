@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Services
 
 protocol IMateStatusService {
     
@@ -16,7 +17,7 @@ struct MateStatusService: IMateStatusService {
     
     func status(mate: User) async -> String {
         do {
-            return try await NetworkManager.shared.getMateStatus(for: mate.id)
+            return try await MateClient.getStatus(for: mate.id)
         } catch {
             print(error.localizedDescription)
             return "Error via accesing mate status"

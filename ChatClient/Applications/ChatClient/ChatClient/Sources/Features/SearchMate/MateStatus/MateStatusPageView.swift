@@ -11,14 +11,12 @@ struct MateStatusPageView: View {
     @State private var isFetchingMateStatus = false
     var mate: User
     @State private var mateStatus: String = ""
-    var mateStatusService: IMateStatusService
+    var mateStatusService: IMateStatusService = MateStatusService()
     
     init(
-        mate: User,
-        mateStatusService: IMateStatusService
+        mate: User
     ) {
         self.mate = mate
-        self.mateStatusService = mateStatusService
     }
     
     var body: some View {

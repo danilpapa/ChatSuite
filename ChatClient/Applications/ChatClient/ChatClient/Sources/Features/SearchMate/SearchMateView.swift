@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchMateView: View {
     @EnvironmentObject var router: Router
+    @State private var isMateDetailShown = false
     
     var displayedUsers: [User]
     
@@ -16,9 +17,13 @@ struct SearchMateView: View {
         VStack {
             List {
                 ForEach(displayedUsers) { user in
-                    NavigationLink(value: AppRoute.main(.mateStatusPage(user))) {
-                        Text(user.email)
-                    }
+                    Text(user.email)
+                        .onTapGesture {
+                            isMateDetailShown = true
+                        }
+                        .sheet(isPresented: $isMateDetailShown) {
+                            MateStatusPageView(mate: user)
+                        }
                 }
             }
             .overlay {

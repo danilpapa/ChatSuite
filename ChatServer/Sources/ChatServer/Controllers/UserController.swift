@@ -60,7 +60,7 @@ struct UserController: RouteCollection {
         }
     }
     
-    private func handleMateStatusGetRequest(_ req: Request) async throws -> String {
+    private func handleMateStatusGetRequest(_ req: Request) async throws -> MateStatus {
         guard let mateIdString = req.query[String.self, at: "mate_id"],
               let userIdString = req.query[String.self, at: "user_id"],
               let mateId = UUID(uuidString: mateIdString),
@@ -84,22 +84,22 @@ struct UserController: RouteCollection {
             }
             .all()
         if mateRequest.isEmpty {
-            return "Add mate"
+            return MateStatus("Add mate")
         }
         guard let request = mateRequest.first else {
             throw Abort(.badRequest, reason: "Error via accesing Mate Request relation")
         }
         if request.status == .rejected {
             try await request.delete(on: req.db)
-            return "Add mate"
+            return MateStatus("Add mate")
         }
         if request.$from.id == userId {
-            return request.status.requestFromStatus
+            return MateStatus(request.status.requestFromStatus)
         }
         if request.$to.id == userId {
-            return request.status.requestToStatus
+            return MateStatus(request.status.requestToStatus)
         }
-        return ""
+        return MateStatus("")
     }
     
     private func handleMateStatusPostRequest(_ req: Request) async throws -> String {
@@ -147,5 +147,14 @@ fileprivate struct MateRequest: Content {
         case state = "request_status"
         case userId = "user_id"
         case peerId = "peer_id"
+    }
+}
+
+private struct MateStatus: Content {
+    
+    let status: String
+    
+    init(_ status: String) {
+        self.status = status
     }
 }

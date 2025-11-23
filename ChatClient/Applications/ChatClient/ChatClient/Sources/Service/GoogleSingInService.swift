@@ -23,7 +23,7 @@ struct GoogleSignInService: IGoogleSignInService {
             let userCredentials = try await GoogleSignInManager.signInWithGoogle(
                 presentingViewController: presentingViewController
             )
-            let response = try await LoginService.login(
+            let response = try await LoginClient.login(
                 email: userCredentials.email,
                 fbToken: userCredentials.firebaseToken
             )

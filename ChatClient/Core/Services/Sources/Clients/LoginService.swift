@@ -1,5 +1,5 @@
 //
-//  LoginService.swift
+//  LoginClient.swift
 //  HeedAssembly
 //
 //  Created by setuper on 23.11.2025.
@@ -23,7 +23,7 @@ public struct _LoginResponse: Decodable {
     public let id: UUID
 }
 
-public enum LoginService {
+public enum LoginClient {
     
     public static func login(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
         let apiRequest = ApiRequest<_LoginUser>(
