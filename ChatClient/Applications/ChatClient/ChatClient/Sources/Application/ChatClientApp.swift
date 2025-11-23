@@ -35,7 +35,6 @@ struct ChatClientApp: App {
 struct ChatClient: View {
     private var heed = Heed()
     private var router: Router
-    @StateObject private var loginState = LoginState()
     private var userService: IUserService = UserService()
     
     init(router: Router) {
@@ -47,7 +46,6 @@ struct ChatClient: View {
             userService: userService
         )
         .environmentObject(router)
-        .environmentObject(loginState)
         .environment(\EnvironmentValues.heed, heed)
     }
 }

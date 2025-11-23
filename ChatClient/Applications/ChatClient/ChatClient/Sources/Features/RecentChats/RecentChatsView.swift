@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import API
 
 struct RecentChatsView: View {
     @EnvironmentObject var router: Router

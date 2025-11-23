@@ -13,15 +13,21 @@ import Firebase
 import API
 
 struct LoginView: View {
-    @EnvironmentObject var loginState: LoginState
-    @Environment(\.heed) var heed
     @State private var isFetchingRequest = false
     @State private var showLoginErrorAlert = false
-    private var googleSignInService: IGoogleSignInService
-    private var loginClient: ILogiClient { heed.loginClient }
     
-    init(googleSignInService: IGoogleSignInService = GoogleSignInService()) {
+    private var googleSignInService: IGoogleSignInService
+    @State private var loginManager: ILoginManager
+    private var loginClient: ILogiClient
+    
+    init(
+        googleSignInService: IGoogleSignInService = GoogleSignInService(),
+        loginManager: ILoginManager,
+        loginClient: ILogiClient
+    ) {
         self.googleSignInService = googleSignInService
+        self.loginManager = loginManager
+        self.loginClient = loginClient
     }
     
     var body: some View {
@@ -32,8 +38,8 @@ struct LoginView: View {
                     let googleCredentials = await googleSignInService.signIn(loginClient: loginClient)
                     if let googleCredentials {
                         let user = User(id: googleCredentials.id, email: googleCredentials.email)
-                        loginState.loggedUser = user
-                        loginState.isLoggedIn = true
+                        loginManager.loggedUser = user
+                        loginManager.isLoggedIn = true
                     } else {
                         showLoginErrorAlert = true
                     }

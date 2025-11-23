@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import API
 
 struct RecentChat: Decodable {
     

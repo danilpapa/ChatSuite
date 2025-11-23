@@ -13,13 +13,3 @@ enum AuthenticationFlow: Hashable {
     case login
 }
 
-extension AuthenticationFlow {
-    @ViewBuilder
-    var body: some View {
-        switch self {
-        case .login:
-            LoginView()
-        }
-    }
-}
-
