@@ -1,6 +1,6 @@
 //
 //  CryptoManager.swift
-//  CryptoManager
+//  Services
 //
 //  Created by setuper on 18.09.2025.
 //

@@ -35,7 +35,6 @@ let project = Project(
             ],
             dependencies: [
                 .project(target: "API", path: "../API/API"),
-                .project(target: "CryptoManager", path: "../Modules/CryptoManager"),
                 .package(product: "NeedleFoundation"),
                 .project(target: "Services", path: "../Core"),
             ]
@@ -62,7 +61,6 @@ let project = Project(
             sources: ["Network/Sources/**"],
             resources: ["Network/Resources/**"],
             dependencies: [
-                .package(product: "Alamofire"),
                 .project(target: "API", path: "../API/API"),
             ]
         )
