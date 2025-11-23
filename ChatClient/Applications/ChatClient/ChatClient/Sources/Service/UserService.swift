@@ -6,20 +6,18 @@
 //
 
 import Foundation
+import Services
 
 protocol IUserService {
     
-    func searchViaPreffix(senderId: UUID, _ preffiex: String) async -> [User]
+    func searchViaPreffix(senderId: UUID, _ userPrefix: String) async -> [User]
 }
 
 struct UserService: IUserService {
     
-    func searchViaPreffix(senderId: UUID, _ preffiex: String) async -> [User] {
+    func searchViaPreffix(senderId: UUID, _ userPrefix: String) async -> [User] {
         do {
-            return try await NetworkManager.shared.obtainUsersByNamePrefix(
-                from: senderId,
-                email: preffiex
-            )
+            return try await UserClient.usersByPrefix(from: senderId, prefix: userPrefix)
         } catch {
             print(error.localizedDescription)
             return []

@@ -36,25 +36,6 @@ final class NetworkManager {
         ).response { _ in }
     }
     
-    func obtainUsersByNamePrefix(from id: UUID, email: String) async throws -> [User] {
-        do {
-            let params: [String: Any] = [
-                "sender_id": id.uuidString,
-                "user_name_prefix": email
-            ]
-            return try await session.request(
-                EndPoints.users.appending("user_name_prefix"),
-                method: .post,
-                parameters: params,
-                encoding: JSONEncoding.default
-            )
-            .serializingDecodable([User].self)
-            .value
-        } catch {
-            throw NetworkError.obtainingUsersError(error.localizedDescription)
-        }
-    }
-    
     func obtainRecentChats(for userId: UUID) async throws -> [RecentChat] {
         do {
             let params: [String: Any] = ["user_id": userId.uuidString]

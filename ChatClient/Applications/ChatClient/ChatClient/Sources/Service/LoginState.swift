@@ -9,8 +9,8 @@ import Foundation
 
 final class LoginState: ObservableObject {
     
-    @Published var isLoggedIn = false
-    var loggedUser: User? = nil
+    @Published var isLoggedIn = true
+    var loggedUser: User? = .danilMaybach()
     
     func getUser() -> User {
         guard let loggedUser else {
