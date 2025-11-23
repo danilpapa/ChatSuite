@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Network
+import Services
 
 protocol IGoogleSignInService {
     
@@ -21,8 +23,11 @@ struct GoogleSignInService: IGoogleSignInService {
             let userCredentials = try await GoogleSignInManager.signInWithGoogle(
                 presentingViewController: presentingViewController
             )
-            let loggedUserId = try await NetworkManager.shared.login(with: userCredentials)
-            return User(id: loggedUserId, email: userCredentials.email)
+            let response = try await LoginService.login(
+                email: userCredentials.email,
+                fbToken: userCredentials.firebaseToken
+            )
+            return User(id: response.body.id, email: userCredentials.email)
         } catch {
             print(#file)
             print(error.localizedDescription)

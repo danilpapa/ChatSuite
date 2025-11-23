@@ -6,10 +6,11 @@
 //
 
 import Vapor
+import Foundation
 
 struct UserIdResponse: Content {
     
-    let id: String
+    let id: UUID
 }
 
 struct EmailRequest: Content {
@@ -27,7 +28,7 @@ struct LoginController: RouteCollection {
         routes.grouped("login").post(use: handleEmailAuth)
     }
     
-    private func handleEmailAuth(_ req: Request) async throws -> String {
+    private func handleEmailAuth(_ req: Request) async throws -> UserIdResponse {
         do {
             let googleCredentials = try req.content.decode(GoogleCredentials.self)
             
@@ -43,7 +44,7 @@ struct LoginController: RouteCollection {
                 guard let userId = existingUser.id else {
                     throw Abort(.internalServerError, reason: "User ID is missing")
                 }
-                return userId.uuidString
+                return UserIdResponse(id: userId)
             } else {
                 let newUser = User(
                     email: googleCredentials.email,
@@ -54,7 +55,7 @@ struct LoginController: RouteCollection {
                 guard let userId = newUser.id else {
                     throw Abort(.internalServerError, reason: "Error during user creation")
                 }
-                return userId.uuidString
+                return UserIdResponse(id: userId)
             }
         } catch {
             throw Abort(.badRequest, reason: error.localizedDescription)

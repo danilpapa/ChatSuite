@@ -9,7 +9,6 @@ import SwiftUI
 import FirebaseCore
 import FirebaseAuth
 import HeedAssembly
-import NeedleFoundation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -17,7 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
-        registerProviderFactories()
+        setupNeedle()
         return true
     }
 }

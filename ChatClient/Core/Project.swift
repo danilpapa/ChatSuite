@@ -15,6 +15,10 @@ let project = Project(
         .remote(
             url: "https://github.com/firebase/firebase-ios-sdk",
             requirement: .upToNextMajor(from: "12.3.0")
+        ),
+        .remote(
+            url: "https://github.com/Alamofire/Alamofire",
+            requirement: .upToNextMajor(from: "5.0.0")
         )
     ],
     targets: [
@@ -44,7 +48,21 @@ let project = Project(
             deploymentTargets: Defaults.deploymentsTarget,
             sources: ["Services/Sources/**"],
             resources: ["Services/Resources/**"],
-            dependencies: [ ]
+            dependencies: [
+                .project(target: "Network", path: "../Core"),
+            ]
+        ),
+        .target(
+            name: "Network",
+            destinations: .iOS,
+            product: .staticLibrary,
+            bundleId: "-77.ru.Network",
+            deploymentTargets: Defaults.deploymentsTarget,
+            sources: ["Network/Sources/**"],
+            resources: ["Network/Resources/**"],
+            dependencies: [
+                .package(product: "Alamofire"),
+            ]
         )
     ]
 )

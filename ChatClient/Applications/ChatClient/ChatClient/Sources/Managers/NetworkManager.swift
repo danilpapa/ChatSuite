@@ -36,29 +36,6 @@ final class NetworkManager {
         ).response { _ in }
     }
     
-    func login(with credentials: GoogleCredentials_) async throws(NetworkError) -> UUID {
-        let params: [String: Any] = [
-            "user_email": credentials.email,
-            "firebase_token": credentials.firebaseToken
-        ]
-        do {
-            let response = try await session.request(
-                EndPoints.login.path,
-                method: .post,
-                parameters: params,
-                encoding: JSONEncoding.default
-            ).serializingString().value
-            
-            if let loggedUserId = UUID(uuidString: response) {
-                return loggedUserId
-            } else {
-                throw NetworkError.loginError("Invalid user ID received: \(response)")
-            }
-        } catch {
-            throw NetworkError.loginRequest("Error via sending request: \(error.localizedDescription)")
-        }
-    }
-    
     func obtainUsersByNamePrefix(from id: UUID, email: String) async throws -> [User] {
         do {
             let params: [String: Any] = [
