@@ -6,24 +6,24 @@
 //
 
 import Foundation
-import Network
 import Services
+import API
 
 protocol IGoogleSignInService {
     
     @MainActor
-    func signIn() async -> User?
+    func signIn(loginClient: ILogiClient) async -> User?
 }
 
 struct GoogleSignInService: IGoogleSignInService {
     
-    func signIn() async -> User? {
+    func signIn(loginClient: ILogiClient) async -> User? {
         guard let presentingViewController = topViewController() else { return nil }
         do {
             let userCredentials = try await GoogleSignInManager.signInWithGoogle(
                 presentingViewController: presentingViewController
             )
-            let response = try await LoginClient.login(
+            let response: ApiResponse<_LoginResponse> = try await loginClient.login(
                 email: userCredentials.email,
                 fbToken: userCredentials.firebaseToken
             )

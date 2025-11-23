@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 import Network
+import API
 
 private struct _PublicKeyData: Encodable {
     let id: String

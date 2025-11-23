@@ -1,6 +1,6 @@
 //
 //  ApiRequest.swift
-//  HeedAssembly
+//  API
 //
 //  Created by setuper on 23.11.2025.
 //
@@ -11,11 +11,11 @@ import Alamofire
 public struct ApiRequest<Body: Encodable>: URLConvertible, @unchecked Sendable {
     public typealias QueryParams = [String: Any]
     
-    var method: HTTPMethod
-    var url: String
-    var headers: HTTPHeaders
-    var query: QueryParams?
-    var body: Body?
+    public var method: HTTPMethod
+    public var url: String
+    public var headers: HTTPHeaders
+    public var query: QueryParams?
+    public var body: Body?
     
     public init(
         method: HTTPMethod,

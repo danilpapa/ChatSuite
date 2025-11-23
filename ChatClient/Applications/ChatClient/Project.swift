@@ -7,10 +7,6 @@ let project = Project(
         .remote(
             url: "https://github.com/firebase/firebase-ios-sdk",
             requirement: .upToNextMajor(from: "12.3.0")
-        ),
-        .remote(
-            url: "https://github.com/Alamofire/Alamofire",
-            requirement: .upToNextMajor(from: "5.0.0")
         )
     ],  
     targets: [
@@ -27,14 +23,12 @@ let project = Project(
                 Defaults.firebaseCrashlitycsScript
             ],
             dependencies: [
-                .package(product: "Alamofire"),
                 .package(product: "GoogleSignIn"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseCrashlytics"),
                 .project(target: "API", path: "../../API/API"),
                 .project(target: "HeedAssembly", path: "../../Core"),
-                .project(target: "Network", path: "../../Core"),
             ]
         ),
         .target(

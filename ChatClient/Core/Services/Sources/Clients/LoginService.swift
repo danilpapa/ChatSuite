@@ -7,8 +7,9 @@
 
 import Foundation
 import Network
+import API
 
-private struct _LoginUser: Encodable {
+private struct _LoginUser: Codable {
     let email: String
     let firebaseToken: String
     
@@ -23,9 +24,10 @@ public struct _LoginResponse: Decodable {
     public let id: UUID
 }
 
-public enum LoginClient {
+public struct LoginClient: ILogiClient {
+    public init() { }
     
-    public static func login(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
+    public func login<_LoginResponse>(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
         let apiRequest = ApiRequest<_LoginUser>(
             method: .post,
             url: EndPoints.login.path,
