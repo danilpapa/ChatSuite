@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import FirebaseCrashlytics
 import CryptoAPI
+import Services
 
 @Observable
 final class WebSocketManager: NSObject {
@@ -165,11 +166,7 @@ final class WebSocketManager: NSObject {
             return .failure(.encodePublicKey)
         }
         Task {
-            await NetworkManager.shared.sendPublicKey(
-                key: publicData,
-                from: userId,
-                to: peerUserId
-            )
+            await CryptoClient.sendPublicKey(key: publicData, from: userId, to: peerUserId)
         }
         return .success(())
     }

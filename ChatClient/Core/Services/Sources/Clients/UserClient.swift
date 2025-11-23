@@ -20,6 +20,11 @@ private struct _UserNamePreffix: Encodable {
     }
 }
 
+private struct _UserRecentChats: Encodable {
+    
+    let userId: String
+}
+
 public enum UserClient {
     
     public static func usersByPrefix<T: Decodable>(from id: UUID, prefix: String) async throws -> [T] {
@@ -30,5 +35,15 @@ public enum UserClient {
         )
         let result: ApiResponse<[T]> = try await ApiClient.shared.perform(request: request)
         return result.body
+    }
+    
+    public static func recentChats<T: Decodable>(for id: UUID) async throws -> [T] {
+        let request = ApiRequest(
+            method: .post,
+            url: EndPoints_.recentChats.path,
+            body: _UserRecentChats(userId: id.uuidString)
+        )
+        let response: ApiResponse<[T]> = try await ApiClient.shared.perform(request: request)
+        return response.body
     }
 }

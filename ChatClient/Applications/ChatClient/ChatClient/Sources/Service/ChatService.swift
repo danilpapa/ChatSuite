@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Services
 
 protocol IChatService {
     
@@ -16,7 +17,7 @@ struct ChatService: IChatService {
     
     func loadRecentChats(for user: User) async -> [Chat] {
         do {
-            let recentChats = try await NetworkManager.shared.obtainRecentChats(for: user.id)
+            let recentChats: [RecentChat] = try await UserClient.recentChats(for: user.id)
             return recentChats.map {
                 let peer = user.email == $0.userHost1.email ? $0.userHost2 : $0.userHost1
                 return Chat(mateEmail: peer.email)
