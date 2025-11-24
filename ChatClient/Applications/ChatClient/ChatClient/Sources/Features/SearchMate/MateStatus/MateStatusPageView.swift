@@ -10,14 +10,17 @@ import API
 
 struct MateStatusPageView: View {
     @State private var isFetchingMateStatus = false
-    var mate: User
+    private var user: User
+    private var mate: User
     @State private var mateStatus: String = ""
     var mateClient: IMateClient
     
     init(
+        user: User,
         mate: User,
         mateClient: IMateClient
     ) {
+        self.user = user
         self.mate = mate
         self.mateClient = mateClient
     }
@@ -46,16 +49,14 @@ struct MateStatusPageView: View {
                     }
             }
         }
-        .onAppear {
-            Task {
-                defer { isFetchingMateStatus = false }
-                isFetchingMateStatus = true
-                do {
-                    mateStatus = try await mateClient.getStatus(for: mate.id)
-                } catch {
-                    print(#file)
-                    print(error.localizedDescription)
-                }
+        .task {
+            defer { isFetchingMateStatus = false }
+            isFetchingMateStatus = true
+            do {
+                mateStatus = try await mateClient.getStatus(from: user.id, to: mate.id)
+            } catch {
+                print(#file)
+                print(error.localizedDescription)
             }
         }
     }

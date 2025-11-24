@@ -17,12 +17,12 @@ private struct _MateStatus: Decodable {
 public struct MateClient: IMateClient {
     public init() { }
     
-    public func getStatus(for id: UUID) async throws -> String {
+    public func getStatus(from id: UUID, to peerId: UUID) async throws -> String {
         let request = ApiRequest<Never>(
             method: .get,
             url: EndPoints.users.appending("mate"),
             query: [
-                "mate_id": "a3d68ac2-a9c7-4394-aff9-e883a2ec0378",
+                "mate_id": peerId,
                 "user_id": id
             ]
         )

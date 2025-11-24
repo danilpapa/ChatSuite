@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol IMateClient {
-    func getStatus(for id: UUID) async throws -> String
+    func getStatus(from id: UUID, to peerId: UUID) async throws -> String
 }

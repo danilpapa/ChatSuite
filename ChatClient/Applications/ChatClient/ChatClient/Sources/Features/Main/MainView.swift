@@ -55,7 +55,7 @@ struct MainView: View {
                 role: .search
             ) {
                 NavigationStack(path: $router.path) {
-                    SearchMateView(mateClient: mateClient, displayedUsers: displayedMates)
+                    SearchMateView(user: user, mateClient: mateClient, displayedUsers: displayedMates)
                         .searchable(text: $mateRequest)
                 }
             }

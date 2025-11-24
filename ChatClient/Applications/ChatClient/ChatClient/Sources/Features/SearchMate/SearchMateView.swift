@@ -12,19 +12,26 @@ struct SearchMateView: View {
     @EnvironmentObject var router: Router
     @State private var isMateDetailShown = false
     
-    var mateClient: IMateClient
-    var displayedUsers: [User]
+    private var user: User
+    private var mateClient: IMateClient
+    private var displayedUsers: [User]
+    
+    init(user: User, mateClient: IMateClient, displayedUsers: [User]) {
+        self.user = user
+        self.mateClient = mateClient
+        self.displayedUsers = displayedUsers
+    }
     
     var body: some View {
         VStack {
             List {
-                ForEach(displayedUsers) { user in
-                    Text(user.email)
+                ForEach(displayedUsers) { mate in
+                    Text(mate.email)
                         .onTapGesture {
                             isMateDetailShown = true
                         }
                         .sheet(isPresented: $isMateDetailShown) {
-                            MateStatusPageView(mate: user, mateClient: mateClient)
+                            MateStatusPageView(user: user, mate: mate, mateClient: mateClient)
                         }
                 }
             }
