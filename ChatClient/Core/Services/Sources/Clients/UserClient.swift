@@ -47,4 +47,16 @@ public enum UserClient {
         let response: ApiResponse<[T]> = try await ApiClient.shared.perform(request: request)
         return response.body
     }
+    
+    public static func actualFriendRequests(for user: User) async throws -> [User] {
+        let request = ApiRequest<Never>(
+            method: .get,
+            url: EndPoints.friendRequests.path,
+            query: [
+                "user_id": user.id
+            ]
+        )
+        let respose: ApiResponse<[User]> = try await ApiClient.shared.perform(request: request)
+        return respose.body
+    }
 }

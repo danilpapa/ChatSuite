@@ -14,6 +14,7 @@ public enum EndPoints {
     case login
     case users
     case recentChats
+    case friendRequests
     
     public var path: String {
         let appending = switch self {
@@ -27,6 +28,8 @@ public enum EndPoints {
             "/users"
         case .recentChats:
             "/recentChats"
+        case .friendRequests:
+            "/friendRequest"
         }
         return "https://localhost:8443" + appending
     }

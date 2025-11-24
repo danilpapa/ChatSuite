@@ -11,7 +11,7 @@ import API
 
 struct RootView: View {
     @Environment(\.heed) var heed
-    @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: false, loggedUser: nil)
+    @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: true, loggedUser: .maybachDanil())
     private var userService: IUserService
     
     init(

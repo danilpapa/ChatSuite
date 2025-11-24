@@ -25,4 +25,11 @@ public extension User {
             email: "danilmaybach777@gmail.com"
         )
     }
+    
+    static func maybachDanil() -> User {
+        User(
+            id: UUID(uuidString: "a3d68ac2-a9c7-4394-aff9-e883a2ec0378")!,
+            email: "maybachdanil777@gmail.com"
+        )
+    }
 }

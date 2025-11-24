@@ -18,7 +18,7 @@ extension MainFlow {
     var body: some View {
         switch self {
         case .friendRequests(let user):
-            Text("Add")
+            FriendRequestsView(for: user)
         }
     }
 }

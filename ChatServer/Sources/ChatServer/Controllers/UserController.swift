@@ -13,6 +13,7 @@ struct UserController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let usersRoute = routes.grouped("users")
         let recentLobbies = routes.grouped("recentChats")
+        let friendRequests = routes.grouped("friendRequest")
         
         usersRoute.group(":user_name_prefix") { usersRoute in
             usersRoute.post(use: handleUsersNamePreffixRequest)
@@ -21,8 +22,8 @@ struct UserController: RouteCollection {
             mateStatusRoute.get(use: handleMateStatusGetRequest)
             mateStatusRoute.post(use: handleMateStatusPostRequest)
         }
-        
         recentLobbies.post(use: handleRecentLobbyRequest)
+        friendRequests.get(use: handleFriendRequest)
     }
     
     private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
@@ -134,6 +135,20 @@ struct UserController: RouteCollection {
             // TODO: Add fried
         }
         return "hello"
+    }
+    
+    private func handleFriendRequest(_ req: Request) async throws -> [User] {
+        guard let userIdString = req.query[String.self, at: "user_id"],
+              let id = UUID(uuidString: userIdString) else {
+            throw Abort(.badRequest, reason: "Error accesing query params, \(#file)")
+        }
+        let mateRequests = try await MateRequests.query(on: req.db)
+            .filter(\.$to.$id, .equal, id)
+            .with(\.$from)
+            .all()
+        return mateRequests.map { request in
+            request.from
+        }
     }
 }
 
