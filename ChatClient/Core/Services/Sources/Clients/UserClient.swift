@@ -59,26 +59,4 @@ public enum UserClient {
         let respose: ApiResponse<[User]> = try await ApiClient.shared.perform(request: request)
         return respose.body
     }
-    
-    public static func friendRequestAction(_ action: String, from id: UUID, to peerId: UUID) async throws {
-        let request = ApiRequest<_FriednRequestAction>(
-            method: .post,
-            url: EndPoints.friendActionRequests.path,
-            query: ["action": action],
-            body: _FriednRequestAction(id: id, peerId: peerId)
-        )
-        let _: ApiResponse<Never> = try await ApiClient.shared.perform(request: request)
-    }
-}
-
-fileprivate struct _FriednRequestAction: Encodable {
-    
-    var id: UUID
-    var peerId: UUID
-    
-    enum CodingKeys: String, CodingKey {
-        
-        case id = "user_id"
-        case peerId = "peer_id"
-    }
 }

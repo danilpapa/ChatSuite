@@ -7,7 +7,6 @@
 
 import SwiftUI
 import API
-import Services
 
 struct MateStatusPageView: View {
     @State private var isFetchingMateStatus = false
@@ -35,15 +34,7 @@ struct MateStatusPageView: View {
                 Text(mate.email)
             }
             Button {
-                Task {
-                    // TODO: work here
-                    if mateStatus == "Add mate" {
-                        do {
-                            try await UserClient.friendRequestAction("Add mate", from: user.id, to: mate.id)
-                            await loadStatus()
-                        }
-                    }
-                }
+                
             } label: {
                 Text(mateStatus)
                     .foregroundStyle(.background)
@@ -59,18 +50,14 @@ struct MateStatusPageView: View {
             }
         }
         .task {
-            await loadStatus()
-        }
-    }
-    
-    private func loadStatus() async {
-        defer { isFetchingMateStatus = false }
-        isFetchingMateStatus = true
-        do {
-            mateStatus = try await mateClient.getStatus(from: user.id, to: mate.id)
-        } catch {
-            print(#file)
-            print(error.localizedDescription)
+            defer { isFetchingMateStatus = false }
+            isFetchingMateStatus = true
+            do {
+                mateStatus = try await mateClient.getStatus(from: user.id, to: mate.id)
+            } catch {
+                print(#file)
+                print(error.localizedDescription)
+            }
         }
     }
 }
