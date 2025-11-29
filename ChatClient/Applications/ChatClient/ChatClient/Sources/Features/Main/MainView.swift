@@ -7,6 +7,7 @@
 
 import SwiftUI
 import API
+import Services
 
 enum TabIdentifier: Hashable {
     case search,
@@ -18,6 +19,7 @@ struct MainView: View {
     @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
+    @State private var friendRequestBadges: Int = 0
     
     var user: User
     var userService: IUserService
@@ -39,9 +41,19 @@ struct MainView: View {
                                 } label: {
                                     Image(systemName: "person.checkmark.and.xmark")
                                         .foregroundStyle(.blue)
-                                        .badge(2)
+                                        .badge(friendRequestBadges)
                                 }
                                 .buttonStyle(.glass)
+                            }
+                        }
+                        .onAppear {
+                            Task {
+                                do {
+                                    friendRequestBadges = try await UserClient.actualFriendRequests(for: user).count
+                                } catch {
+                                    print(error.localizedDescription)
+                                    print(#file)
+                                }
                             }
                         }
                         .navigationDestination(for: MainFlow.self) { $0.body }

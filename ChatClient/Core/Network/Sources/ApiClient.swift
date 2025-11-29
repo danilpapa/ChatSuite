@@ -12,14 +12,9 @@ import API
 public actor ApiClient {
     
     public static let shared = ApiClient()
-    private var session: Session
+    private var session = Session(serverTrustManager: ServerTrustManager(evaluators: ["localhost": DisabledTrustEvaluator()]))
     
-    private init() {
-        let manager = ServerTrustManager(evaluators: [
-            "localhost": DisabledTrustEvaluator()
-        ])
-        session = Session(serverTrustManager: manager)
-    }
+    private init() { }
     
     public func perform<RequestBody: Encodable, ResponseBody: Decodable>(
         request: ApiRequest<RequestBody>

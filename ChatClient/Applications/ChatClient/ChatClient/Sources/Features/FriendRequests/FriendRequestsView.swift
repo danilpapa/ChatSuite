@@ -25,18 +25,34 @@ struct FriendRequestsView: View {
                     Text(friendRequest.email)
                     HStack {
                         Button("Accept") {
-                            
+                            Task {
+                                do {
+                                    try await UserClient.friendRequestAction("Accept", from: user.id, to: friendRequest.id)
+                                } catch {
+                                    print(error.localizedDescription)
+                                }
+                            }
                         }
-                        .buttonStyle(.glass)
+                        .buttonStyle(.glassProminent)
+                        .tint(.blue)
                         
                         Button("Discard") {
-                            
+                            Task {
+                                do {
+                                    try await UserClient.friendRequestAction("Discard", from: user.id, to: friendRequest.id)
+                                } catch {
+                                    print(error.localizedDescription)
+                                }
+                            }
                         }
+                        .buttonStyle(.glassProminent)
                         .tint(.red)
-                        .buttonStyle(.glass)
                     }
                 }
             }
+        }
+        .refreshable {
+            await loadData()
         }
         .overlay {
             if requests.isEmpty && !isFetchingRequest {
@@ -49,12 +65,16 @@ struct FriendRequestsView: View {
         .task {
             isFetchingRequest = true
             defer { isFetchingRequest = false }
-            do {
-                requests = try await UserClient.actualFriendRequests(for: user)
-            } catch {
-                print(error.localizedDescription)
-                print(#file)
-            }
+            await loadData()
+        }
+    }
+    
+    private func loadData() async {
+        do {
+            requests = try await UserClient.actualFriendRequests(for: user)
+        } catch {
+            print(error.localizedDescription)
+            print(#file)
         }
     }
 }
