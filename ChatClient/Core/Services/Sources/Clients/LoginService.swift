@@ -8,6 +8,20 @@
 import Foundation
 import Network
 import API
+import Singleton
+
+@Singleton
+public struct LoginClient {
+    
+    public func login<_LoginResponse>(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
+        let apiRequest = ApiRequest<_LoginUser>(
+            method: .post,
+            url: EndPoints.login.path,
+            body: _LoginUser(email: email, firebaseToken: fbToken)
+        )
+        return try await ApiClient.shared.perform(request: apiRequest)
+    }
+}
 
 private struct _LoginUser: Codable {
     let email: String
@@ -22,17 +36,4 @@ private struct _LoginUser: Codable {
 public struct _LoginResponse: Decodable {
     
     public let id: UUID
-}
-
-public struct LoginClient: ILogiClient {
-    public init() { }
-    
-    public func login<_LoginResponse>(email: String, fbToken: String) async throws -> ApiResponse<_LoginResponse> {
-        let apiRequest = ApiRequest<_LoginUser>(
-            method: .post,
-            url: EndPoints.login.path,
-            body: _LoginUser(email: email, firebaseToken: fbToken)
-        )
-        return try await ApiClient.shared.perform(request: apiRequest)
-    }
 }

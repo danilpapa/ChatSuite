@@ -9,22 +9,12 @@ import Foundation
 import Alamofire
 import Network
 import API
+import Singleton
 
-private struct _PublicKeyData: Encodable {
-    let id: String
-    let peerId: String
-    let publicKey: String
+@Singleton
+public struct CryptoClient {
     
-    enum CodingKeys: String, CodingKey {
-        case id = "user_id"
-        case peerId = "peer_id"
-        case publicKey = "public_key"
-    }
-}
-
-public enum CryptoClient {
-    
-    public static func sendPublicKey(key: Data, from id: String, to peerId: String) async {
+    public func sendPublicKey(key: Data, from id: String, to peerId: String) async {
         let request = ApiRequest(
             method: .post,
             url: EndPoints.publicKey.path,
@@ -35,5 +25,17 @@ public enum CryptoClient {
             )
         )
         let _: ApiResponse<Never> = try! await ApiClient.shared.perform(request: request)
+    }
+}
+
+private struct _PublicKeyData: Encodable {
+    let id: String
+    let peerId: String
+    let publicKey: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "user_id"
+        case peerId = "peer_id"
+        case publicKey = "public_key"
     }
 }

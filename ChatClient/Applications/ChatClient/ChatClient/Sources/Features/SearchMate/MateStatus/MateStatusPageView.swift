@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Services
 import API
 
 struct MateStatusPageView: View {
@@ -13,16 +14,13 @@ struct MateStatusPageView: View {
     private var user: User
     private var mate: User
     @State private var mateStatus: String = ""
-    var mateClient: IMateClient
     
     init(
         user: User,
-        mate: User,
-        mateClient: IMateClient
+        mate: User
     ) {
         self.user = user
         self.mate = mate
-        self.mateClient = mateClient
     }
     
     var body: some View {
@@ -53,7 +51,7 @@ struct MateStatusPageView: View {
             defer { isFetchingMateStatus = false }
             isFetchingMateStatus = true
             do {
-                mateStatus = try await mateClient.getStatus(from: user.id, to: mate.id)
+                mateStatus = try await MateClient.shared.getStatus(from: user.id, to: mate.id)
             } catch {
                 print(#file)
                 print(error.localizedDescription)

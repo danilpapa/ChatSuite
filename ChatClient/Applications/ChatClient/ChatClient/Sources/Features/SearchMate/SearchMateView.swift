@@ -13,12 +13,10 @@ struct SearchMateView: View {
     @State private var isMateDetailShown = false
     
     private var user: User
-    private var mateClient: IMateClient
     private var displayedUsers: [User]
     
-    init(user: User, mateClient: IMateClient, displayedUsers: [User]) {
+    init(user: User, displayedUsers: [User]) {
         self.user = user
-        self.mateClient = mateClient
         self.displayedUsers = displayedUsers
     }
     
@@ -31,7 +29,7 @@ struct SearchMateView: View {
                             isMateDetailShown = true
                         }
                         .sheet(isPresented: $isMateDetailShown) {
-                            MateStatusPageView(user: user, mate: mate, mateClient: mateClient)
+                            MateStatusPageView(user: user, mate: mate)
                         }
                 }
             }

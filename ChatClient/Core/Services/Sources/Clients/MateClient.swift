@@ -8,14 +8,11 @@
 import Foundation
 import Alamofire
 import Network
+import Singleton
 import API
 
-private struct _MateStatus: Decodable {
-    let status: String
-}
-
-public struct MateClient: IMateClient {
-    public init() { }
+@Singleton
+public struct MateClient {
     
     public func getStatus(from id: UUID, to peerId: UUID) async throws -> String {
         let request = ApiRequest<Never>(
@@ -29,4 +26,8 @@ public struct MateClient: IMateClient {
         let result: ApiResponse<_MateStatus> = try await ApiClient.shared.perform(request: request)
         return result.body.status
     }
+}
+
+private struct _MateStatus: Decodable {
+    let status: String
 }

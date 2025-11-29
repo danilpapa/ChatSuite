@@ -18,16 +18,13 @@ struct LoginView: View {
     
     private var googleSignInService: IGoogleSignInService
     @State private var loginManager: ILoginManager
-    private var loginClient: ILogiClient
     
     init(
         googleSignInService: IGoogleSignInService = GoogleSignInService(),
-        loginManager: ILoginManager,
-        loginClient: ILogiClient
+        loginManager: ILoginManager
     ) {
         self.googleSignInService = googleSignInService
         self.loginManager = loginManager
-        self.loginClient = loginClient
     }
     
     var body: some View {
@@ -35,7 +32,7 @@ struct LoginView: View {
             Button("Sign in with google") {
                 Task {
                     isFetchingRequest = true
-                    let googleCredentials = await googleSignInService.signIn(loginClient: loginClient)
+                    let googleCredentials = await googleSignInService.signIn()
                     if let googleCredentials {
                         let user = User(id: googleCredentials.id, email: googleCredentials.email)
                         loginManager.loggedUser = user

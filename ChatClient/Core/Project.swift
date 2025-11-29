@@ -23,6 +23,10 @@ let project = Project(
         .remote(
             url: "https://github.com/danilpapa/TrustEvaluator.git",
             requirement: .branch("main")
+        ),
+        .remote(
+            url: "https://github.com/danilpapa/Singleton",
+            requirement: .branch("main")
         )
     ],
     targets: [
@@ -66,7 +70,8 @@ let project = Project(
             resources: ["Network/Resources/**"],
             dependencies: [
                 .project(target: "API", path: "../API/API"),
-                .package(product: "TrustEvaluator")
+                .package(product: "TrustEvaluator"),
+                .package(product: "Singleton")
             ]
         )
     ]

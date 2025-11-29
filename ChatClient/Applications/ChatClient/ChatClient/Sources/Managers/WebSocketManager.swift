@@ -166,7 +166,7 @@ final class WebSocketManager: NSObject {
             return .failure(.encodePublicKey)
         }
         Task {
-            await CryptoClient.sendPublicKey(key: publicData, from: userId, to: peerUserId)
+            await CryptoClient.shared.sendPublicKey(key: publicData, from: userId, to: peerUserId)
         }
         return .success(())
     }

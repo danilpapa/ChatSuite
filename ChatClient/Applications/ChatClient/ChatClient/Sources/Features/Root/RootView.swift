@@ -25,14 +25,12 @@ struct RootView: View {
             if loginManager.isLoggedIn {
                 MainView(
                     user: loginManager.getUser(),
-                    userService: userService,
-                    mateClient: heed.mateClient
+                    userService: userService
                 )
                 .environment(\EnvironmentValues.heed, heed)
             } else {
                 LoginView(
-                    loginManager: loginManager,
-                    loginClient: heed.loginClient
+                    loginManager: loginManager
                 )
                 .environment(\EnvironmentValues.heed, heed)
             }

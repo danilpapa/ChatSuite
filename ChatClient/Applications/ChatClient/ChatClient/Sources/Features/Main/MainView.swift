@@ -21,7 +21,6 @@ struct MainView: View {
     
     var user: User
     var userService: IUserService
-    var mateClient: IMateClient
     
     var body: some View {
         TabView(selection: $selected) {
@@ -55,7 +54,7 @@ struct MainView: View {
                 role: .search
             ) {
                 NavigationStack(path: $router.path) {
-                    SearchMateView(user: user, mateClient: mateClient, displayedUsers: displayedMates)
+                    SearchMateView(user: user, displayedUsers: displayedMates)
                         .searchable(text: $mateRequest)
                 }
             }

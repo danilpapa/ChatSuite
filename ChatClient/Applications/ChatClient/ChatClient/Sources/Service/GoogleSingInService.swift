@@ -12,18 +12,18 @@ import API
 protocol IGoogleSignInService {
     
     @MainActor
-    func signIn(loginClient: ILogiClient) async -> User?
+    func signIn() async -> User?
 }
 
 struct GoogleSignInService: IGoogleSignInService {
     
-    func signIn(loginClient: ILogiClient) async -> User? {
+    func signIn() async -> User? {
         guard let presentingViewController = topViewController() else { return nil }
         do {
             let userCredentials = try await GoogleSignInManager.signInWithGoogle(
                 presentingViewController: presentingViewController
             )
-            let response: ApiResponse<_LoginResponse> = try await loginClient.login(
+            let response: ApiResponse<_LoginResponse> = try await LoginClient.shared.login(
                 email: userCredentials.email,
                 fbToken: userCredentials.firebaseToken
             )
