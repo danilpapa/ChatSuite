@@ -12,20 +12,12 @@ import API
 struct RootView: View {
     @Environment(\.heed) var heed
     @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: true, loggedUser: .maybachDanil())
-    private var userService: IUserService
-    
-    init(
-        userService: IUserService,
-    ) {
-        self.userService = userService
-    }
     
     var body: some View {
         Group {
             if loginManager.isLoggedIn {
                 MainView(
-                    user: loginManager.getUser(),
-                    userService: userService
+                    user: loginManager.getUser()
                 )
                 .environment(\EnvironmentValues.heed, heed)
             } else {

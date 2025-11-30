@@ -55,6 +55,18 @@ public struct UserClient {
         )
         let _: ApiResponse<Never> = try await ApiClient.shared.perform(request: request)
     }
+    
+    public func activeFriends(for user: User) async throws -> [User] {
+        let request = ApiRequest<Never>(
+            method: .get,
+            url: EndPoints.activeFriends.path,
+            query: [
+                "user_id": user.id
+            ]
+        )
+        let response: ApiResponse<[User]> = try await ApiClient.shared.perform(request: request)
+        return response.body
+    }
 }
 
 private struct _UserNamePreffix: Encodable {

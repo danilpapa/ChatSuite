@@ -7,11 +7,7 @@
 
 import SwiftUI
 import API
-
-enum TabIdentifier: Hashable {
-    case search,
-         home
-}
+import Services
 
 struct MainView: View {
     @EnvironmentObject var router: Router
@@ -20,15 +16,10 @@ struct MainView: View {
     @State private var displayedMates: [User] = []
     
     var user: User
-    var userService: IUserService
     
     var body: some View {
         TabView(selection: $selected) {
-            Tab(
-                "Main",
-                systemImage: "house",
-                value: .home
-            ) {
+            Tab("Main", systemImage: "house", value: .home) {
                 NavigationStack(path: $router.path) {
                     Text("Main page")
                         .toolbar {
@@ -47,6 +38,12 @@ struct MainView: View {
                 }
             }
             
+            Tab("Profile", systemImage: "person.crop.circle", value: .profile) {
+                NavigationStack(path: $router.path) {
+                    ProfileView(user: user)
+                }
+            }
+            
             Tab(
                 "",
                 systemImage: "magnifyingglass",
@@ -61,10 +58,21 @@ struct MainView: View {
         }
         .onChange(of: mateRequest) { _, userPreffix in
             Task {
-                displayedMates = await userService.searchViaPreffix(senderId: user.id, userPreffix)
+                do {
+                    displayedMates = try await UserClient.shared.usersByPrefix(from: user.id, prefix: userPreffix)
+                } catch {
+                    print(error.localizedDescription)
+                    print(#file)
+                }
             }
         }
     }
+}
+
+enum TabIdentifier: Hashable {
+    case search
+    case home
+    case profile
 }
 
 #Preview {

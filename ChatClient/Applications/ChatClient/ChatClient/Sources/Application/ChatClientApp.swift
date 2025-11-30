@@ -35,18 +35,15 @@ struct ChatClientApp: App {
 struct ChatClient: View {
     private var heed = Heed()
     private var router: Router
-    private var userService: IUserService = UserService()
     
     init(router: Router) {
         self.router = router
     }
     
     var body: some View {
-        RootView(
-            userService: userService
-        )
-        .environmentObject(router)
-        .environment(\EnvironmentValues.heed, heed)
+        RootView()
+            .environmentObject(router)
+            .environment(\EnvironmentValues.heed, heed)
     }
 }
 

@@ -50,7 +50,7 @@ struct FriendRequestsView: View {
             isFetchingRequest = true
             defer { isFetchingRequest = false }
             do {
-                requests = try await UserClient.actualFriendRequests(for: user)
+                requests = try await UserClient.shared.actualFriendRequests(for: user)
             } catch {
                 print(error.localizedDescription)
                 print(#file)
