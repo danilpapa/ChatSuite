@@ -10,7 +10,7 @@ import SwiftUI
 final class Router: ObservableObject {
     @Published var path = NavigationPath()
     
-    func push<T: Hashable>(_ screen: T) {
+    func push(_ screen: AppRoutes) {
         path.append(screen)
     }
     

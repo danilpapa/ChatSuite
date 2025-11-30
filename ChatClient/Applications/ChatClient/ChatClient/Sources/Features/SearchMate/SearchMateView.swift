@@ -9,7 +9,7 @@ import SwiftUI
 import API
 
 struct SearchMateView: View {
-    @EnvironmentObject var router: Router
+    @StateObject private var router = Router()
     @State private var isMateDetailShown = false
     
     private var user: User
@@ -21,26 +21,26 @@ struct SearchMateView: View {
     }
     
     var body: some View {
-        VStack {
-            List {
-                ForEach(displayedUsers) { mate in
-                    Text(mate.email)
-                        .onTapGesture {
-                            isMateDetailShown = true
-                        }
-                        .sheet(isPresented: $isMateDetailShown) {
-                            MateStatusPageView(user: user, mate: mate)
-                        }
+        NavigationStack(path: $router.path) {
+            VStack {
+                List {
+                    ForEach(displayedUsers) { mate in
+                        Text(mate.email)
+                            .onTapGesture {
+                                isMateDetailShown = true
+                            }
+                            .sheet(isPresented: $isMateDetailShown) {
+                                MateStatusPageView(user: user, mate: mate)
+                            }
+                    }
+                }
+                .overlay {
+                    Text("No recent mates")
+                        .opacity(displayedUsers.isEmpty ? 1 : 0)
                 }
             }
-            .overlay {
-                Text("No recent mates")
-                    .opacity(displayedUsers.isEmpty ? 1 : 0)
-            }
+            .navigationDestination(for: AppRoutes.self) { $0.destination }
+            .navigationTitle("Search Mate")
         }
     }
-}
-
-#Preview {
-    ChatClient(router: Router())
 }

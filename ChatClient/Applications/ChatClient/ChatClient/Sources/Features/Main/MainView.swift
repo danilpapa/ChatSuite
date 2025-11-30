@@ -10,7 +10,6 @@ import API
 import Services
 
 struct MainView: View {
-    @EnvironmentObject var router: Router
     @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
@@ -20,28 +19,11 @@ struct MainView: View {
     var body: some View {
         TabView(selection: $selected) {
             Tab("Main", systemImage: "house", value: .home) {
-                NavigationStack(path: $router.path) {
-                    Text("Main page")
-                        .toolbar {
-                            ToolbarItem(placement: .primaryAction) {
-                                Button {
-                                    router.push(MainFlow.friendRequests(user))
-                                } label: {
-                                    Image(systemName: "person.checkmark.and.xmark")
-                                        .foregroundStyle(.blue)
-                                        .badge(2)
-                                }
-                                .buttonStyle(.glass)
-                            }
-                        }
-                        .navigationDestination(for: MainFlow.self) { $0.body }
-                }
+                GeneralView(user: user)
             }
             
             Tab("Profile", systemImage: "person.crop.circle", value: .profile) {
-                NavigationStack(path: $router.path) {
-                    ProfileView(user: user)
-                }
+                ProfileView(user: user)
             }
             
             Tab(
@@ -50,10 +32,11 @@ struct MainView: View {
                 value: .search,
                 role: .search
             ) {
-                NavigationStack(path: $router.path) {
-                    SearchMateView(user: user, displayedUsers: displayedMates)
-                        .searchable(text: $mateRequest)
-                }
+                SearchMateView(
+                    user: user,
+                    displayedUsers: displayedMates
+                )
+                .searchable(text: $mateRequest)
             }
         }
         .onChange(of: mateRequest) { _, userPreffix in
@@ -73,8 +56,4 @@ enum TabIdentifier: Hashable {
     case search
     case home
     case profile
-}
-
-#Preview {
-    ChatClient(router: Router())
 }

@@ -10,6 +10,7 @@ import API
 import Services
 
 struct FriendRequestsView: View {
+    @EnvironmentObject private var router: Router
     @State private var requests: [User] = []
     @State private var isFetchingRequest = false
     private let user: User
