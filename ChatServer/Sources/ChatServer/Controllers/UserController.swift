@@ -14,16 +14,19 @@ struct UserController: RouteCollection {
         let usersRoute = routes.grouped("users")
         let recentLobbies = routes.grouped("recentChats")
         let friendRequests = routes.grouped("friendRequest")
+        let activeFriendsRequests = routes.grouped("activeFriends")
+        let friednActionRequest = routes.grouped("friednActionRequest")
         
         usersRoute.group(":user_name_prefix") { usersRoute in
             usersRoute.post(use: handleUsersNamePreffixRequest)
         }
         usersRoute.group("mate") { mateStatusRoute in
             mateStatusRoute.get(use: handleMateStatusGetRequest)
-            mateStatusRoute.post(use: handleMateStatusPostRequest)
         }
         recentLobbies.post(use: handleRecentLobbyRequest)
         friendRequests.get(use: handleFriendRequest)
+        friednActionRequest.post(use: handleFriendPostRequest)
+        activeFriendsRequests.get(use: handleActiveFriendsRequest)
     }
     
     private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
@@ -103,38 +106,40 @@ struct UserController: RouteCollection {
         return MateStatus("")
     }
     
-    private func handleMateStatusPostRequest(_ req: Request) async throws -> String {
-        let data: MateRequest
-        do {
-            data = try req.content.decode(MateRequest.self)
-        } catch {
-            throw Abort(.badRequest, reason: "Error via enconding body: \(error.localizedDescription)")
+    private func handleFriendPostRequest(_ req: Request) async throws -> HTTPStatus {
+        guard let action = req.query[String.self, at: "action"] else {
+            throw Abort(.badRequest, reason: "Error accesing action query param \(#file)")
         }
-        let currentMateState = data.state
-        if currentMateState == "Add mate" {
-            let newMateRequest = MateRequests(from: data.userId, to: data.peerId)
-            try await newMateRequest.save(on: req.db)
-        } else if currentMateState == "Pending" {
-            
-        } else if currentMateState == "Delete mate" {
-            // TODO: Delete friend
+        let requestData: MateRequest
+        do {
+            requestData = try req.content.decode(MateRequest.self)
+        } catch {
+            throw Abort(.badRequest, reason: "Error accesing user id and peer id at body \(error.localizedDescription)")
+        }
+        if action == "Add mate" {
+            let newRequest = MateRequests(
+                from: requestData.userId,
+                to: requestData.peerId,
+                status: .pending
+            )
+            try await newRequest.save(on: req.db)
+        } else if action == "Discard" {
             try await MateRequests.query(on: req.db)
                 .group(.and) { group in
-                    group.filter(\.$from.$id, .equal, data.userId)
-                    group.filter(\.$to.$id, .equal, data.peerId)
+                    group.filter(\.$from.$id, .equal, requestData.peerId)
+                    group.filter(\.$to.$id, .equal, requestData.userId)
                 }
                 .delete()
-        } else if currentMateState == "Accept mate" {
+        } else if action == "Accept" {
             let request = try await MateRequests.query(on: req.db)
                 .group(.and) { group in
-                    group.filter(\.$from.$id, .equal, data.userId)
-                    group.filter(\.$to.$id, .equal, data.peerId)
+                    group.filter(\.$from.$id, .equal, requestData.peerId)
+                    group.filter(\.$to.$id, .equal, requestData.userId)
                 }
                 .first()
             request?.status = .accepted
-            // TODO: Add fried
         }
-        return "hello"
+        return .accepted
     }
     
     private func handleFriendRequest(_ req: Request) async throws -> [User] {
@@ -150,16 +155,36 @@ struct UserController: RouteCollection {
             request.from
         }
     }
+    
+    private func handleActiveFriendsRequest(_ req: Request) async throws -> [User] {
+        guard let userIdString = req.query[String.self, at: "user_id"],
+              let userId = UUID(uuidString: userIdString) else {
+            throw Abort(.badRequest, reason: "Error accesing query params, \(#file), \(#function)")
+        }
+        do {
+            let activeFriends = try await UserFriend.query(on: req.db)
+                .group(.or) { group in
+                    group.filter(\.$user.$id, .equal, userId)
+                    group.filter(\.$friend.$id, .equal, userId)
+                }
+                .all()
+            return activeFriends.map { userFriend in
+                userFriend.user
+            }
+        } catch let error as PostgresNIO.PSQLError {
+            return []
+        } catch {
+            throw Abort(.badRequest, reason: "Error executing operation: \(error.localizedDescription)")
+        }
+    }
 }
 
 fileprivate struct MateRequest: Content {
     
-    let state: String
     let userId: UUID
     let peerId: UUID
     
     enum CodingKeys: String, CodingKey {
-        case state = "request_status"
         case userId = "user_id"
         case peerId = "peer_id"
     }
