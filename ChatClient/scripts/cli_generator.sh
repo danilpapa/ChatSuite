@@ -35,8 +35,8 @@ while true; do
         exit 0
     elif [[ $dialog_return -eq 255 ]]; then
         clear
-        chmod +x ./target_generation.sh
-        ./target_generation.sh
+        chmod +x ./scripts/target_generator.sh
+        ./scripts/target_generator.sh
         exec "$0"
     fi
 
@@ -45,7 +45,7 @@ while true; do
     selected_projects=""
     for index in "${selected_indices[@]}"; do
         target_index=$((index - 1))
-        selected_projects+=" ${schemes[$target_index]}Tests"
+        selected_projects+=" ${schemes[$target_index]}"
     done
 
     selected_projects="${selected_projects# }"
