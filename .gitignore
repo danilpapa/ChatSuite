@@ -84,3 +84,4 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+targets.json
