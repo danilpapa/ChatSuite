@@ -11,16 +11,20 @@ import API
 
 struct MateStatusPageView: View {
     @State private var isFetchingMateStatus = false
+    @State private var mateStatus: String = ""
+    
     private var user: User
     private var mate: User
-    @State private var mateStatus: String = ""
+    @Binding var isShown: Bool
     
     init(
         user: User,
-        mate: User
+        mate: User,
+        isShown: Binding<Bool>
     ) {
         self.user = user
         self.mate = mate
+        self._isShown = isShown
     }
     
     var body: some View {
@@ -32,7 +36,7 @@ struct MateStatusPageView: View {
                 Text(mate.email)
             }
             Button {
-                
+                isShown = false
             } label: {
                 Text(mateStatus)
                     .foregroundStyle(.background)
@@ -51,7 +55,7 @@ struct MateStatusPageView: View {
             defer { isFetchingMateStatus = false }
             isFetchingMateStatus = true
             do {
-                mateStatus = try await MateClient.shared.getStatus(from: user.id, to: mate.id)
+                mateStatus = try await MateClient.shared.getStatus(from: user.id, to: mate.id).rawValue
             } catch {
                 print(#file)
                 print(error.localizedDescription)

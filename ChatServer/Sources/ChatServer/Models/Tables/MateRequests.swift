@@ -14,28 +14,6 @@ enum RequestStatus: String, Codable, Sendable {
     case pending
     case accepted
     case rejected
-    
-    var requestFromStatus: String {
-        switch self {
-        case .pending:
-            return "Pending"
-        case .accepted:
-            return "Delete mate"
-        case .rejected:
-            return "Add mate"
-        }
-    }
-    
-    var requestToStatus: String {
-        switch self {
-        case .pending:
-            return "Accept/Delete mate"
-        case .accepted:
-            return "Delete mate"
-        case .rejected:
-            return "Add mate"
-        }
-    }
 }
 
 final class MateRequests: Model, @unchecked Sendable {
@@ -79,6 +57,31 @@ extension String {
             static let from = "from"
             static let to = "to"
             static let status = "status"
+        }
+    }
+}
+
+extension RequestStatus {
+    
+    func statusForSender() -> MateActionStatus {
+        switch self {
+        case .pending:
+            return .pending
+        case .accepted:
+            return .deleteMate
+        case .rejected:
+            return .addMate
+        }
+    }
+    
+    func statusForReceiver() -> MateActionStatus {
+        switch self {
+        case .pending:
+            return .acceptDelete
+        case .accepted:
+            return .deleteMate
+        case .rejected:
+            return .addMate
         }
     }
 }

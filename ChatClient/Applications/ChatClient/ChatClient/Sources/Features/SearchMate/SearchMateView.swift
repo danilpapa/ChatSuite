@@ -30,7 +30,11 @@ struct SearchMateView: View {
                                 isMateDetailShown = true
                             }
                             .sheet(isPresented: $isMateDetailShown) {
-                                MateStatusPageView(user: user, mate: mate)
+                                MateStatusPageView(
+                                    user: user,
+                                    mate: mate,
+                                    isShown: $isMateDetailShown
+                                )
                             }
                     }
                 }

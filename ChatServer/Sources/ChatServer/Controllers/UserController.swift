@@ -75,7 +75,7 @@ struct UserController: RouteCollection {
                 reason: "Missing or invalid 'mate_id', 'user_id' parameter"
             )
         }
-        let mateRequest = try await MateRequests.query(on: req.db)
+        let request = try await MateRequests.query(on: req.db)
             .group(.or) { group in
                 group.group(.and) { group in
                     group.filter(\.$from.$id, .equal, userId)
@@ -86,24 +86,22 @@ struct UserController: RouteCollection {
                     group.filter(\.$from.$id, .equal, mateId)
                 }
             }
-            .all()
-        if mateRequest.isEmpty {
-            return MateStatus("Add mate")
+            .first()
+        
+        guard let request else {
+            return MateStatus(status: .addMate)
         }
-        guard let request = mateRequest.first else {
-            throw Abort(.badRequest, reason: "Error via accesing Mate Request relation")
-        }
+        
         if request.status == .rejected {
             try await request.delete(on: req.db)
-            return MateStatus("Add mate")
+            return MateStatus(status: .addMate)
         }
+        
         if request.$from.id == userId {
-            return MateStatus(request.status.requestFromStatus)
+            return MateStatus(status: request.status.statusForSender())
+        } else {
+            return MateStatus(status: request.status.statusForReceiver())
         }
-        if request.$to.id == userId {
-            return MateStatus(request.status.requestToStatus)
-        }
-        return MateStatus("")
     }
     
     private func handleFriendPostRequest(_ req: Request) async throws -> HTTPStatus {
@@ -192,9 +190,5 @@ fileprivate struct MateRequest: Content {
 
 private struct MateStatus: Content {
     
-    let status: String
-    
-    init(_ status: String) {
-        self.status = status
-    }
+    let status: MateActionStatus
 }
