@@ -8,7 +8,7 @@ let project = Project(
             url: "https://github.com/firebase/firebase-ios-sdk",
             requirement: .upToNextMajor(from: "12.3.0")
         )
-    ],  
+    ],
     targets: [
         .target(
             name: "ChatClient",

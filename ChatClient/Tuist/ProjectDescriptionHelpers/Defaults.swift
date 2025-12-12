@@ -42,4 +42,12 @@ public enum Defaults {
         ]
     )
     public static let deploymentsTarget = DeploymentTargets.iOS("26.0")
+    public static let settingsDefaultConfigutation: Settings? = .settings(
+        base: [:],
+        configurations: [
+            .debug(name: "DEBUG"),
+            .release(name: "RELEASE")
+        ],
+        defaultSettings: .recommended
+    )
 }
