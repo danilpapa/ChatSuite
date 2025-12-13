@@ -10,21 +10,18 @@ import Services
 import API
 
 struct MateStatusPageView: View {
-    @State private var isFetchingMateStatus = false
-    @State private var mateStatus: String = ""
-    
     private var user: User
     private var mate: User
-    @Binding var isShown: Bool
+    @Binding private var mateStatus: MateStatus?
     
     init(
         user: User,
         mate: User,
-        isShown: Binding<Bool>
+        mateStatus: Binding<MateStatus?>
     ) {
         self.user = user
         self.mate = mate
-        self._isShown = isShown
+        self._mateStatus = mateStatus
     }
     
     var body: some View {
@@ -36,33 +33,15 @@ struct MateStatusPageView: View {
                 Text(mate.email)
             }
             Button {
-                isShown = false
+                mateStatus = nil
             } label: {
-                Text(mateStatus)
+                Text(mateStatus?.title ?? "No title")
                     .foregroundStyle(.background)
                     .padding(10)
                     .background(
                         Color.green,
                         in: .capsule
                     )
-                    .overlay {
-                        ProgressView()
-                            .opacity(isFetchingMateStatus ? 1 : 0)
-                    }
-            }
-        }
-        .task {
-            defer { isFetchingMateStatus = false }
-            isFetchingMateStatus = true
-            do {
-                guard let response = try await MateClient.shared.getStatus(from: user.id, to: mate.id) else {
-                    // handle
-                    return
-                }
-                mateStatus = response.rawValue
-            } catch {
-                print(#file)
-                print(error.localizedDescription)
             }
         }
     }
