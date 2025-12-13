@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum MateActionStatus: String, Codable, Sendable {
+enum MateActionStatus: String, Codable {
     
-    case addMate = "Add mate"
-    case pending = "Pending"
-    case acceptDelete = "Accept/Delete mate"
-    case deleteMate = "Delete mate"
+    case addMate
+    case pending
+    case acceptDelete
+    case deleteMate
 }

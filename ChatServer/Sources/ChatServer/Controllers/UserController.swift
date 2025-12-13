@@ -89,18 +89,18 @@ struct UserController: RouteCollection {
             .first()
         
         guard let request else {
-            return MateStatus(status: .addMate)
+            return .init(status: .addMate)
         }
         
         if request.status == .rejected {
             try await request.delete(on: req.db)
-            return MateStatus(status: .addMate)
+            return .init(status: .addMate)
         }
         
         if request.$from.id == userId {
-            return MateStatus(status: request.status.statusForSender())
+            return .init(status: request.status.statusForSender())
         } else {
-            return MateStatus(status: request.status.statusForReceiver())
+            return .init(status: request.status.statusForReceiver())
         }
     }
     
@@ -188,7 +188,7 @@ fileprivate struct MateRequest: Content {
     }
 }
 
-private struct MateStatus: Content {
+fileprivate struct MateStatus: Content {
     
-    let status: MateActionStatus
+    var status: MateActionStatus
 }

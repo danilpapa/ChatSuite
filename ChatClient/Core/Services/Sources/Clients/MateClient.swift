@@ -14,7 +14,7 @@ import API
 @Singleton
 public struct MateClient {
     
-    public func getStatus(from id: UUID, to peerId: UUID) async throws -> MateStatus {
+    public func getStatus(from id: UUID, to peerId: UUID) async throws -> MateStatus? {
         let request = ApiRequest<Never>(
             method: .get,
             url: EndPoints.users.appending("mate"),
@@ -23,9 +23,12 @@ public struct MateClient {
                 "user_id": id
             ]
         )
-        let result: ApiResponse<MateStatus> =
-        try await ApiClient.shared.perform(request: request)
-        return result.body
+        let result: ApiResponse<_MateStatus> = try await ApiClient.shared.perform(request: request)
+        guard let mateStatus = MateStatus(rawValue: result.body.status) else {
+            print(#file)
+            return nil
+        }
+        return mateStatus
     }
 }
 

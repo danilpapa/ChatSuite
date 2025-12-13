@@ -55,7 +55,11 @@ struct MateStatusPageView: View {
             defer { isFetchingMateStatus = false }
             isFetchingMateStatus = true
             do {
-                mateStatus = try await MateClient.shared.getStatus(from: user.id, to: mate.id).rawValue
+                guard let response = try await MateClient.shared.getStatus(from: user.id, to: mate.id) else {
+                    // handle
+                    return
+                }
+                mateStatus = response.rawValue
             } catch {
                 print(#file)
                 print(error.localizedDescription)
