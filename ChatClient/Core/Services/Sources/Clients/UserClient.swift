@@ -13,15 +13,18 @@ import Singleton
 
 @Singleton
 public struct UserClient {
+    public static let usersByPreffixCache: NSCache<NSString, NSData> = .init()
     
-    public func usersByPrefix<T: Decodable>(from id: UUID, prefix: String) async throws -> [T] {
-        let request = ApiRequest<_UserNamePreffix>(
-            method: .post,
-            url: EndPoints.users.appending("user_name_prefix"),
-            body: _UserNamePreffix(senderId: id.uuidString, prefix: prefix)
-        )
-        let result: ApiResponse<[T]> = try await ApiClient.shared.perform(request: request)
-        return result.body
+    public func usersByPrefix<T: Codable>(from id: UUID, prefix: String) async throws -> [T] {
+        try await Cache.invoke(key: prefix, cache: UserClient.usersByPreffixCache) {
+            let request = ApiRequest<_UserNamePreffix>(
+                method: .post,
+                url: EndPoints.users.appending("user_name_prefix"),
+                body: _UserNamePreffix(senderId: id.uuidString, prefix: prefix)
+            )
+            let result: ApiResponse<[T]> = try await ApiClient.shared.perform(request: request)
+            return result.body
+        }
     }
     
     public func recentChats<T: Decodable>(for id: UUID) async throws -> [T] {

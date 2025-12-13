@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct User: Hashable, Equatable, Identifiable, Decodable {
+public struct User: Hashable, Equatable, Identifiable, Codable {
     public init(id: UUID, email: String) {
         self.id = id
         self.email = email

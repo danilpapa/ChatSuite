@@ -36,6 +36,9 @@ struct MainView: View {
                     user: user,
                     displayedUsers: displayedMates
                 )
+                .onAppear {
+                    UserClient.usersByPreffixCache.removeAllObjects()
+                }
                 .searchable(text: $mateRequest)
             }
         }
