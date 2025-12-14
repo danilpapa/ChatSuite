@@ -127,13 +127,54 @@ struct UserController: RouteCollection {
                 status: .pending
             )
             try await newRequest.save(on: req.db)
-        case .acceptDiscard:
-            // handle later
-            break
+        case .accept:
+            try await MateRequests.query(on: req.db)
+                .group(.or) { group in
+                    group.group(.and) { group in
+                        group.filter(\.$from.$id, .equal, requestData.peerId)
+                        group.filter(\.$to.$id, .equal, requestData.userId)
+                    }
+                    group.group(.and) { group in
+                        group.filter(\.$to.$id, .equal, requestData.peerId)
+                        group.filter(\.$from.$id, .equal, requestData.userId)
+                    }
+                }
+                .delete()
+            let newFriendship = UserFriend(userID: requestData.userId, friendID: requestData.peerId)
+            try await newFriendship.save(on: req.db)
+        case .discard:
+            try await MateRequests.query(on: req.db)
+                .group(.and) { group in
+                    group.filter(\.$from.$id, .equal, requestData.peerId)
+                    group.filter(\.$to.$id, .equal, requestData.userId)
+                }
+                .delete()
         case .deleteMate:
-            // провека что в друзьях
-            break
-        case .pending:
+            try await UserFriend.query(on: req.db)
+                .group(.or) { group in
+                    group.group(.and) { group in
+                        group.filter(\.$user.$id, .equal, requestData.userId)
+                        group.filter(\.$friend.$id, .equal, requestData.peerId)
+                    }
+                    group.group(.and) { group in
+                        group.filter(\.$user.$id, .equal, requestData.peerId)
+                        group.filter(\.$friend.$id, .equal, requestData.userId)
+                    }
+                }
+                .delete()
+            try await MateRequests.query(on: req.db)
+                .group(.or) { group in
+                    group.group(.and) { group in
+                        group.filter(\.$from.$id, .equal, requestData.peerId)
+                        group.filter(\.$to.$id, .equal, requestData.userId)
+                    }
+                    group.group(.and) { group in
+                        group.filter(\.$to.$id, .equal, requestData.peerId)
+                        group.filter(\.$from.$id, .equal, requestData.userId)
+                    }
+                }
+                .delete()
+        case .pending, .expectation:
             break
         }
         return .accepted

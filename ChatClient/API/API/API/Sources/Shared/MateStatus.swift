@@ -12,15 +12,19 @@ public enum MateStatus: String, Decodable, Identifiable {
     
     case addMate
     case pending
-    case acceptDiscard
+    case accept
+    case discard
     case deleteMate
+    case expectation
     
     public var title: String {
         switch self {
         case .addMate: return "Add mate"
         case .pending: return "Pending"
-        case .acceptDiscard: return "Accept/Discard"
+        case .accept: return "Accept"
+        case .discard: return "Discerd"
         case .deleteMate: return "Delete mate"
+        case .expectation: return ""
         }
     }
     
@@ -32,7 +36,11 @@ public enum MateStatus: String, Decodable, Identifiable {
             return .blue
         case .deleteMate:
             return .red
-        default: return .clear
+        case .accept:
+            return .green
+        case .discard:
+            return .red
+        case .expectation: return .clear
         }
     }
     
