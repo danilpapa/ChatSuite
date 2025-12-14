@@ -85,3 +85,7 @@ Derived/
 ### Tuist managed dependencies ###
 Tuist/.build
 targets.json
+
+# fastlane
+Fastlane/report.xml
+Fastlane/test_output
