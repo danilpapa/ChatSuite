@@ -24,7 +24,10 @@ jobs:
 
       - name: Install Tuist
         run: |
-          curl -Ls https://install.tuist.io | bash -s -- 4.111.0
+              curl -L https://github.com/tuist/tuist/releases/download/4.111.0/tuist.zip -o tuist.zip
+              unzip tuist.zip
+              sudo mv tuist /usr/local/bin/tuist
+              tuist version
 
       - name: Generate Xcode project
         run: tuist generate
