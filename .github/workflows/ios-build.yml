@@ -31,8 +31,7 @@ jobs:
           cd ChatClient
           tuist generate
 
-      - name: Debug
-        run: ls -R
-
       - name: Build app
-        run: bundle exec fastlane ios build
+        run: 
+          cd ChatClient
+          bundle exec fastlane ios build
