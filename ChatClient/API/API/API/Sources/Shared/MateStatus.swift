@@ -6,22 +6,33 @@
 //
 
 import Foundation
+import SwiftUI
 
 public enum MateStatus: String, Decodable, Identifiable {
     
     case addMate
     case pending
-    case acceptDelete
+    case acceptDiscard
     case deleteMate
-    case noAvailableStatus
     
     public var title: String {
         switch self {
         case .addMate: return "Add mate"
         case .pending: return "Pending"
-        case .acceptDelete: return "Accept/Delete"
+        case .acceptDiscard: return "Accept/Discard"
         case .deleteMate: return "Delete mate"
-        case .noAvailableStatus: return "Status is loading"
+        }
+    }
+    
+    public var tint: Color {
+        switch self {
+        case .addMate:
+            return .green
+        case .pending:
+            return .blue
+        case .deleteMate:
+            return .red
+        default: return .clear
         }
     }
     

@@ -77,7 +77,7 @@ extension RequestStatus {
     func statusForReceiver() -> MateActionStatus {
         switch self {
         case .pending:
-            return .acceptDelete
+            return .acceptDiscard
         case .accepted:
             return .deleteMate
         case .rejected:

@@ -49,12 +49,22 @@ public struct UserClient {
         return respose.body
     }
     
-    public func friendRequestAction(_ action: String, from id: UUID, to peerId: UUID) async throws {
+    public func mateStatusAction(
+        status: MateStatus,
+        from id: UUID,
+        to peerId: UUID
+    ) async throws {
+        guard status != .pending else { return }
         let request = ApiRequest<_FriednRequestAction>(
             method: .post,
             url: EndPoints.friendActionRequests.path,
-            query: ["action": action],
-            body: _FriednRequestAction(id: id, peerId: peerId)
+            query: [
+                "action": status.rawValue
+            ],
+            body: _FriednRequestAction(
+                id: id,
+                peerId: peerId
+            )
         )
         let _: ApiResponse<Never> = try await ApiClient.shared.perform(request: request)
     }

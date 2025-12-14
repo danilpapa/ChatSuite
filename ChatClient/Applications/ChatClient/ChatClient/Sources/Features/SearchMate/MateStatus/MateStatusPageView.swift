@@ -27,21 +27,68 @@ struct MateStatusPageView: View {
     var body: some View {
         VStack {
             Text("Mate")
+                .foregroundStyle(.background)
                 .font(.headline)
-                .fontWeight(.semibold)
+                .padding()
+                .glassEffect(.regular.tint(.blue))
+            
             HStack {
                 Text(mate.email)
             }
-            Button {
-                mateStatus = nil
-            } label: {
-                Text(mateStatus?.title ?? "No title")
-                    .foregroundStyle(.background)
-                    .padding(10)
-                    .background(
-                        Color.green,
-                        in: .capsule
-                    )
+            actionButton
+//                guard
+//                    let mateStatus,
+//                    mateStatus != .pending
+//                else { return }
+//                Task.detached {
+//                    do {
+//                        try await UserClient.shared.mateStatusAction(
+//                            status: mateStatus,
+//                            from: user.id,
+//                            to: mate.id
+//                        )
+//                    } catch {
+//                        // handle
+//                        print(error)
+//                    }
+//                }
+//                self.mateStatus = nil
+        }
+    }
+    
+    @ViewBuilder
+    private var actionButton: some View {
+        if let mateStatus {
+            if case .acceptDiscard = mateStatus {
+                HStack (spacing: .zero) {
+                    Button("Accept") {
+                        
+                    }
+                    .buttonStyle(.glassProminent)
+                    
+                    Button("Discard") {
+                        
+                    }
+                    .buttonStyle(.glassProminent)
+                    .tint(.red)
+                }
+            } else {
+                Button(mateStatus.title){
+                    Task.detached {
+                        do {
+                            try await UserClient.shared.mateStatusAction(
+                                status: mateStatus,
+                                from: user.id,
+                                to: mate.id
+                            )
+                        } catch {
+                            // handle
+                            print(error)
+                        }
+                    }
+                }
+                .buttonStyle(.glassProminent)
+                .tint(mateStatus.tint)
             }
         }
     }
