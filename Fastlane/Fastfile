@@ -5,9 +5,10 @@ platform :ios do
 
     desc "Build iOS app"
     lane :build do
+        
         build_app(
             derived_data_path: "/Users/setuper/Library/Developer/Xcode/DerivedData",
-            workspace: 'ChatClient.xcworkspace',
+            workspace: 'ChatClient/ChatClient.xcworkspace',
             scheme: 'ChatClient',
             clean: false,
             silent: true,
