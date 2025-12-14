@@ -12,12 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Debug Tuist files
-        run: |
-          pwd
-          ls -la
-
+        
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -32,7 +27,9 @@ jobs:
           brew install tuist 
 
       - name: Generate Xcode project
-        run: tuist generate
+        run: 
+          cd ChatClient
+          tuist generate
 
       - name: Build app
         run: bundle exec fastlane ios build
