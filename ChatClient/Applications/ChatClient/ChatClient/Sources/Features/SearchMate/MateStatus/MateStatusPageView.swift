@@ -12,17 +12,21 @@ import API
 struct MateStatusPageView: View {
     private var user: User
     private var mate: User
-    @Binding private var mateStatus: MateStatus?
+    private var mateStatus: MateStatus
+    private let onClose: () -> Void
     
-    init(
+    public init(
         user: User,
         mate: User,
-        mateStatus: Binding<MateStatus?>
+        mateStatus: MateStatus,
+        onClose: @escaping () -> Void
     ) {
         self.user = user
         self.mate = mate
-        self._mateStatus = mateStatus
+        self.mateStatus = mateStatus
+        self.onClose = onClose
     }
+    
     
     var body: some View {
         VStack {
@@ -31,65 +35,51 @@ struct MateStatusPageView: View {
                 .font(.headline)
                 .padding()
                 .glassEffect(.regular.tint(.blue))
-            
             HStack {
                 Text(mate.email)
             }
             actionButton
-//                guard
-//                    let mateStatus,
-//                    mateStatus != .pending
-//                else { return }
-//                Task.detached {
-//                    do {
-//                        try await UserClient.shared.mateStatusAction(
-//                            status: mateStatus,
-//                            from: user.id,
-//                            to: mate.id
-//                        )
-//                    } catch {
-//                        // handle
-//                        print(error)
-//                    }
-//                }
-//                self.mateStatus = nil
         }
     }
     
     @ViewBuilder
     private var actionButton: some View {
-        if let mateStatus {
-            if case .acceptDiscard = mateStatus {
-                HStack (spacing: .zero) {
-                    Button("Accept") {
-                        
-                    }
-                    .buttonStyle(.glassProminent)
-                    
-                    Button("Discard") {
-                        
-                    }
-                    .buttonStyle(.glassProminent)
-                    .tint(.red)
-                }
-            } else {
-                Button(mateStatus.title){
-                    Task.detached {
-                        do {
-                            try await UserClient.shared.mateStatusAction(
-                                status: mateStatus,
-                                from: user.id,
-                                to: mate.id
-                            )
-                        } catch {
-                            // handle
-                            print(error)
-                        }
-                    }
+        if case .expectation = mateStatus {
+            HStack (spacing: .zero) {
+                Button(MateStatus.accept.title) {
+                    buttonAction(status: .accept)
                 }
                 .buttonStyle(.glassProminent)
-                .tint(mateStatus.tint)
+                .tint(MateStatus.accept.tint)
+                
+                Button(MateStatus.discard.title) {
+                    buttonAction(status: .discard)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(MateStatus.discard.tint)
+            }
+        } else {
+            Button(mateStatus.title){
+                buttonAction(status: mateStatus)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(mateStatus.tint)
+        }
+    }
+    
+    private func buttonAction(status: MateStatus) {
+        Task.detached {
+            do {
+                try await UserClient.shared.mateStatusAction(
+                    status: status,
+                    from: user.id,
+                    to: mate.id
+                )
+            } catch {
+                // handle
+                print(error)
             }
         }
+        onClose()
     }
 }

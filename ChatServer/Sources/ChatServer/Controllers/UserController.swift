@@ -116,9 +116,6 @@ struct UserController: RouteCollection {
         } catch {
             throw Abort(.badRequest, reason: "Error accesing user id and peer id at body \(error.localizedDescription)")
         }
-        // add mate когда нет ни 1 записи в бд
-        // accept/discard mate когда он кинул заявку
-        // delete когда уже в друзьях
         switch currentStatus {
         case .addMate:
             let newRequest = MateRequests(
@@ -178,30 +175,6 @@ struct UserController: RouteCollection {
             break
         }
         return .accepted
-//        if action == "Add mate" {
-//            let newRequest = MateRequests(
-//                from: requestData.userId,
-//                to: requestData.peerId,
-//                status: .pending
-//            )
-//            try await newRequest.save(on: req.db)
-//        } else if action == "Discard" {
-//            try await MateRequests.query(on: req.db)
-//                .group(.and) { group in
-//                    group.filter(\.$from.$id, .equal, requestData.peerId)
-//                    group.filter(\.$to.$id, .equal, requestData.userId)
-//                }
-//                .delete()
-//        } else if action == "Accept" {
-//            let request = try await MateRequests.query(on: req.db)
-//                .group(.and) { group in
-//                    group.filter(\.$from.$id, .equal, requestData.peerId)
-//                    group.filter(\.$to.$id, .equal, requestData.userId)
-//                }
-//                .first()
-//            request?.status = .accepted
-//        }
-//        return .accepted
     }
     
     private func handleFriendRequest(_ req: Request) async throws -> [User] {

@@ -22,7 +22,6 @@ struct GeneralView: View {
                         } label: {
                             Image(systemName: "person.checkmark.and.xmark")
                                 .foregroundStyle(.blue)
-                                .badge(2)
                         }
                         .buttonStyle(.glass)
                     }

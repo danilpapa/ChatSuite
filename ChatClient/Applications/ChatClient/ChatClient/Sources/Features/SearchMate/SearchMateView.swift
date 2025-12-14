@@ -33,11 +33,14 @@ struct SearchMateView: View {
                                     await getMateStatus(from: user.id, mate: mate.id)
                                 }
                             }
-                            .sheet(item: $mateStatus) { _ in
+                            .sheet(item: $mateStatus) { status in
                                 MateStatusPageView(
                                     user: user,
                                     mate: mate,
-                                    mateStatus: $mateStatus
+                                    mateStatus: status,
+                                    onClose: {
+                                        mateStatus = nil
+                                    }
                                 )
                             }
                     }

@@ -11,6 +11,8 @@ enum MateActionStatus: String, Codable {
     
     case addMate
     case pending
-    case acceptDiscard
+    case accept
+    case discard
     case deleteMate
+    case expectation
 }

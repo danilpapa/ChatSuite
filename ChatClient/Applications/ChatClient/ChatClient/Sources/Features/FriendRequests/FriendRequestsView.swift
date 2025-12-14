@@ -13,6 +13,7 @@ struct FriendRequestsView: View {
     @EnvironmentObject private var router: Router
     @State private var requests: [User] = []
     @State private var isFetchingRequest = false
+    @State private var isShownMatePage = false
     private let user: User
     
     init(for user: User) {
@@ -24,18 +25,23 @@ struct FriendRequestsView: View {
             ForEach(requests) { friendRequest in
                 VStack {
                     Text(friendRequest.email)
-                    HStack {
-                        Button("Accept") {
-                            
+                        .onTapGesture {
+                            isShownMatePage = true
                         }
-                        .buttonStyle(.glass)
-                        
-                        Button("Discard") {
-                            
+                        .sheet(isPresented: $isShownMatePage) {
+                            MateStatusPageView(
+                                user: user,
+                                mate: friendRequest,
+                                mateStatus: .expectation,
+                                onClose: {
+                                    isShownMatePage = false
+                                    Task {
+                                        await fetchActualRequests()
+                                    }
+                                }
+                            )
                         }
-                        .tint(.red)
-                        .buttonStyle(.glass)
-                    }
+
                 }
             }
         }
@@ -48,14 +54,18 @@ struct FriendRequestsView: View {
             }
         }
         .task {
-            isFetchingRequest = true
-            defer { isFetchingRequest = false }
-            do {
-                requests = try await UserClient.shared.actualFriendRequests(for: user)
-            } catch {
-                print(error.localizedDescription)
-                print(#file)
-            }
+            await fetchActualRequests()
+        }
+    }
+    
+    private func fetchActualRequests() async {
+        isFetchingRequest = true
+        defer { isFetchingRequest = false }
+        do {
+            requests = try await UserClient.shared.actualFriendRequests(for: user)
+        } catch {
+            print(error.localizedDescription)
+            print(#file)
         }
     }
 }
