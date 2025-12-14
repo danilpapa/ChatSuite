@@ -13,6 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug Tuist files
+        run: |
+          pwd
+          ls -la
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
