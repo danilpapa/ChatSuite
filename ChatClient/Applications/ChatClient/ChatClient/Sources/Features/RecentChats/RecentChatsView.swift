@@ -7,50 +7,73 @@
 
 import SwiftUI
 import API
+import Services
 
 struct RecentChatsView: View {
     @EnvironmentObject var router: Router
-    @State private var isFetchingRequest = false
-    @State private var recentChats: [Chat] = []
+    @State private var isMateSelectionPresented = false
     
     private var user: User
-    private var chatService: IChatService
     
-    init(
-        user: User,
-        chatService: IChatService
-    ) {
+    init(user: User) {
         self.user = user
-        self.chatService = chatService
+    }
+    
+    var body: some View {
+        VStack {
+            Text("Start chatting now")
+                .foregroundStyle(.gray)
+                .font(.callout)
+            Button {
+                isMateSelectionPresented = true
+            } label: {
+                Image(systemName: "plus.message.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50)
+                    .foregroundStyle(.blue)
+                    .glassEffect()
+            }
+        }
+        .sheet(isPresented: $isMateSelectionPresented) {
+            MateSelectionView(user: user)
+        }
+    }
+}
+
+fileprivate struct MateSelectionView: View {
+    @State private var activeFriends: [User] = []
+    @State private var isFetchingRequest: Bool = false
+    private var user: User
+    
+    fileprivate init(user: User) {
+        self.user = user
     }
     
     var body: some View {
         Group {
-            if recentChats.isEmpty {
-                Button {
-                    
-                } label: {
-                    Text("No recent chats, start chatting now")
+            List {
+                ForEach(activeFriends) { friend in
+                    Text(friend.email)
                 }
-                .opacity(recentChats.isEmpty ? 1 : 0)
-                .disabled(!recentChats.isEmpty)
-            } else {
-                List {
-                    ForEach(recentChats) { chat in
-                        Text(chat.mateEmail)
-                            .font(.title)
-                            .fontWeight(.semibold)
-                    }
-                }
-                .overlay {
+            }
+            .overlay {
+                ZStack {
+                    Color.gray.opacity(0.3)
                     ProgressView()
-                        .opacity(isFetchingRequest ? 1 : 0)
                 }
+                .opacity(isFetchingRequest ? 1 : 0)
             }
         }
         .task {
-            Task {
-                recentChats = await chatService.loadRecentChats(for: user)
+            isFetchingRequest = true
+            defer { isFetchingRequest = false }
+            do {
+                activeFriends = try await UserClient.shared.activeFriends(for: user)
+                print(activeFriends)
+            } catch {
+                print(error.localizedDescription)
+                print(#file)
             }
         }
     }

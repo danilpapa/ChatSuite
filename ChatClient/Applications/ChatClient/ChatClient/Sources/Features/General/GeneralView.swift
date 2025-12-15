@@ -14,7 +14,7 @@ struct GeneralView: View {
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            Text("Main page")
+            RecentChatsView(user: user)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
