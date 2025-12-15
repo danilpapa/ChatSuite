@@ -10,16 +10,17 @@ import API
 
 enum AppRoutes: Hashable {
     
-    case general(User)
+    case general
     case search(User, [User])
     case profile(User)
     case friendRequest(User)
+    case chat(WebSocketManager)
     
     @ViewBuilder
     var destination: some View {
         switch self {
-        case let .general(user):
-            GeneralView(user: user, mateToChat: .constant(.none))
+        case .general:
+            GeneralView()
         case .search(let user, let displayedUsers):
             SearchMateView(
                 user: user,
@@ -29,6 +30,8 @@ enum AppRoutes: Hashable {
             ProfileView(user: user)
         case let .friendRequest(user):
             FriendRequestsView(for: user)
+        case let .chat(wsManager):
+            ChatView(socketManager: wsManager)
         }
     }
 }

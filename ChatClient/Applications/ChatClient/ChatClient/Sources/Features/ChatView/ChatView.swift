@@ -41,12 +41,12 @@ struct ChatView: View {
         }
         .task {
             socketManager.connect()
-            print("Connected")
         }
         .onDisappear {
             socketManager.disconnect()
         }
         .navigationTitle(socketManager.connectedUsers.description)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

@@ -9,22 +9,16 @@ import SwiftUI
 import API
 
 struct GeneralView: View {
+    @EnvironmentObject var appState: AppState
     @StateObject private var router = Router()
-    private var user: User
-    @Binding private var mateToChat: User?
-    
-    init(user: User, mateToChat: Binding<User?>) {
-        self.user = user
-        self._mateToChat = mateToChat
-    }
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            RecentChatsView(user: user, mateToChat: $mateToChat)
+            RecentChatsView()
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            router.push(.friendRequest(user))
+                            router.push(.friendRequest(appState.user))
                         } label: {
                             Image(systemName: "person.checkmark.and.xmark")
                                 .foregroundStyle(.blue)
@@ -37,6 +31,7 @@ struct GeneralView: View {
                         .environmentObject(router)
                 }
                 .navigationTitle("FireChat")
+                .environmentObject(router)
         }
     }
 }

@@ -9,6 +9,8 @@ import SwiftUI
 import FirebaseCore
 import FirebaseAuth
 import HeedAssembly
+import API
+import Services
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -26,7 +28,16 @@ struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            ChatClient()
+            //ChatClient()
+            NavigationStack {
+                ChatView(
+                    socketManager: WebSocketManager(
+                        cryptoKeysManager: CryptoManager(),
+                        userId: User.maybachDanil().id.uuidString,
+                        peerId: User.danilMaybach().id.uuidString
+                    )
+                )
+            }
         }
     }
 }

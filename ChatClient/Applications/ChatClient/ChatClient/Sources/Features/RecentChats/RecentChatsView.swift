@@ -10,17 +10,10 @@ import API
 import Services
 
 struct RecentChatsView: View {
+    @EnvironmentObject var appState: AppState
     @EnvironmentObject var router: Router
     @State private var isMateSelectionPresented = false
     @State private var isSingleChatAlertPresented: Bool = false
-    
-    private var user: User
-    @Binding private var mateToChat: User?
-    
-    init(user: User, mateToChat: Binding<User?>) {
-        self.user = user
-        self._mateToChat = mateToChat
-    }
     
     var body: some View {
         VStack {
@@ -28,7 +21,7 @@ struct RecentChatsView: View {
                 .foregroundStyle(.gray)
                 .font(.callout)
             Button {
-                if mateToChat == nil {
+                if appState.mateToChat == nil {
                     isMateSelectionPresented = true
                 } else {
                     isSingleChatAlertPresented = true
@@ -44,10 +37,10 @@ struct RecentChatsView: View {
         }
         .sheet(isPresented: $isMateSelectionPresented) {
             MateSelectionView(
-                user: user,
-                isPresented: $isMateSelectionPresented,
-                selectedMate: $mateToChat
+                isPresented: $isMateSelectionPresented
             )
+            .environmentObject(appState)
+            .environmentObject(router)
         }
         .alert(
             "Ooops",
@@ -64,20 +57,17 @@ struct RecentChatsView: View {
 }
 
 fileprivate struct MateSelectionView: View {
+    @EnvironmentObject private var router: Router
+    @EnvironmentObject var appState: AppState
     @State private var activeFriends: [User] = []
     @State private var isFetchingRequest: Bool = false
-    private var user: User
+    
     @Binding private var isPresented: Bool
-    @Binding private var selectedMate: User?
     
     fileprivate init(
-        user: User,
         isPresented: Binding<Bool>,
-        selectedMate: Binding<User?>
     ) {
-        self.user = user
         self._isPresented = isPresented
-        self._selectedMate = selectedMate
     }
     
     var body: some View {
@@ -86,7 +76,8 @@ fileprivate struct MateSelectionView: View {
                 ForEach(activeFriends) { friend in
                     Text(friend.email)
                         .onTapGesture {
-                            selectedMate = friend
+                            appState.mateToChat = friend
+                            //router.push(.chat(WebSocketManager(cryptoKeysManager: CryptoManager(), userId: appState.user.id.uuidString, peerId: friend.id.uuidString)))
                             isPresented = false
                         }
                 }
@@ -103,7 +94,7 @@ fileprivate struct MateSelectionView: View {
             isFetchingRequest = true
             defer { isFetchingRequest = false }
             do {
-                activeFriends = try await UserClient.shared.activeFriends(for: user)
+                activeFriends = try await UserClient.shared.activeFriends(for: appState.user)
             } catch {
                 print(error.localizedDescription)
                 print(#file)
@@ -114,6 +105,6 @@ fileprivate struct MateSelectionView: View {
 
 #if DEBUG
 #Preview {
-    RootView()
+    ChatClient()
 }
 #endif

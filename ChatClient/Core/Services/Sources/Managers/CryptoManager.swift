@@ -44,7 +44,7 @@ public struct CryptoManager: ICryptoManager {
             throw CryptoKeyManagerError.sealFailed(error)
         }
     }
-    
+    // вот тут падает
     public func decryptMessage(_ message: Data) throws(CryptoKeyManagerError) -> String {
         do {
             let sealedBoxToOpen = try AES.GCM.SealedBox(combined: message)

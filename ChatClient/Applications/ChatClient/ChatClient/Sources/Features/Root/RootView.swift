@@ -16,10 +16,9 @@ struct RootView: View {
     var body: some View {
         Group {
             if loginManager.isLoggedIn {
-                MainView(
-                    user: loginManager.getUser()
-                )
-                .environment(\EnvironmentValues.heed, heed)
+                MainView()
+                    .environment(\EnvironmentValues.heed, heed)
+                    .environmentObject(AppState(user: loginManager.getUser()))
             } else {
                 LoginView(
                     loginManager: loginManager

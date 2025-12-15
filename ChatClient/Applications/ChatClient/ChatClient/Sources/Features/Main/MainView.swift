@@ -10,23 +10,19 @@ import API
 import Services
 
 struct MainView: View {
+    @EnvironmentObject var appState: AppState
     @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
-    @State private var mateToChat: User?
-    
-    var user: User
     
     var body: some View {
         TabView(selection: $selected) {
             Tab("Main", systemImage: "house", value: .home) {
-                GeneralView(user: user, mateToChat: $mateToChat)
+                GeneralView()
             }
-            
             Tab("Profile", systemImage: "person.crop.circle", value: .profile) {
-                ProfileView(user: user)
+                ProfileView(user: appState.user)
             }
-            
             Tab(
                 "",
                 systemImage: "magnifyingglass",
@@ -34,7 +30,7 @@ struct MainView: View {
                 role: .search
             ) {
                 SearchMateView(
-                    user: user,
+                    user: appState.user,
                     displayedUsers: displayedMates
                 )
                 .onAppear {
@@ -43,15 +39,10 @@ struct MainView: View {
                 .searchable(text: $mateRequest)
             }
         }
-        .tabViewBottomAccessory {
-            if let mateToChat {
-                Text(mateToChat.email)
-            }
-        }
         .onChange(of: mateRequest) { _, userPreffix in
             Task {
                 do {
-                    displayedMates = try await UserClient.shared.usersByPrefix(from: user.id, prefix: userPreffix)
+                    displayedMates = try await UserClient.shared.usersByPrefix(from: appState.user.id, prefix: userPreffix)
                 } catch {
                     print(error.localizedDescription)
                     print(#file)

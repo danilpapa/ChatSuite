@@ -24,7 +24,11 @@ public struct CryptoClient {
                 publicKey: key.base64EncodedString()
             )
         )
-        let _: ApiResponse<Never> = try! await ApiClient.shared.perform(request: request)
+        do {
+            let _: ApiResponse<HTTPStatus> = try await ApiClient.shared.perform(request: request)
+        } catch {
+            print("Error while sending public key: \(error)")
+        }
     }
 }
 
@@ -38,4 +42,8 @@ private struct _PublicKeyData: Encodable {
         case peerId = "peer_id"
         case publicKey = "public_key"
     }
+}
+
+fileprivate struct HTTPStatus: Decodable {
+    var code: Int
 }
