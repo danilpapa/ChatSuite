@@ -193,7 +193,8 @@ struct UserController: RouteCollection {
     
     private func handleActiveFriendsRequest(_ req: Request) async throws -> [User] {
         guard let userIdString = req.query[String.self, at: "user_id"],
-              let userId = UUID(uuidString: userIdString) else {
+              let userId = UUID(uuidString: userIdString)
+        else {
             throw Abort(.badRequest, reason: "Error accesing query params, \(#file), \(#function)")
         }
         do {
@@ -202,6 +203,7 @@ struct UserController: RouteCollection {
                     group.filter(\.$user.$id, .equal, userId)
                     group.filter(\.$friend.$id, .equal, userId)
                 }
+                .with(\.$user)
                 .all()
             return activeFriends.map { userFriend in
                 userFriend.user

@@ -10,7 +10,6 @@ import API
 import Services
 
 struct ActiveFriendsView: View {
-    @State private var friendName: String = ""
     @State private var activeFriends: [User] = []
     
     var user: User
@@ -18,10 +17,6 @@ struct ActiveFriendsView: View {
     var body: some View {
         VStack {
             Color.white
-        }
-        .overlay(alignment: .top) {
-            TextField("Search friend", text: $friendName)
-                .opacity(activeFriends.isEmpty ? 0 : 1)
         }
         .overlay(alignment: .center) {
             Text("No active friends")
