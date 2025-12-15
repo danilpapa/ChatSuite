@@ -26,9 +26,7 @@ struct ChatController: RouteCollection, Sendable {
         let cryptoKeyRequest = routes.grouped("publicKey")
         
         routes.webSocket("chat") { req, ws in
-            Task {
-                await handleWebSocket(req: req, ws: ws)
-            }
+            handleWebSocket(req: req, ws: ws)
         }
         
         cryptoKeyRequest.post { req -> HTTPStatus in
@@ -43,7 +41,7 @@ struct ChatController: RouteCollection, Sendable {
                         to: receiverWS
                     )
                 }
-                return .ok
+                return HTTPStatus(code: 200)
             } catch {
                 throw Abort(.badRequest)
             }
@@ -70,22 +68,29 @@ struct ChatController: RouteCollection, Sendable {
         return try req.content.decode(PublicKeyRequest.self)
     }
     
-    private func handleWebSocket(req: Request, ws: WebSocket) async {
+    private func handleWebSocket(req: Request, ws: WebSocket) {
         guard let hostId = req.valueForHeader("host-id"),
               let peerId = req.valueForHeader("peer-id")
         else { return }
           
-        do {
-            try await connectionManager.newConnection(
-                db: req.db,
-                host: hostId,
-                peer: peerId, ws
-            )
-        } catch {
-            fatalError(error.localizedDescription)
+        ws.eventLoop.execute {
+            Task {
+                do {
+                    try await self.connectionManager.newConnection(
+                        db: req.db,
+                        host: hostId,
+                        peer: peerId,
+                        ws
+                    )
+                    self.broadcastConnectionCount(with: hostId)
+                } catch {
+                    req.logger.error("Connection error: \(error)")
+                    ws.eventLoop.execute {
+                        ws.close(promise: nil)
+                    }
+                }
+            }
         }
-        
-        broadcastConnectionCount(with: hostId)
         
         ws.onText { ws, text in
             handleIncommingMessage(text, from: hostId)
@@ -128,4 +133,8 @@ struct ChatController: RouteCollection, Sendable {
             // handle
         }
     }
+}
+
+fileprivate struct HTTPStatus: Content {
+    var code: Int
 }
