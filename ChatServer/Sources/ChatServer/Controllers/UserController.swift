@@ -89,7 +89,22 @@ struct UserController: RouteCollection {
             .first()
         
         guard let request else {
-            return .init(status: .addMate)
+            let friendRequest = try await UserFriend.query(on: req.db)
+                .group(.or) { group in
+                    group.group(.and) { group in
+                        group.filter(\.$user.$id, .equal, userId)
+                        group.filter(\.$friend.$id, .equal, mateId)
+                    }
+                    group.group(.and) { group in
+                        group.filter(\.$friend.$id, .equal, userId)
+                        group.filter(\.$user.$id, .equal, mateId)
+                    }
+                }
+                .first()
+            guard friendRequest != nil else {
+                return .init(status: .addMate)
+            }
+            return .init(status: .deleteMate)
         }
         
         if request.status == .rejected {
@@ -203,12 +218,16 @@ struct UserController: RouteCollection {
                     group.filter(\.$user.$id, .equal, userId)
                     group.filter(\.$friend.$id, .equal, userId)
                 }
+                .with(\.$friend)
                 .with(\.$user)
                 .all()
             return activeFriends.map { userFriend in
-                userFriend.user
+                userFriend.user.id == userId
+                    ? userFriend.friend
+                    : userFriend.user
             }
         } catch let error as PostgresNIO.PSQLError {
+            print(error.localizedDescription)
             return []
         } catch {
             throw Abort(.badRequest, reason: "Error executing operation: \(error.localizedDescription)")
