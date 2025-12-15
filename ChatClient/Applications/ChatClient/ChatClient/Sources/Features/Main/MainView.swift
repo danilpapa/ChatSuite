@@ -13,13 +13,14 @@ struct MainView: View {
     @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
+    @State private var mateToChat: User?
     
     var user: User
     
     var body: some View {
         TabView(selection: $selected) {
             Tab("Main", systemImage: "house", value: .home) {
-                GeneralView(user: user)
+                GeneralView(user: user, mateToChat: $mateToChat)
             }
             
             Tab("Profile", systemImage: "person.crop.circle", value: .profile) {
@@ -40,6 +41,11 @@ struct MainView: View {
                     UserClient.usersByPreffixCache.removeAllObjects()
                 }
                 .searchable(text: $mateRequest)
+            }
+        }
+        .tabViewBottomAccessory {
+            if let mateToChat {
+                Text(mateToChat.email)
             }
         }
         .onChange(of: mateRequest) { _, userPreffix in

@@ -10,11 +10,17 @@ import API
 
 struct GeneralView: View {
     @StateObject private var router = Router()
-    var user: User
+    private var user: User
+    @Binding private var mateToChat: User?
+    
+    init(user: User, mateToChat: Binding<User?>) {
+        self.user = user
+        self._mateToChat = mateToChat
+    }
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            RecentChatsView(user: user)
+            RecentChatsView(user: user, mateToChat: $mateToChat)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
@@ -33,4 +39,8 @@ struct GeneralView: View {
                 .navigationTitle("FireChat")
         }
     }
+}
+
+#Preview {
+    RootView()
 }

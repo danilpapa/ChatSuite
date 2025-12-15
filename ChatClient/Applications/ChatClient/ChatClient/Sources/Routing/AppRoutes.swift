@@ -19,7 +19,7 @@ enum AppRoutes: Hashable {
     var destination: some View {
         switch self {
         case let .general(user):
-            GeneralView(user: user)
+            GeneralView(user: user, mateToChat: .constant(.none))
         case .search(let user, let displayedUsers):
             SearchMateView(
                 user: user,

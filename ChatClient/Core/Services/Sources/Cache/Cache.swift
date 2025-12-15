@@ -16,7 +16,6 @@ enum Cache {
     ) async throws -> Value {
         let keyString = String(describing: key) as NSString
         if let data = cache.object(forKey: keyString) {
-            print("From cache")
             return try JSONDecoder().decode(Value.self, from: data as Data)
         }
         let value = try await loader()
