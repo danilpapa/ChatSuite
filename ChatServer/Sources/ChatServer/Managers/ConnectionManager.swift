@@ -50,7 +50,7 @@ protocol IConnectionManager {
 
 final class ConnectionManager: IConnectionManager {
     
-    private var acriveLobbies: [FireLobby] = []
+    private var activeLobbies: [FireLobby] = []
     private let lock: NSLock = .init()
     
     func newConnection(
@@ -59,10 +59,10 @@ final class ConnectionManager: IConnectionManager {
         peer peerId: String,
         _ ws: WebSocket
     ) async throws {
-        if let peerLobbyIndex = self.acriveLobbies.firstIndex(where: { lobby in
+        if let peerLobbyIndex = self.activeLobbies.firstIndex(where: { lobby in
             lobby.hostId == hostId || lobby.hostId == peerId
         }) {
-            self.acriveLobbies[peerLobbyIndex].peerConnected(ws)
+            self.activeLobbies[peerLobbyIndex].peerConnected(ws)
             let hostId = UUID(uuidString: hostId)!,
                 peerId = UUID(uuidString: peerId)!
             do {
@@ -85,7 +85,7 @@ final class ConnectionManager: IConnectionManager {
             }
         } else {
             let fireLobby = FireLobby(hostId: hostId, hostWebSocket: ws, peerData: (peerId, nil))
-            acriveLobbies.append(fireLobby)
+            activeLobbies.append(fireLobby)
         }
     }
     
@@ -94,7 +94,7 @@ final class ConnectionManager: IConnectionManager {
     ) {
         lock.lock()
         defer { lock.unlock() }
-        self.acriveLobbies.removeAll { lobby in
+        self.activeLobbies.removeAll { lobby in
             lobby.hostId == hostId || lobby.peerData.0 == hostId
         }
     }
@@ -102,7 +102,7 @@ final class ConnectionManager: IConnectionManager {
     func toAllConnections(memberId: String, _ completion: @escaping (WebSocket) -> Void) {
         lock.lock()
         defer { lock.unlock() }
-        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+        guard let activeLobby = self.activeLobbies.first (where: { lobby in
             lobby.hostId == memberId || lobby.peerData.0 == memberId
         }) else {
             return
@@ -115,7 +115,7 @@ final class ConnectionManager: IConnectionManager {
     func totalConnectionCount(memberId: String) -> Int {
         lock.lock()
         defer { lock.unlock() }
-        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+        guard let activeLobby = self.activeLobbies.first (where: { lobby in
             lobby.hostId == memberId || lobby.peerData.0 == memberId
         }) else {
             return -1
@@ -124,7 +124,7 @@ final class ConnectionManager: IConnectionManager {
     }
     
     func user(id: String) throws -> WebSocket {
-        guard let activeLobby = self.acriveLobbies.first (where: { lobby in
+        guard let activeLobby = self.activeLobbies.first (where: { lobby in
             lobby.hostId == id || lobby.peerData.0 == id
         }) else {
             throw ConnectionManagerError.noSuchLobby

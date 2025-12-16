@@ -48,16 +48,16 @@ struct ChatController: RouteCollection, Sendable {
         }
     }
     
-    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (peerId: String, key:  CryptoPublic) {
+    private func idAndKeyFromModel(_ model: PublicKeyRequest) throws -> (peerId: String, key: CryptoPublic) {
         do {
             guard
                 let publicKeyData = Data(base64Encoded: model.public_key)
             else {
                 throw Abort(.badRequest)
             }
-            let id = model.peer_id
+            let peerId = model.peer_id
             let publicKey = try CryptoPublic(rawRepresentation: publicKeyData)
-            return (id, publicKey)
+            return (peerId, publicKey)
         } catch {
             // handle
             throw Abort(.badRequest)
@@ -98,6 +98,7 @@ struct ChatController: RouteCollection, Sendable {
         
         ws.onClose.whenComplete { _ in
             connectionManager.removeConnection(from: hostId)
+            // TODO: close existing chat
         }
     }
     

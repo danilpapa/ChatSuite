@@ -37,5 +37,5 @@ struct GeneralView: View {
 }
 
 #Preview {
-    RootView()
+    ChatClient()
 }

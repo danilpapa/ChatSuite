@@ -28,16 +28,7 @@ struct ChatClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            //ChatClient()
-            NavigationStack {
-                ChatView(
-                    socketManager: WebSocketManager(
-                        cryptoKeysManager: CryptoManager(),
-                        userId: User.maybachDanil().id.uuidString,
-                        peerId: User.danilMaybach().id.uuidString
-                    )
-                )
-            }
+            ChatClient()
         }
     }
 }
