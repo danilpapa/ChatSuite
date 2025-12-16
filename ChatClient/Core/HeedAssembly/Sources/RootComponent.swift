@@ -24,7 +24,7 @@ public final class WebSocketComponent: Component<WebSocketDependency> {
     public func makeWebSocketManager(
         userId: UUID,
         peerId: UUID
-    ) -> WebSocketManager {
+    ) -> IWebSocketManager {
         WebSocketManager(
             cryptoKeysManager: dependency.cryptoManager,
             userId: userId,
