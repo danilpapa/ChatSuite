@@ -1,24 +1,22 @@
 //
 //  WebSocketManager.swift
-//  ChatClient
+//  Services
 //
-//  Created by setuper on 13.09.2025.
+//  Created by setuper on 16.12.2025.
 //
 
 import Foundation
 import SwiftUI
-import FirebaseCrashlytics
 import API
-import Services
 
 @Observable
-final class WebSocketManager: NSObject {
+public final class WebSocketManager: NSObject {
     
-    var userId: String
-    var peerUserId: String
+    private var userId: String
+    private var peerUserId: String
     
-    var connectedUsers: Int = 0
-    var messages: [Message] = []
+    public var connectedUsers: Int = 0
+    public var messages: [Message] = []
 
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
@@ -29,14 +27,18 @@ final class WebSocketManager: NSObject {
         return formatter
     }()
     
-    init(cryptoKeysManager: ICryptoManager, userId: String, peerId: String) {
+    public init(
+        cryptoKeysManager: ICryptoManager,
+        userId: UUID,
+        peerId: UUID
+    ) {
         self.cryptoKeysManager = cryptoKeysManager
-        self.userId = userId
-        self.peerUserId = peerId
+        self.userId = userId.uuidString
+        self.peerUserId = peerId.uuidString
         super.init()
     }
     
-    func connect() {
+    public func connect() {
         let session = URLSession(
             configuration: .default,
             delegate: self,
@@ -62,8 +64,8 @@ final class WebSocketManager: NSObject {
                 let result = try await webSocketTask?.receive()
                 handleWebSocketResult(result)
             } catch {
-                Crashlytics.crashlytics().log("WebSocket receive failed")
-                Crashlytics.crashlytics().record(error: error)
+                //Crashlytics.crashlytics().log("WebSocket receive failed")
+                //Crashlytics.crashlytics().record(error: error)
                 break
             }
         }
@@ -80,8 +82,8 @@ final class WebSocketManager: NSObject {
                     let chatMessage = try decoder.decode(Message_.self, from: data)
                     guard let encryptedData = Data(base64Encoded: chatMessage.text)
                     else {
-                        Crashlytics.crashlytics().log("Error decoding base64 from chatMessage.text")
-                        Crashlytics.crashlytics().record(error: CryptoKeyManagerError.invalidDecryptedData)
+                        //Crashlytics.crashlytics().log("Error decoding base64 from chatMessage.text")
+                        //Crashlytics.crashlytics().record(error: CryptoKeyManagerError.invalidDecryptedData)
                         return
                     }
                     let id = chatMessage.senderId
@@ -96,8 +98,8 @@ final class WebSocketManager: NSObject {
                             )
                         )
                     } catch {
-                        Crashlytics.crashlytics().log("Decryption failed for message id: \(id)")
-                        Crashlytics.crashlytics().record(error: error)
+                        //Crashlytics.crashlytics().log("Decryption failed for message id: \(id)")
+                        //Crashlytics.crashlytics().record(error: error)
                     }
                 case .connectedQuantity:
                     let quantity = try decoder.decode(ConnectionInfo_.self, from: data)
@@ -114,8 +116,8 @@ final class WebSocketManager: NSObject {
                     do {
                         try cryptoKeysManager.updateOtherClientKey(sharedPublicKey)
                     } catch {
-                        Crashlytics.crashlytics().log("Failed to update other client key")
-                        Crashlytics.crashlytics().record(error: error)
+                        //Crashlytics.crashlytics().log("Failed to update other client key")
+                        //Crashlytics.crashlytics().record(error: error)
                     }
                 case .clearChat:
                     messages.removeAll()
@@ -123,15 +125,15 @@ final class WebSocketManager: NSObject {
                     break
                 }
             } catch {
-                Crashlytics.crashlytics().log("Error decoding server responce")
-                Crashlytics.crashlytics().record(error: error)
+                //Crashlytics.crashlytics().log("Error decoding server responce")
+                //Crashlytics.crashlytics().record(error: error)
             }
         case .none, .some(_):
             break
         }
     }
     
-    func sendMessage(_ message: String) async {
+    public func sendMessage(_ message: String) async {
         guard let messageData = message.data(using: .utf8) else {
             return
         }
@@ -140,12 +142,12 @@ final class WebSocketManager: NSObject {
             let taskMessage = URLSessionWebSocketTask.Message.string(encryptedMessage.base64EncodedString())
             try await webSocketTask?.send(taskMessage)
         } catch {
-            Crashlytics.crashlytics().log("Encryption failed in AES.GCM.seal")
-            Crashlytics.crashlytics().record(error: error)
+            //Crashlytics.crashlytics().log("Encryption failed in AES.GCM.seal")
+            //Crashlytics.crashlytics().record(error: error)
         }
     }
     
-    func disconnect() {
+    public func disconnect() {
         webSocketTask?.cancel(
             with: .goingAway,
             reason: "Some reason".data(using: .utf8)
@@ -174,11 +176,24 @@ final class WebSocketManager: NSObject {
 
 extension WebSocketManager: URLSessionDelegate {
     
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+}
+
+fileprivate struct WebSocketURLBuilder {
+    
+    static let baseURL = URL(string: "wss://localhost:8443")!
+    
+    static func makeURL(for path: String) -> URL {
+        if path.hasPrefix("ws") {
+            return URL(string: path)!
+        } else {
+            return baseURL.appendingPathComponent(path)
+        }
     }
 }

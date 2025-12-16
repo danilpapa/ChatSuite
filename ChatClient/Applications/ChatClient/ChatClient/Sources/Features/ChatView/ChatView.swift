@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Services
 
 struct ChatView: View {
     @State private var socketManager: WebSocketManager

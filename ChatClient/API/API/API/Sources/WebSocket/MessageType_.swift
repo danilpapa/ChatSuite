@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MessageType: String {
+public enum MessageType: String {
     
     case connectionId = "connection_id"
     case connectedQuantity = "connection_message"
@@ -16,7 +16,11 @@ enum MessageType: String {
     case publicKeyMessage = "public_key"
 }
 
-struct MessageType_: Decodable {
+public struct MessageType_: Decodable {
     
-    let type: String
+    public let type: String
+    
+    public init(type: String) {
+        self.type = type
+    }
 }
