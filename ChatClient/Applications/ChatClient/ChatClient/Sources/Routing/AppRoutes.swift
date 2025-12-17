@@ -14,7 +14,6 @@ enum AppRoutes: Hashable {
     case general
     case search(User, [User])
     case profile(User)
-    case friendRequest(User)
     case chat(WebSocketManager)
     
     @ViewBuilder
@@ -29,8 +28,6 @@ enum AppRoutes: Hashable {
             )
         case let .profile(user):
             ProfileView(user: user)
-        case let .friendRequest(user):
-            FriendRequestsView(for: user)
         case let .chat(wsManager):
             ChatView(socketManager: wsManager)
         }

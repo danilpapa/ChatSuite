@@ -9,6 +9,7 @@ let project = Project(
             requirement: .upToNextMajor(from: "5.0.0")
         )
     ],
+    settings: Defaults.settingsDefaultConfigutation,
     targets: [
         .target(
             name: "API",

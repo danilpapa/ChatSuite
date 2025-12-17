@@ -29,6 +29,7 @@ let project = Project(
             requirement: .branch("main")
         )
     ],
+    settings: Defaults.settingsDefaultConfigutation,
     targets: [
         .target(
             name: "HeedAssembly",
