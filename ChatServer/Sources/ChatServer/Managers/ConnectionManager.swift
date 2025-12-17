@@ -65,24 +65,24 @@ final class ConnectionManager: IConnectionManager {
             self.activeLobbies[peerLobbyIndex].peerConnected(ws)
             let hostId = UUID(uuidString: hostId)!,
                 peerId = UUID(uuidString: peerId)!
-            do {
-                if let existingChat = try await RecentChats
-                    .query(on: db)
-                    .group(.or, { group in
-                        group.filter(\.$userHost1.$id == hostId)
-                        group.filter(\.$userHost2.$id == peerId)
-                    })
-                    .first()
-                {
-                    existingChat.updatedAt = .now
-                    try await existingChat.save(on: db)
-                } else {
-                    let newRecentChat = RecentChats(userHost1ID: hostId, userHost2ID: peerId, updatedAt: .now)
-                    try await newRecentChat.save(on: db)
-                }
-            } catch {
-                throw Abort(.badGateway, reason: "Error during finding recent chat with host: \(hostId), and peer: \(peerId)")
-            }
+//            do {
+//                if let existingChat = try await RecentChats
+//                    .query(on: db)
+//                    .group(.or, { group in
+//                        group.filter(\.$userHost1.$id == hostId)
+//                        group.filter(\.$userHost2.$id == peerId)
+//                    })
+//                    .first()
+//                {
+//                    existingChat.updatedAt = .now
+//                    try await existingChat.save(on: db)
+//                } else {
+//                    let newRecentChat = RecentChats(userHost1ID: hostId, userHost2ID: peerId, updatedAt: .now)
+//                    try await newRecentChat.save(on: db)
+//                }
+//            } catch {
+//                throw Abort(.badGateway, reason: "Error during finding recent chat with host: \(hostId), and peer: \(peerId)")
+//            }
         } else {
             let fireLobby = FireLobby(hostId: hostId, hostWebSocket: ws, peerData: (peerId, nil))
             activeLobbies.append(fireLobby)
