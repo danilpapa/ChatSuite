@@ -17,6 +17,8 @@ public final class WebSocketManager: NSObject {
     
     public var connectedUsers: Int = 0
     public var messages: [Message] = []
+    
+    public var onCloseConnection: (() -> Void)?
 
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
@@ -121,6 +123,8 @@ public final class WebSocketManager: NSObject {
                     }
                 case .clearChat:
                     messages.removeAll()
+                case .removeConnection:
+                    onCloseConnection?()
                 case .none:
                     break
                 }

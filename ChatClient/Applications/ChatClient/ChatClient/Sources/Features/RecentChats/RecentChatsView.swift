@@ -65,7 +65,6 @@ fileprivate struct MateSelectionView: View {
                     Text(friend.email)
                         .onTapGesture {
                             isPresented = false
-                            appState.mateToChat = friend
                             router.push(.chat(
                                 heed
                                     .webSocketComponent

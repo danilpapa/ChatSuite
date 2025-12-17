@@ -10,6 +10,7 @@ import API
 import Services
 
 struct ChatView: View {
+    @EnvironmentObject var router: Router
     @EnvironmentObject var appState: AppState
     @State private var socketManager: WebSocketManager
     @State private var text: String = ""
@@ -65,12 +66,17 @@ struct ChatView: View {
             InputView
         }
         .task {
+            socketManager.onCloseConnection = {
+                DispatchQueue.main.async {
+                    router.pop()
+                }
+            }
             socketManager.connect()
         }
         .onDisappear {
             socketManager.disconnect()
         }
-        .navigationTitle(appState.mateToChat.displayedName)
+        .navigationTitle("appState.mateToChat.displayedName")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -135,7 +141,7 @@ public extension String {
                 peerId: User.maybachDanil().id
             )
         )
-        .environmentObject(AppState(user: .danilMaybach(), mate: .maybachDanil()))
+        .environmentObject(AppState(user: .danilMaybach()))
     }
 }
 #endif

@@ -97,8 +97,8 @@ struct ChatController: RouteCollection, Sendable {
         }
         
         ws.onClose.whenComplete { _ in
+            sendToAllConnections(message: RemoveConnection(), with: hostId)
             connectionManager.removeConnection(from: hostId)
-            // TODO: close existing chat
         }
     }
     

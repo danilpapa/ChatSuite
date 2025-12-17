@@ -13,6 +13,7 @@ public extension String {
     static let chatMessage: Self = "chat_message"
     static let connectedQuantity: Self = "connection_message"
     static let clearChat: Self = "clear_chat"
+    static let removeConnection: Self = "remove_connection"
 }
 
 extension String {

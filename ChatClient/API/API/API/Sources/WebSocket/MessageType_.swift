@@ -14,6 +14,7 @@ public enum MessageType: String {
     case chatMessage = "chat_message"
     case clearChat = "clear_chat"
     case publicKeyMessage = "public_key"
+    case removeConnection = "remove_connection"
 }
 
 public struct MessageType_: Decodable {
