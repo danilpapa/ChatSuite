@@ -18,6 +18,7 @@ public enum EndPoints {
     case friendActionRequests
     case activeFriends
     case userName
+    case mateMessageColor
     
     public var path: String {
         let appending = switch self {
@@ -39,6 +40,8 @@ public enum EndPoints {
             "/activeFriends"
         case .userName:
             "/userName"
+        case .mateMessageColor:
+            "/mateMessageColor"
         }
         return "https://localhost:8443" + appending
     }

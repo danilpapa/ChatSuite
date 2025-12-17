@@ -16,6 +16,7 @@ struct ChatView: View {
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
     @State private var mateName: String = ""
+    @State private var mateMessageColor: Color = .accentColor
     
     init(socketManager: WebSocketManager) {
         self.socketManager = socketManager
@@ -43,7 +44,7 @@ struct ChatView: View {
                                 }
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 5)
-                                .glassEffect(.clear.tint(.green))
+                                .glassEffect(.clear.tint(messageColor(for: message)))
                                 
                                 if !message.isYour { Spacer() }
                             }
@@ -74,6 +75,13 @@ struct ChatView: View {
             } catch {
                 print("error: \(error.localizedDescription)")
             }
+            do {
+                mateMessageColor = try await MateClient.shared.getMessageColor(
+                    to: socketManager.peerUserId
+                )
+            } catch {
+                print("error: \(error.localizedDescription)")
+            }
             socketManager.onCloseConnection = {
                 DispatchQueue.main.async {
                     router.pop()
@@ -86,6 +94,10 @@ struct ChatView: View {
         }
         .navigationTitle(mateName)
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private func messageColor(for message: Message) -> Color {
+        message.isYour ? .green : mateMessageColor
     }
     
     @ViewBuilder

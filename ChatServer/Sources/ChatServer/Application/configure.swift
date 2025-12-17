@@ -11,6 +11,7 @@ public func configure(_ app: Application) async throws {
         try app.register(collection: LoginController())
         try app.register(collection: UserController())
         try app.register(collection: ChatController(connectionManager: connectionManager))
+        try app.register(collection: BDUIController())
         
         try configureDataBase(app)
         try await app.autoMigrate().get()
