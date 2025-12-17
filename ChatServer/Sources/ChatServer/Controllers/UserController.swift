@@ -16,6 +16,7 @@ struct UserController: RouteCollection {
         let friendRequests = routes.grouped("friendRequest")
         let activeFriendsRequests = routes.grouped("activeFriends")
         let friednActionRequest = routes.grouped("friednActionRequest")
+        let userNameRequest = routes.grouped("userName")
         
         usersRoute.group(":user_name_prefix") { usersRoute in
             usersRoute.post(use: handleUsersNamePreffixRequest)
@@ -27,6 +28,7 @@ struct UserController: RouteCollection {
         friendRequests.get(use: handleFriendRequest)
         friednActionRequest.post(use: handleFriendPostRequest)
         activeFriendsRequests.get(use: handleActiveFriendsRequest)
+        userNameRequest.get(use: handleUserNameRequest)
     }
     
     private func handleUsersNamePreffixRequest(_ req: Request) async throws -> [User] {
@@ -231,6 +233,25 @@ struct UserController: RouteCollection {
             return []
         } catch {
             throw Abort(.badRequest, reason: "Error executing operation: \(error.localizedDescription)")
+        }
+    }
+    
+    private func handleUserNameRequest(_ req: Request) async throws -> UserName {
+        guard let userIdString = req.query[String.self, at: "user_id"],
+              let userId = UUID(uuidString: userIdString)
+        else {
+            throw Abort(.badRequest, reason: "Error accesing query params, \(#file), \(#function)")
+        }
+        do {
+            guard let request = try await User.query(on: req.db)
+                .filter(\.$id, .equal, userId)
+                .first()
+            else {
+                throw Abort(.notFound, reason: "User with id: \(userIdString) not found")
+            }
+            return .init(name: String(request.email.split(separator: "@").first ?? ""))
+        } catch {
+            throw Abort(.badRequest, reason: "Error executing user name operation: \(error.localizedDescription)")
         }
     }
 }

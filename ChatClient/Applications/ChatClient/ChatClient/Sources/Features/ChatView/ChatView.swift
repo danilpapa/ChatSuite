@@ -15,6 +15,7 @@ struct ChatView: View {
     @State private var socketManager: WebSocketManager
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
+    @State private var mateName: String = ""
     
     init(socketManager: WebSocketManager) {
         self.socketManager = socketManager
@@ -66,6 +67,13 @@ struct ChatView: View {
             InputView
         }
         .task {
+            do {
+                mateName = try await UserClient.shared.userName(
+                    for: socketManager.peerUserId
+                )
+            } catch {
+                print("error: \(error.localizedDescription)")
+            }
             socketManager.onCloseConnection = {
                 DispatchQueue.main.async {
                     router.pop()
@@ -76,7 +84,7 @@ struct ChatView: View {
         .onDisappear {
             socketManager.disconnect()
         }
-        .navigationTitle("appState.mateToChat.displayedName")
+        .navigationTitle(mateName)
         .navigationBarTitleDisplayMode(.inline)
     }
     

@@ -13,7 +13,7 @@ import API
 public final class WebSocketManager: NSObject {
     
     private var userId: String
-    private var peerUserId: String
+    public var peerUserId: String
     
     public var connectedUsers: Int = 0
     public var messages: [Message] = []

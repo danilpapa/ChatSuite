@@ -80,6 +80,18 @@ public struct UserClient {
         let response: ApiResponse<[User]> = try await ApiClient.shared.perform(request: request)
         return response.body
     }
+    
+    public func userName(for id: String) async throws -> String {
+        let request = ApiRequest<Never>(
+            method: .get,
+            url: EndPoints.userName.path,
+            query: [
+                "user_id": id
+            ]
+        )
+        let response: ApiResponse<_UserName> = try await ApiClient.shared.perform(request: request)
+        return response.body.name
+    }
 }
 
 private struct _UserNamePreffix: Encodable {
@@ -108,4 +120,9 @@ private struct _FriednRequestAction: Encodable {
         case id = "user_id"
         case peerId = "peer_id"
     }
+}
+
+private struct _UserName: Decodable {
+    
+    var name: String
 }
