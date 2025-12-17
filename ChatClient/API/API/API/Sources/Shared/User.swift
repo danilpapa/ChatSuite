@@ -15,6 +15,10 @@ public struct User: Hashable, Equatable, Identifiable, Codable {
     
     public var id: UUID = .init()
     public let email: String
+    
+    public var displayedName: String {
+        String(self.email.split(separator: "@").first ?? "")
+    }
 }
 
 public extension User {

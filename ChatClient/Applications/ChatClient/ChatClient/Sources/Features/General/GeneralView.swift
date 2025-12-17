@@ -36,6 +36,8 @@ struct GeneralView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ChatClient()
 }
+#endif

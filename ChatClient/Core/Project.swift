@@ -27,10 +27,6 @@ let project = Project(
         .remote(
             url: "https://github.com/danilpapa/Singleton",
             requirement: .branch("main")
-        ),
-        .remote(
-            url: "https://github.com/danilpapa/Blade.git",
-            requirement: .branch("main")
         )
     ],
     targets: [
@@ -62,7 +58,6 @@ let project = Project(
             dependencies: [
                 .project(target: "Network", path: "../Core"),
                 .project(target: "API", path: "../API/API"),
-                .package(product: "Blade"),
             ]
         ),
         .target(

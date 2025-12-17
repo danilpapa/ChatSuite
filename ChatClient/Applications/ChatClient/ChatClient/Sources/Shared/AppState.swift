@@ -11,8 +11,10 @@ import API
 final class AppState: ObservableObject {
     
     @Published var user: User
+    @Published var mateToChat: User!
     
-    public init(user: User) {
+    public init(user: User, mate: User? = nil) {
         self.user = user
+        self.mateToChat = mate
     }
 }

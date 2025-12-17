@@ -20,41 +20,41 @@ struct ProfileView: View {
                 VStack(spacing: .zero) {
                     List {
                         Section {
-                            AvatarHeaderView(width: proxy.size.width / 3)
+                            AvatarHeaderView(width: proxy.size.width / 2)
+                                .padding(.vertical)
                         }
                         .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                        .listRowBackground(Color.white)
                         
-                        ForEach(ProfileAction.allCases, id: \.self) { profileAction in
-                            ProfileActionView(for: profileAction)
+                        Section {
+                            ButtonView(action: .changePhoto)
+                        }
+                        
+                        Section("See all your friends!") {
+                            ButtonView(action: .friendList)
+                        }
+                        
+                        Section("Personal metrics") {
+                            ButtonView(action: .stats)
+                            ButtonView(action: .analytics)
+                        }
+                        
+                        Section("Have questions?") {
+                            ButtonView(action: .support)
                         }
                     }
                 }
             }
             .sheet(item: $selectedAction) { action in
                 switch action {
-                case .changePhoto:
-                    Color.blue
                 case .friendList:
                     ActiveFriendsView(user: user)
-                case .stats:
+                case .stats, .analytics, .changePhoto, .support:
                     Color.clear
                 }
             }
             .navigationDestination(for: AppRoutes.self) { $0.destination }
         }
-    }
-    
-    @ViewBuilder
-    private func ProfileActionView(for action: ProfileAction) -> some View {
-        if let description = action.description {
-            Section(description) {
-                ButtonView(action: action)
-            }
-        } else {
-            ButtonView(action: action)
-        }
-        
     }
     
     private func ButtonView(action: ProfileAction) -> some View {
@@ -64,6 +64,7 @@ struct ProfileView: View {
             HStack(alignment: .center) {
                 action.icon
                 Text(action.rawValue)
+                    .foregroundStyle(.black)
             }
         }
     }
@@ -73,11 +74,7 @@ struct ProfileView: View {
         VStack(spacing: .zero) {
             HStack {
                 Spacer()
-                UserAvatarImage
-                    .resizable()
-                    .clipShape(.circle)
-                    .scaledToFit()
-                    .frame(width: width)
+                UserAvatarImage(width: width)
                 Spacer()
             }
             .padding(.bottom, 16)
@@ -91,16 +88,35 @@ struct ProfileView: View {
         }
     }
     
-    private var UserAvatarImage: Image {
-        ChatClientAsset.Assets.plainUserImage.swiftUIImage
+    @ViewBuilder
+    private func UserAvatarImage(width: CGFloat) -> some View {
+        Image(systemName: "person.crop.circle.fill.badge.plus")
+            .resizable()
+            .scaledToFit()
+            .frame(width: width)
+            .foregroundStyle(.ultraThinMaterial)
+            .rotationEffect(.degrees(18))
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .foregroundStyle(.background)
+                    .frame(height: width / 5)
+                    .overlay {
+                        Text("Tap to add image")
+                            .foregroundStyle(.gray.opacity(0.75))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                    }
+            }
     }
 }
 
-enum ProfileAction: String, Hashable, CaseIterable, Identifiable {
+enum ProfileAction: String, Hashable, Identifiable {
     
     case changePhoto = "Change profile photo"
     case friendList = "Friends"
     case stats = "Statistics"
+    case analytics = "Analytics"
+    case support = "Chat us"
     
     @ViewBuilder
     var icon: some View {
@@ -109,17 +125,6 @@ enum ProfileAction: String, Hashable, CaseIterable, Identifiable {
             .scaledToFit()
             .frame(width: 20)
             .foregroundStyle(self.iconColor)
-    }
-    
-    var description: String? {
-        switch self {
-        case .changePhoto:
-            nil
-        case .friendList:
-            "See all your active friends!"
-        case .stats:
-            nil
-        }
     }
     
     var id: String {
@@ -134,6 +139,10 @@ enum ProfileAction: String, Hashable, CaseIterable, Identifiable {
             return "person.2.fill"
         case .stats:
             return "graph.2d"
+        case .analytics:
+            return "distribute.horizontal.center.fill"
+        case .support:
+            return "questionmark.message.fill"
         }
     }
     
@@ -145,12 +154,16 @@ enum ProfileAction: String, Hashable, CaseIterable, Identifiable {
             return .pink
         case .stats:
             return .green
+        case .analytics:
+            return .cyan
+        case .support:
+            return .orange
         }
     }
 }
 
 #if DEBUG
 #Preview {
-    ProfileView(user: .danilMaybach())
+    ChatClient()
 }
 #endif

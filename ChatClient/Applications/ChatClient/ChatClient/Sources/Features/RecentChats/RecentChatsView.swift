@@ -42,6 +42,7 @@ struct RecentChatsView: View {
 fileprivate struct MateSelectionView: View {
     @EnvironmentObject private var router: Router
     @Environment(\.heed) var heed
+    @EnvironmentObject var appState: AppState
     
     @State private var activeFriends: [User] = []
     @State private var isFetchingRequest: Bool = false
@@ -64,6 +65,7 @@ fileprivate struct MateSelectionView: View {
                     Text(friend.email)
                         .onTapGesture {
                             isPresented = false
+                            appState.mateToChat = friend
                             router.push(.chat(
                                 heed
                                     .webSocketComponent

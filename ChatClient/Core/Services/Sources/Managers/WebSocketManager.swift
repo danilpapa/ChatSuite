@@ -8,10 +8,8 @@
 import Foundation
 import SwiftUI
 import API
-import Blade
 
 @Observable
-@Blade
 public final class WebSocketManager: NSObject {
     
     private var userId: String
