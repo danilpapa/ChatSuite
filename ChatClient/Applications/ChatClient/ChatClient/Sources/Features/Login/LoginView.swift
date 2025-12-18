@@ -29,22 +29,11 @@ struct LoginView: View {
     
     var body: some View {
         VStack {
-            Button("Sign in with google") {
-                Task {
-                    isFetchingRequest = true
-                    let googleCredentials = await googleSignInService.signIn()
-                    if let googleCredentials {
-                        let user = User(id: googleCredentials.id, email: googleCredentials.email)
-                        loginManager.loggedUser = user
-                        loginManager.isLoggedIn = true
-                    } else {
-                        showLoginErrorAlert = true
-                    }
-                    isFetchingRequest = false
-                }
-            }
-            .disabled(isFetchingRequest)
+            MainImage
+            Spacer()
+            MainPannel
         }
+        .padding(.vertical, 35)
         .alert(
             "Error via login with google",
             isPresented: $showLoginErrorAlert
@@ -52,4 +41,58 @@ struct LoginView: View {
             Button("Ok", role: .cancel) { }
         }
     }
+    
+    @ViewBuilder
+    private var MainImage: some View {
+        ChatClientAsset.Assets.authImage.swiftUIImage
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var MainPannel: some View {
+        Button { }
+        label: {
+            Text("Sign in with apple")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity)
+                .foregroundStyle(.white)
+                .padding()
+                .glassEffect(.regular.tint(.blue.opacity(0.6)))
+                .padding(.horizontal)
+        }
+        .disabled(isFetchingRequest)
+        
+        Button {
+            Task {
+                isFetchingRequest = true
+                let googleCredentials = await googleSignInService.signIn()
+                if let googleCredentials {
+                    let user = User(id: googleCredentials.id, email: googleCredentials.email)
+                    loginManager.loggedUser = user
+                    loginManager.isLoggedIn = true
+                } else {
+                    showLoginErrorAlert = true
+                }
+                isFetchingRequest = false
+            }
+        } label: {
+            Text("Sign in with google")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity)
+                .foregroundStyle(.white)
+                .padding()
+                .glassEffect(.clear.tint(.black))
+                .padding(.horizontal)
+        }
+        .disabled(isFetchingRequest)
+    }
+}
+
+#Preview {
+    LoginView(loginManager: LoginManager(isLoggedIn: false))
 }

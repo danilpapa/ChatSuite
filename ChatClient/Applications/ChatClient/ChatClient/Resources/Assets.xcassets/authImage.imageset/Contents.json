@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Screenshot 2025-12-09 at 00.43.15.png",
+      "filename" : "authImage.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Screenshot 2025-12-09 at 00.43.15 1.png",
+      "filename" : "authImage@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Screenshot 2025-12-09 at 00.43.15 2.png",
+      "filename" : "authImage@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

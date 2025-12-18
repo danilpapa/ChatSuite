@@ -34,6 +34,7 @@ struct GeneralView: View {
                     $0.destination
                         .environmentObject(router)
                 }
+                // TODO: мб sheet + sheet не будут работать
                 .sheet(isPresented: $isFriendRequestViewPresented) {
                     FriendRequestsView(for: appState.user)
                         .presentationDetents([.medium])
