@@ -10,25 +10,68 @@ import API
 import Services
 
 struct ActiveFriendsView: View {
+    @State private var isFetchingRequest: Bool = false
     @State private var activeFriends: [User] = []
     
-    var user: User
+    private let user: User
+    
+    init(for user: User) {
+        self.user = user
+    }
     
     var body: some View {
-        VStack {
-            Color.white
+        ScrollView {
+            LazyVStack {
+                ForEach(activeFriends) { friend in
+                    UserView(user: friend)
+                        .listRowBackground(Color.clear)
+                        .scrollContentBackground(.hidden)
+                }
+            }
+            .padding(.top, 35)
+            .padding(.horizontal)
         }
-        .overlay(alignment: .center) {
-            Text("No active friends")
-                .opacity(activeFriends.isEmpty ? 1 : 0)
+        .overlay {
+            if activeFriends.isEmpty && !isFetchingRequest {
+                VStack {
+                    Image(systemName: "shareplay.slash")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150)
+                        .foregroundStyle(.blue.opacity(0.9))
+                        .shadow(color: .blue, radius: 5)
+                    Text("You have no active friends")
+                        .multilineTextAlignment(.center)
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+            }
+            if isFetchingRequest {
+                ProgressView()
+            }
         }
         .task {
-            do {
-                activeFriends = try await UserClient.shared.activeFriends(for: user)
-            } catch {
-                print(error.localizedDescription)
-                print(#file)
-            }
+            await fetchActualFriends()
+        }
+        .presentationDetents([.medium])
+        .presentationBackground(.clear)
+    }
+    
+    private func fetchActualFriends() async {
+        isFetchingRequest = true
+        defer { isFetchingRequest = false }
+        do {
+            activeFriends = try await UserClient.shared.activeFriends(for: user)
+        } catch {
+            print(error.localizedDescription)
+            print(#file)
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    ChatClient()
+}
+#endif

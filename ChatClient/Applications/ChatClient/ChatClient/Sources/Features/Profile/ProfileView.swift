@@ -48,7 +48,7 @@ struct ProfileView: View {
             .sheet(item: $selectedAction) { action in
                 switch action {
                 case .friendList:
-                    ActiveFriendsView(user: user)
+                    ActiveFriendsView(for: user)
                 case .stats, .analytics, .changePhoto, .support:
                     Color.clear
                 }

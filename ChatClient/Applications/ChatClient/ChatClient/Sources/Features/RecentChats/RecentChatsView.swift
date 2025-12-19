@@ -21,38 +21,17 @@ struct RecentChatsView: View {
         Group {
             List {
                 ForEach(activeFriends) { friend in
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(Color.blue.opacity(0.2))
-                            .scaledToFit()
-                            .frame(width: 44)
-                            .overlay(
-                                Text(friend.email.prefix(1).uppercased())
-                                    .font(.headline)
-                                    .foregroundColor(.blue)
-                            )
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(friend.email)
-                                .font(.headline)
-                                .lineLimit(1)
-                            Text("В сети")
-                                .font(.caption)
-                                .foregroundColor(.green)
+                    UserView(user: friend)
+                        .onTapGesture {
+                            router.push(.chat(
+                                heed
+                                    .webSocketComponent
+                                    .makeWebSocketManager(
+                                        userId: appState.user.id,
+                                        peerId: friend.id
+                                    )
+                            ))
                         }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.secondary)
-                    }
-                    .onTapGesture {
-                        router.push(.chat(
-                            heed
-                                .webSocketComponent
-                                .makeWebSocketManager(
-                                    userId: appState.user.id,
-                                    peerId: friend.id
-                                )
-                        ))
-                    }
                 }
                 .padding()
                 .listRowSeparator(.hidden)
