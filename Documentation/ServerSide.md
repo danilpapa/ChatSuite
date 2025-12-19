@@ -15,7 +15,7 @@
 | **Криптография**      | CryptoKit                                           | Обмен публичными ключами для E2E-шифрования |
 | **Аутентификация**    | Google Sign-In (через Firebase token)               | Логин по email + проверка Firebase токена |
 | **Уведомления**       | Отдельный WebSocket-канал (`/connect`)              | Push-уведомления о входящем чате |
-| **Миграции**          | Fluent Migrations                                   | **На все модели (User, UserFriends, MateRequests, RecentChats и т.д.) |
+| **Миграции**          | Fluent Migrations                                   | На все модели (User, UserFriends, MateRequests, RecentChats и т.д.) |
 
 ## Основные возможности
 
@@ -45,5 +45,3 @@ make bg
 ```
 
 Сервер запускается на `https://localhost:8443` (требуются валидные сертификаты в `Resources/TLS/`).
-
-# ChatClient 
