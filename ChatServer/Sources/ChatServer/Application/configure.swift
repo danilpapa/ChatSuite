@@ -8,10 +8,22 @@ public func configure(_ app: Application) async throws {
     do {
         try configureTLS(app)
         let connectionManager = ConnectionManager()
+        let notificationManager = NotificationManager()
+        var chatController = ChatController(connectionManager: connectionManager)
+        chatController.onConnect = { hostId, peerId in
+            Task.detached {
+                do {
+                    try await notificationManager.incomingNotification(to: peerId)
+                } catch {
+                    // handle
+                }
+            }
+        }
         try app.register(collection: LoginController())
         try app.register(collection: UserController())
-        try app.register(collection: ChatController(connectionManager: connectionManager))
+        try app.register(collection: chatController)
         try app.register(collection: BDUIController())
+        try app.register(collection: NotificationController(notificationManager: notificationManager))
         
         try configureDataBase(app)
         try await app.autoMigrate().get()

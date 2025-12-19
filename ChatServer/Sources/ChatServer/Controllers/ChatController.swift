@@ -18,6 +18,8 @@ struct ChatController: RouteCollection, Sendable {
         return encoder
     }()
     
+    public var onConnect: (@Sendable (String, String) -> Void)?
+    
     public init(connectionManager: any IConnectionManager) {
         self.connectionManager = connectionManager
     }
@@ -83,6 +85,7 @@ struct ChatController: RouteCollection, Sendable {
                         ws
                     )
                     self.broadcastConnectionCount(with: hostId)
+                    self.onConnect?(hostId, peerId)
                 } catch {
                     req.logger.error("Connection error: \(error)")
                     ws.eventLoop.execute {
