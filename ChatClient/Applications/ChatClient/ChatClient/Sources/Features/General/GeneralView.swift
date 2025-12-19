@@ -11,7 +11,7 @@ import Services
 
 struct GeneralView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var router = Router()
+    @EnvironmentObject var router: Router
     @State private var isFriendRequestViewPresented: Bool = false
     
     var body: some View {

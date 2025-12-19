@@ -5,6 +5,7 @@ let workspace = Workspace(
     projects: [
         .relativeToRoot("Applications/ChatClient"),
         .relativeToRoot("API/API"),
-        .relativeToRoot("Core")
+        .relativeToRoot("Core"),
+        .relativeToRoot("Design/DesignKit")
     ]
 )

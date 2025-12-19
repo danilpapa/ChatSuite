@@ -46,7 +46,7 @@ public enum Defaults {
         base: [:],
         configurations: [
             .debug(name: "DEBUG"),
-//            .release(name: "RELEASE")
+            .release(name: "RELEASE")
         ],
         defaultSettings: .recommended
     )

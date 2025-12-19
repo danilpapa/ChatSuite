@@ -21,8 +21,8 @@ struct RecentChatsView: View {
         
     init(pushNotificationManager: PushNotificationManager) {
         self._pushNotificationManager = StateObject(wrappedValue: pushNotificationManager)
-        Task.detached { [self] in
-            await connect()
+        Task.detached {
+            await pushNotificationManager.connect()
         }
     }
     
@@ -109,10 +109,6 @@ struct RecentChatsView: View {
             print(error.localizedDescription)
             print(#file)
         }
-    }
-    
-    private func connect() async {
-        pushNotificationManager.connect()
     }
 }
 

@@ -8,6 +8,7 @@
 import SwiftUI
 import API
 import Services
+import DesignKit
 
 struct ChatView: View {
     @EnvironmentObject var router: Router
@@ -15,7 +16,7 @@ struct ChatView: View {
     @State private var socketManager: WebSocketManager
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
-    @State private var mateName: String = ""
+    @State private var mateName: String = "Connecting..."
     @State private var mateMessageColor: Color = .accentColor
     
     init(socketManager: WebSocketManager) {
@@ -62,7 +63,15 @@ struct ChatView: View {
                     }
                 }
             }
+            .toolbar {
+                Image(systemName: socketManager.connectedUsers == 1
+                      ? "person.crop.circle.badge.clock.fill"
+                      : "person.crop.circle.fill.badge.checkmark"
+                )
+                .foregroundStyle(socketManager.connectedUsers == 1 ? .red : .green)
+            }
         }
+        .animation(.smooth, value: socketManager.connectedUsers)
         .tabbarHidder()
         .overlay(alignment: .bottom) {
             InputView
@@ -88,6 +97,9 @@ struct ChatView: View {
                 }
             }
             socketManager.connect()
+        }
+        .onAppear {
+            appState.mateToChat = nil
         }
         .onDisappear {
             socketManager.disconnect()
@@ -121,12 +133,12 @@ struct ChatView: View {
                         .foregroundStyle(.white)
                         .padding()
                 }
-                .glassEffect(.regular.tint(.green))
+                .glassEffect(.regular.tint(text.isEmpty ? .blue : .green))
                 .padding(.trailing)
-                .shadow(color: .green.opacity(0.75), radius: 4)
                 .transition(.move(edge: .trailing))
             }
         }
+        .animation(.smooth, value: text)
         .animation(.default, value: isFocused)
         .offset(y: socketManager.connectedUsers != 2 ? 200 : 0)
         .animation(.spring, value: socketManager.connectedUsers)

@@ -31,6 +31,7 @@ let project = Project(
                 .package(product: "FirebaseCrashlytics"),
                 .project(target: "API", path: "../../API/API"),
                 .project(target: "HeedAssembly", path: "../../Core"),
+                .project(target: "DesignKit", path: "../../Design/DesignKit"),
             ]
         ),
         .target(

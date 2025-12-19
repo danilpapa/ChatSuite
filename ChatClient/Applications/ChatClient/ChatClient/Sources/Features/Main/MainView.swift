@@ -14,11 +14,14 @@ struct MainView: View {
     @State private var selected: TabIdentifier = .home
     @State private var mateRequest: String = ""
     @State private var displayedMates: [User] = []
+    @Environment(\.heed) private var heed
+    @StateObject private var generalRouter = Router()
     
     var body: some View {
         TabView(selection: $selected) {
             Tab("Main", systemImage: "house", value: .home) {
                 GeneralView()
+                    .environmentObject(generalRouter)
             }
             Tab("Profile", systemImage: "person.crop.circle", value: .profile) {
                 ProfileView(user: appState.user)
@@ -54,7 +57,16 @@ struct MainView: View {
                 }
                 .padding(.horizontal)
                 .onTapGesture {
-                    
+                    generalRouter.push(
+                        .chat(
+                            heed
+                                .webSocketComponent
+                                .makeWebSocketManager(
+                                    userId: appState.user.id,
+                                    peerId: mateInvitation.id
+                                )
+                        )
+                    )
                 }
             }
         }
