@@ -13,7 +13,7 @@ public func configure(_ app: Application) async throws {
         chatController.onConnect = { hostId, peerId in
             Task.detached {
                 do {
-                    try await notificationManager.incomingNotification(to: peerId)
+                    try await notificationManager.incomingNotification(to: peerId, from: hostId)
                 } catch {
                     // handle
                 }

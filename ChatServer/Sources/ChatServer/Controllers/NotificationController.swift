@@ -26,9 +26,9 @@ actor NotificationManager {
         connections.removeValue(forKey: userId)
     }
     
-    public func incomingNotification(to userId: String) async throws {
+    public func incomingNotification(to userId: String, from hostId: String) async throws {
         guard let ws = connections[userId] else { return }
-        let requestData = try JSONEncoder().encode(_IncomingChatRequest(peerId: userId))
+        let requestData = try JSONEncoder().encode(_IncomingChatRequest(peerId: userId, hostId: hostId))
         ws.send(requestData)
     }
 }
@@ -59,8 +59,10 @@ struct NotificationController: RouteCollection {
 public struct _IncomingChatRequest: Content {
     
     let peerId: String
+    let hostId: String
     
     enum CodingKeys: String, CodingKey {
         case peerId = "peer_id"
+        case hostId = "host_id"
     }
 }

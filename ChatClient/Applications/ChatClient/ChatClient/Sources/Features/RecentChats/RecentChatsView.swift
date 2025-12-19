@@ -54,9 +54,9 @@ struct RecentChatsView: View {
                 if let newValue {
                     Task {
                         do {
-                            let chatMateName = try await UserClient.shared.userName(for: newValue.peerId)
-                            guard let peerId = UUID(uuidString: newValue.peerId) else { return }
-                            appState.mateToChat = .init(id: peerId, email: chatMateName)
+                            let chatMateName = try await UserClient.shared.userName(for: newValue.hostId)
+                            guard let hostId = UUID(uuidString: newValue.hostId) else { return }
+                            appState.mateToChat = .init(id: hostId, email: chatMateName)
                         } catch {
                             print(error.localizedDescription)
                         }

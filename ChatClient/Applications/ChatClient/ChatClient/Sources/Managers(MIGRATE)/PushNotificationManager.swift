@@ -85,8 +85,10 @@ extension PushNotificationManager: URLSessionDelegate {
 public struct _IncomingChatRequest: Decodable, Equatable {
     
     let peerId: String
+    let hostId: String
     
     enum CodingKeys: String, CodingKey {
         case peerId = "peer_id"
+        case hostId = "host_id"
     }
 }
