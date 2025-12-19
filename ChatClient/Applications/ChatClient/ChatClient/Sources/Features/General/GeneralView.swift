@@ -16,7 +16,7 @@ struct GeneralView: View {
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            RecentChatsView()
+            RecentChatsView(pushNotificationManager: PushNotificationManager(userId: appState.user.id))
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {

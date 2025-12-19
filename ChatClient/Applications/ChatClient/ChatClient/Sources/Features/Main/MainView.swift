@@ -39,6 +39,25 @@ struct MainView: View {
                 .searchable(text: $mateRequest)
             }
         }
+        .tabViewBottomAccessory {
+            if let mateInvitation = appState.mateToChat {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: .zero) {
+                        Text(mateInvitation.email)
+                        Text("Tap to accept!")
+                            .foregroundStyle(.gray)
+                            .font(.caption2)
+                    }
+                    Spacer()
+                    Image(systemName: "person.badge.clock.fill")
+                        .foregroundStyle(.blue)
+                }
+                .padding(.horizontal)
+                .onTapGesture {
+                    
+                }
+            }
+        }
         .onChange(of: mateRequest) { _, userPreffix in
             Task {
                 do {

@@ -19,7 +19,7 @@ public final class WebSocketManager: NSObject {
     public var messages: [Message] = []
     
     public var onCloseConnection: (() -> Void)?
-
+    
     private var webSocketTask: URLSessionWebSocketTask?
     private var cryptoKeysManager: ICryptoManager
     

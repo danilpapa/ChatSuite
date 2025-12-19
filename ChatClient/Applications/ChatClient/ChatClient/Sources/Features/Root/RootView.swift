@@ -11,7 +11,7 @@ import API
 
 struct RootView: View {
     @Environment(\.heed) var heed
-    @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: true, loggedUser: .danilMaybach())
+    @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: true, loggedUser: .maybachDanil())
     
     var body: some View {
         Group {

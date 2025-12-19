@@ -17,6 +17,15 @@ struct RecentChatsView: View {
     @State private var activeFriends: [User] = []
     @State private var isFetchingRequest: Bool = false
     
+    @StateObject private var pushNotificationManager: PushNotificationManager
+        
+    init(pushNotificationManager: PushNotificationManager) {
+        self._pushNotificationManager = StateObject(wrappedValue: pushNotificationManager)
+        Task.detached { [self] in
+            await connect()
+        }
+    }
+    
     var body: some View {
         Group {
             List {
@@ -41,6 +50,19 @@ struct RecentChatsView: View {
             .presentationDetents([.medium])
             .listStyle(.plain)
             .listRowBackground(Color.clear)
+            .onChange(of: pushNotificationManager.incomingRequest) { _, newValue in
+                if let newValue {
+                    Task {
+                        do {
+                            let chatMateName = try await UserClient.shared.userName(for: newValue.peerId)
+                            guard let peerId = UUID(uuidString: newValue.peerId) else { return }
+                            appState.mateToChat = .init(id: peerId, email: chatMateName)
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
+            }
             .refreshable {
                 Task {
                     await fetchFriends()
@@ -77,6 +99,7 @@ struct RecentChatsView: View {
         }
     }
     
+    @MainActor
     private func fetchFriends() async {
         isFetchingRequest = true
         defer { isFetchingRequest = false }
@@ -86,6 +109,10 @@ struct RecentChatsView: View {
             print(error.localizedDescription)
             print(#file)
         }
+    }
+    
+    private func connect() async {
+        pushNotificationManager.connect()
     }
 }
 

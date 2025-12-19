@@ -11,6 +11,7 @@ import API
 final class AppState: ObservableObject {
     
     @Published var user: User
+    @Published var mateToChat: User?
     
     public init(user: User) {
         self.user = user
