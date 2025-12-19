@@ -7,6 +7,9 @@
 
 ### Client 
 [CI](/Documentation/CI.md)
+
 [DI](/Documentation/DI.md)
+
 [Custom Scripts](/Documentation/Scripts.md)
+
 [Tuist](/Documentation/Tuist.md)
