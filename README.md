@@ -10,6 +10,8 @@
 
 [DI](/Documentation/DI.md)
 
+[Cryptography](/Documentation/Crypto.md)
+
 [Custom Scripts](/Documentation/Scripts.md)
 
 [Tuist](/Documentation/Tuist.md)

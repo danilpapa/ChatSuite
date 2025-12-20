@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Chat}/ChatServer",
+            "name": "Debug ChatServer (ChatServer)",
+            "target": "ChatServer",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug ChatServer (ChatServer)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Chat}/ChatServer",
+            "name": "Release ChatServer (ChatServer)",
+            "target": "ChatServer",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release ChatServer (ChatServer)"
+        }
+    ]
+}
