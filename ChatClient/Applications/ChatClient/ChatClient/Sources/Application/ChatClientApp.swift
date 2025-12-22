@@ -11,6 +11,7 @@ import FirebaseAuth
 import HeedAssembly
 import API
 import Services
+import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -25,11 +26,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct ChatClientApp: App {
+    var sharedModelContainer: ModelContainer = {
+        do {
+            return try ModelContainer(for: UserData.self)
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
             ChatClient()
         }
+        .modelContainer(sharedModelContainer)
     }
 }
 

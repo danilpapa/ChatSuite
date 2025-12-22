@@ -11,8 +11,11 @@ import FirebaseCrashlyticsSwift
 import GoogleSignIn
 import Firebase
 import API
+import SwiftData
 
 struct LoginView: View {
+    @Environment(\.modelContext) private var modelContext
+    
     @State private var isFetchingRequest = false
     @State private var showLoginErrorAlert = false
     
@@ -69,15 +72,16 @@ struct LoginView: View {
         Button {
             Task {
                 isFetchingRequest = true
+                defer { isFetchingRequest = false }
                 let googleCredentials = await googleSignInService.signIn()
                 if let googleCredentials {
                     let user = User(id: googleCredentials.id, email: googleCredentials.email)
+                    modelContext.insert(UserData(id: user.id, email: user.email))
                     loginManager.loggedUser = user
                     loginManager.isLoggedIn = true
                 } else {
                     showLoginErrorAlert = true
                 }
-                isFetchingRequest = false
             }
         } label: {
             Text("Sign in with google")

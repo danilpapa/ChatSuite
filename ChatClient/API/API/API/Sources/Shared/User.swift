@@ -12,6 +12,10 @@ public struct User: Hashable, Equatable, Identifiable, Codable {
         self.id = id
         self.email = email
     }
+    public init(userData: UserData) {
+        self.id = userData.id
+        self.email = userData.email
+    }
     
     public var id: UUID = .init()
     public let email: String

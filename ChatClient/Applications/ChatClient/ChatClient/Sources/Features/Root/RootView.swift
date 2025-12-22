@@ -8,20 +8,25 @@
 import SwiftUI
 import HeedAssembly
 import API
+import SwiftData
 
 struct RootView: View {
     @Environment(\.heed) var heed
-    @State private var loginManager: ILoginManager = LoginManager(
-        isLoggedIn: true,
-        loggedUser: .maybachDanil()
-    )
+    @State private var loginManager: ILoginManager = LoginManager(isLoggedIn: false)
+    
+    @Query private var users: [UserData]
+    
+    private var currentUser: User? {
+        guard let userData = users.first else { return nil }
+        return User(userData: userData)
+    }
     
     var body: some View {
         Group {
-            if loginManager.isLoggedIn {
+            if let currentUser {
                 MainView()
                     .environment(\EnvironmentValues.heed, heed)
-                    .environmentObject(AppState(user: loginManager.getUser()))
+                    .environmentObject(AppState(user: currentUser))
             } else {
                 LoginView(
                     loginManager: loginManager
