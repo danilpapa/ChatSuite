@@ -7,10 +7,13 @@
 
 import SwiftUI
 import API
+import SwiftData
 
 struct ProfileView: View {
     @StateObject private var router = Router()
     @State private var selectedAction: ProfileAction?
+    @Environment(\.modelContext) private var modelContext
+    @Query var userData: [UserData]
     
     var user: User
     
@@ -51,6 +54,16 @@ struct ProfileView: View {
                     ActiveFriendsView(for: user)
                 case .stats, .analytics, .changePhoto, .support:
                     Color.clear
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        modelContext.delete(userData[0])
+                    } label: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right.fill")
+                            .foregroundStyle(.red)
+                    }
                 }
             }
             .navigationDestination(for: AppRoutes.self) { $0.destination }
