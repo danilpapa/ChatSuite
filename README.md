@@ -1,9 +1,7 @@
 # Клиент + Сервер для приложения чата
 
-## Документация
-
 ### Server
-[Vapor integration](/Documentation/ServerSide.md)
+[Vapor](/Documentation/ServerSide.md)
 
 ### Client 
 [CI](/Documentation/CI.md)
